@@ -24,3 +24,15 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.rdw-editor-wrapper {
+  overflow: visible;
+}
+
+.rdw-dropdown-wrapper,
+.rdw-dropdown-optionwrapper,
+.rdw-link-modal,
+.rdw-embedded-modal,
+.rdw-image-modal {
+  z-index: 50;
+}

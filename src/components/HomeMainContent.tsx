@@ -26,27 +26,10 @@ const HomeMainContent = ({ content }: HomeMainContentProps) => {
       </section>
 
       <section className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-xl backdrop-blur">
-        <h2 className="text-2xl font-semibold text-[#17323D]">
-          {content.name}
-        </h2>
-        <p className="mt-2 text-sm font-semibold text-[#7A4C2C]">
-          {content.degrees}
-        </p>
-        <p className="mt-3 text-sm text-[#4c5f66]">
-          {content.specialization}
-        </p>
-        <div className="mt-4 space-y-2 text-sm text-[#4c5f66]">
-          <p className="font-semibold text-[#17323D]">Title:</p>
-          {content.titleLines.map((line) => (
-            <p key={line}>{line}</p>
-          ))}
-        </div>
-        <div className="mt-5 text-sm leading-relaxed text-[#4c5f66]">
-          <div
-            className="space-y-4 [&_p]:mb-4 [&_p:last-child]:mb-0"
-            dangerouslySetInnerHTML={{ __html: content.bioHtml }}
-          />
-        </div>
+        <div
+          className="space-y-4 text-sm leading-relaxed text-[#4c5f66] [&_p]:mb-4 [&_p:last-child]:mb-0 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_strong]:text-[#17323D]"
+          dangerouslySetInnerHTML={{ __html: content.mainHtml }}
+        />
       </section>
     </main>
   );
