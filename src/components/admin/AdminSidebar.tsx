@@ -86,7 +86,7 @@ const AdminSidebar = ({
         )}
       </div>
 
-      <div className="rounded-2xl border border-white/80 bg-white/70 p-5 shadow-lg backdrop-blur">
+      <div className="hidden lg:block rounded-2xl border border-white/80 bg-white/70 p-5 shadow-lg backdrop-blur">
         <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
           Quick Links
         </h3>
@@ -114,7 +114,7 @@ const AdminSidebar = ({
         </div>
       )}
 
-      <div className="rounded-2xl border border-white/80 bg-white/80 p-5 shadow-lg backdrop-blur">
+      <div className="hidden lg:block rounded-2xl border border-white/80 bg-white/80 p-5 shadow-lg backdrop-blur">
         <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
           Social Links
         </h3>
