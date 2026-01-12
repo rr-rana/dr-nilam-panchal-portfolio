@@ -5,10 +5,15 @@ import { BookOpen, CalendarCheck, Mail, MapPin, Medal } from "lucide-react";
 
 type AdminSidebarProps = {
   profileImageUrl: string;
-  onUpload: (file: File) => void;
+  onSelect: (file: File) => void;
+  isUploading: boolean;
 };
 
-const AdminSidebar = ({ profileImageUrl, onUpload }: AdminSidebarProps) => {
+const AdminSidebar = ({
+  profileImageUrl,
+  onSelect,
+  isUploading,
+}: AdminSidebarProps) => {
   return (
     <aside className="space-y-6 lg:sticky lg:top-24">
       <div className="rounded-2xl border border-white/80 bg-white/80 p-5 shadow-xl backdrop-blur">
@@ -19,19 +24,26 @@ const AdminSidebar = ({ profileImageUrl, onUpload }: AdminSidebarProps) => {
             className="h-44 w-44 rounded-2xl border-4 border-white object-cover shadow-lg"
             width={176}
             height={176}
+            key={profileImageUrl}
           />
           <label className="absolute -bottom-3 rounded-full bg-white px-3 py-1 text-[10px] font-semibold text-[#17323D] shadow-md">
-            Update photo
+            {isUploading ? "Uploading photo..." : "Choose photo"}
             <input
               type="file"
               accept="image/*"
               className="hidden"
               onChange={(event) => {
                 const file = event.target.files?.[0];
-                if (file) onUpload(file);
+                if (file) onSelect(file);
               }}
+              disabled={isUploading}
             />
           </label>
+          {isUploading && (
+            <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-black/40 text-xs font-semibold text-white">
+              Uploading photo...
+            </div>
+          )}
         </div>
         <h2 className="mt-6 text-xl font-semibold text-[#17323D]">
           Patrick Manser

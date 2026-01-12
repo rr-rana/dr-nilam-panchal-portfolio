@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import type { SiteContent } from "@/lib/siteContent";
+import type { SiteContent } from "@/lib/siteContentTypes";
 
 const ReactPlayer = dynamic(() => import("react-player/lazy"), {
   ssr: false,
@@ -27,7 +27,7 @@ const HomeMainContent = ({ content }: HomeMainContentProps) => {
 
       <section className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-xl backdrop-blur">
         <div
-          className="space-y-4 text-sm leading-relaxed text-[#4c5f66] [&_p]:mb-4 [&_p:last-child]:mb-0 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_strong]:text-[#17323D]"
+          className="space-y-4 text-sm leading-relaxed text-[#4c5f66] [&_p]:mb-4 [&_p:last-child]:mb-0 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_strong]:font-semibold"
           dangerouslySetInnerHTML={{ __html: content.mainHtml }}
         />
       </section>

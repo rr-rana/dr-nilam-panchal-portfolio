@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 
 type HomeBannerProps = {
@@ -15,6 +17,7 @@ const HomeBanner = ({ bannerImageUrl }: HomeBannerProps) => {
           sizes="(max-width: 768px) 100vw, 960px"
           className="object-cover"
           priority
+          key={bannerImageUrl}
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-black/20 to-transparent" />
       </div>

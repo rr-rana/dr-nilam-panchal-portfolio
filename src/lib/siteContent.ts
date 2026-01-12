@@ -3,13 +3,7 @@ import "server-only";
 import { head, put } from "@vercel/blob";
 import bannerImage from "@/assets/banner.png";
 import profileImage from "@/assets/profile.jpg";
-
-export type SiteContent = {
-  bannerImageUrl: string;
-  profileImageUrl: string;
-  videoUrl: string;
-  mainHtml: string;
-};
+import type { SiteContent } from "@/lib/siteContentTypes";
 
 const CONTENT_PATH = "content/site-content.json";
 
@@ -41,7 +35,9 @@ export const getSiteContent = async (): Promise<SiteContent> => {
 
   try {
     const metadata = await head(CONTENT_PATH);
-    const response = await fetch(metadata.url, { cache: "no-store" });
+    const response = await fetch(metadata.url, {
+      cache: "no-store",
+    });
     if (!response.ok) {
       return defaultSiteContent;
     }

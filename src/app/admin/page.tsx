@@ -1,3 +1,5 @@
+"use client";
+
 import AdminPanel from "@/components/admin/AdminPanel";
 
 const AdminPage = () => {

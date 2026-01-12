@@ -4,13 +4,20 @@ import { useEffect, useState, type FormEvent } from "react";
 import AdminBanner from "@/components/admin/AdminBanner";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import AdminMainContent from "@/components/admin/AdminMainContent";
-import type { SiteContent } from "@/lib/siteContent";
+import type { SiteContent } from "@/lib/siteContentTypes";
 
 const AdminPanel = () => {
   const [content, setContent] = useState<SiteContent | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [bannerPreview, setBannerPreview] = useState<string | null>(null);
+  const [profilePreview, setProfilePreview] = useState<string | null>(null);
+  const [pendingBannerFile, setPendingBannerFile] = useState<File | null>(null);
+  const [pendingProfileFile, setPendingProfileFile] = useState<File | null>(null);
+  const [uploadingField, setUploadingField] = useState<
+    "banner" | "profile" | null
+  >(null);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [username, setUsername] = useState("");
@@ -20,7 +27,7 @@ const AdminPanel = () => {
     const load = async () => {
       try {
         const [sessionRes, contentRes] = await Promise.all([
-          fetch("/api/admin/session"),
+          fetch("/api/admin/session", { cache: "no-store" }),
           fetch("/api/admin/content", { cache: "no-store" }),
         ]);
         const session = await sessionRes.json();
@@ -36,6 +43,17 @@ const AdminPanel = () => {
 
     load();
   }, []);
+
+  useEffect(() => {
+    return () => {
+      if (bannerPreview) {
+        URL.revokeObjectURL(bannerPreview);
+      }
+      if (profilePreview) {
+        URL.revokeObjectURL(profilePreview);
+      }
+    };
+  }, [bannerPreview, profilePreview]);
 
   const handleLogin = async (event: FormEvent) => {
     event.preventDefault();
@@ -64,52 +82,99 @@ const AdminPanel = () => {
     setIsAuthenticated(false);
   };
 
+  const uploadImage = async (file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    const response = await fetch("/api/admin/upload", {
+      method: "POST",
+      body: formData,
+    });
+    if (!response.ok) {
+      const payload = await response.json().catch(() => ({}));
+      throw new Error(payload.error || "Upload failed.");
+    }
+    const payload = await response.json();
+    return payload.url as string;
+  };
+
+  const withCacheBust = (url: string) => {
+    const separator = url.includes("?") ? "&" : "?";
+    return `${url}${separator}v=${Date.now()}`;
+  };
+
   const handleSave = async () => {
     if (!content) return;
     setIsSaving(true);
     setError("");
     setMessage("");
 
-    const response = await fetch("/api/admin/content", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(content),
-    });
+    try {
+      let nextContent = content;
+      if (pendingBannerFile) {
+        setUploadingField("banner");
+        const bannerUrl = withCacheBust(await uploadImage(pendingBannerFile));
+        nextContent = { ...nextContent, bannerImageUrl: bannerUrl };
+      }
+      if (pendingProfileFile) {
+        setUploadingField("profile");
+        const profileUrl = withCacheBust(
+          await uploadImage(pendingProfileFile)
+        );
+        nextContent = { ...nextContent, profileImageUrl: profileUrl };
+      }
 
-    if (!response.ok) {
-      const payload = await response.json().catch(() => ({}));
-      setError(payload.error || "Failed to save content.");
+      const response = await fetch("/api/admin/content", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(nextContent),
+      });
+
+      if (!response.ok) {
+        const payload = await response.json().catch(() => ({}));
+        throw new Error(payload.error || "Failed to save content.");
+      }
+
+      const saved = (await response.json()) as SiteContent;
+      setContent(saved);
+      setPendingBannerFile(null);
+      setPendingProfileFile(null);
+      if (bannerPreview) {
+        URL.revokeObjectURL(bannerPreview);
+        setBannerPreview(null);
+      }
+      if (profilePreview) {
+        URL.revokeObjectURL(profilePreview);
+        setProfilePreview(null);
+      }
+      setMessage("Changes saved.");
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Failed to save content.";
+      setError(message);
+    } finally {
+      setUploadingField(null);
       setIsSaving(false);
-      return;
     }
-
-    const saved = (await response.json()) as SiteContent;
-    setContent(saved);
-    setMessage("Changes saved.");
-    setIsSaving(false);
   };
 
-  const uploadImage = async (file: File, field: "bannerImageUrl" | "profileImageUrl") => {
+  const handleSelectBanner = (file: File) => {
     setError("");
-    setMessage("");
-
-    const formData = new FormData();
-    formData.append("file", file);
-
-    const response = await fetch("/api/admin/upload", {
-      method: "POST",
-      body: formData,
-    });
-
-    if (!response.ok) {
-      const payload = await response.json().catch(() => ({}));
-      setError(payload.error || "Upload failed.");
-      return;
+    setMessage("Banner updated locally. Click save to upload.");
+    if (bannerPreview) {
+      URL.revokeObjectURL(bannerPreview);
     }
+    setPendingBannerFile(file);
+    setBannerPreview(URL.createObjectURL(file));
+  };
 
-    const payload = await response.json();
-    setContent((prev) => (prev ? { ...prev, [field]: payload.url } : prev));
-    setMessage("Image uploaded. Save to apply.");
+  const handleSelectProfile = (file: File) => {
+    setError("");
+    setMessage("Profile photo updated locally. Click save to upload.");
+    if (profilePreview) {
+      URL.revokeObjectURL(profilePreview);
+    }
+    setPendingProfileFile(file);
+    setProfilePreview(URL.createObjectURL(file));
   };
 
   if (isLoading) {
@@ -208,14 +273,16 @@ const AdminPanel = () => {
         )}
 
         <AdminBanner
-          bannerImageUrl={content.bannerImageUrl}
-          onUpload={(file) => uploadImage(file, "bannerImageUrl")}
+          bannerImageUrl={bannerPreview || content.bannerImageUrl}
+          onSelect={handleSelectBanner}
+          isUploading={uploadingField === "banner"}
         />
 
         <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[280px_1fr]">
           <AdminSidebar
-            profileImageUrl={content.profileImageUrl}
-            onUpload={(file) => uploadImage(file, "profileImageUrl")}
+            profileImageUrl={profilePreview || content.profileImageUrl}
+            onSelect={handleSelectProfile}
+            isUploading={uploadingField === "profile"}
           />
           <AdminMainContent content={content} onChange={setContent} />
         </div>

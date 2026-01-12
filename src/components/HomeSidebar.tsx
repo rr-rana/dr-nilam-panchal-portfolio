@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import { BookOpen, CalendarCheck, Mail, MapPin, Medal } from "lucide-react";
 
@@ -16,6 +18,7 @@ const HomeSidebar = ({ profileImageUrl }: HomeSidebarProps) => {
             className="h-44 w-44 rounded-2xl border-4 border-white object-cover shadow-lg"
             width={176}
             height={176}
+            key={profileImageUrl}
           />
         </div>
         <h2 className="mt-4 text-xl font-semibold text-[#17323D]">

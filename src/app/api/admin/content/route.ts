@@ -1,10 +1,13 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { isAdminRequest } from "@/lib/adminAuth";
-import { getSiteContent, saveSiteContent, type SiteContent } from "@/lib/siteContent";
+import { getSiteContent, saveSiteContent } from "@/lib/siteContent";
+import type { SiteContent } from "@/lib/siteContentTypes";
 
 export const GET = async () => {
   const content = await getSiteContent();
-  return NextResponse.json(content);
+  const response = NextResponse.json(content);
+  response.headers.set("Cache-Control", "no-store, max-age=0");
+  return response;
 };
 
 export const PUT = async (request: NextRequest) => {

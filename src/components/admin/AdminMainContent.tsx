@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import type { SiteContent } from "@/lib/siteContent";
+import type { SiteContent } from "@/lib/siteContentTypes";
 import RichTextEditor from "@/components/admin/RichTextEditor";
 
 const ReactPlayer = dynamic(() => import("react-player/lazy"), {
