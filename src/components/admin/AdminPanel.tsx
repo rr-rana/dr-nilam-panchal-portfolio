@@ -12,12 +12,8 @@ const AdminPanel = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [bannerPreview, setBannerPreview] = useState<string | null>(null);
-  const [profilePreview, setProfilePreview] = useState<string | null>(null);
   const [pendingBannerFile, setPendingBannerFile] = useState<File | null>(null);
-  const [pendingProfileFile, setPendingProfileFile] = useState<File | null>(null);
-  const [uploadingField, setUploadingField] = useState<
-    "banner" | "profile" | null
-  >(null);
+  const [isUploadingBanner, setIsUploadingBanner] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [username, setUsername] = useState("");
@@ -31,6 +27,10 @@ const AdminPanel = () => {
           fetch("/api/admin/content", { cache: "no-store" }),
         ]);
         const session = await sessionRes.json();
+        if (!contentRes.ok) {
+          const payload = await contentRes.json().catch(() => ({}));
+          throw new Error(payload.error || "Failed to load content.");
+        }
         const contentData = await contentRes.json();
         setIsAuthenticated(session.authenticated);
         setContent(contentData);
@@ -49,11 +49,8 @@ const AdminPanel = () => {
       if (bannerPreview) {
         URL.revokeObjectURL(bannerPreview);
       }
-      if (profilePreview) {
-        URL.revokeObjectURL(profilePreview);
-      }
     };
-  }, [bannerPreview, profilePreview]);
+  }, [bannerPreview]);
 
   const handleLogin = async (event: FormEvent) => {
     event.preventDefault();
@@ -111,16 +108,9 @@ const AdminPanel = () => {
     try {
       let nextContent = content;
       if (pendingBannerFile) {
-        setUploadingField("banner");
+        setIsUploadingBanner(true);
         const bannerUrl = withCacheBust(await uploadImage(pendingBannerFile));
         nextContent = { ...nextContent, bannerImageUrl: bannerUrl };
-      }
-      if (pendingProfileFile) {
-        setUploadingField("profile");
-        const profileUrl = withCacheBust(
-          await uploadImage(pendingProfileFile)
-        );
-        nextContent = { ...nextContent, profileImageUrl: profileUrl };
       }
 
       const response = await fetch("/api/admin/content", {
@@ -137,14 +127,9 @@ const AdminPanel = () => {
       const saved = (await response.json()) as SiteContent;
       setContent(saved);
       setPendingBannerFile(null);
-      setPendingProfileFile(null);
       if (bannerPreview) {
         URL.revokeObjectURL(bannerPreview);
         setBannerPreview(null);
-      }
-      if (profilePreview) {
-        URL.revokeObjectURL(profilePreview);
-        setProfilePreview(null);
       }
       setMessage("Changes saved.");
     } catch (err) {
@@ -152,7 +137,7 @@ const AdminPanel = () => {
         err instanceof Error ? err.message : "Failed to save content.";
       setError(message);
     } finally {
-      setUploadingField(null);
+      setIsUploadingBanner(false);
       setIsSaving(false);
     }
   };
@@ -165,16 +150,6 @@ const AdminPanel = () => {
     }
     setPendingBannerFile(file);
     setBannerPreview(URL.createObjectURL(file));
-  };
-
-  const handleSelectProfile = (file: File) => {
-    setError("");
-    setMessage("Profile photo updated locally. Click save to upload.");
-    if (profilePreview) {
-      URL.revokeObjectURL(profilePreview);
-    }
-    setPendingProfileFile(file);
-    setProfilePreview(URL.createObjectURL(file));
   };
 
   if (isLoading) {
@@ -275,15 +250,11 @@ const AdminPanel = () => {
         <AdminBanner
           bannerImageUrl={bannerPreview || content.bannerImageUrl}
           onSelect={handleSelectBanner}
-          isUploading={uploadingField === "banner"}
+          isUploading={isUploadingBanner}
         />
 
         <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[280px_1fr]">
-          <AdminSidebar
-            profileImageUrl={profilePreview || content.profileImageUrl}
-            onSelect={handleSelectProfile}
-            isUploading={uploadingField === "profile"}
-          />
+          <AdminSidebar content={content} showEditButton />
           <AdminMainContent content={content} onChange={setContent} />
         </div>
       </div>

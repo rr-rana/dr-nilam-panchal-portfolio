@@ -6,11 +6,19 @@ import profileImage from "@/assets/profile.jpg";
 import type { SiteContent } from "@/lib/siteContentTypes";
 
 const CONTENT_PATH = "content/site-content.json";
+let lastKnownContent: SiteContent | null = null;
 
 export const defaultSiteContent: SiteContent = {
   bannerImageUrl: bannerImage.src,
   profileImageUrl: profileImage.src,
   videoUrl: "https://www.youtube.com/watch?v=Fi-HdiBbIWc",
+  sidebarName: "Prof. (Dr.) Nilam Panchal",
+  sidebarTitle: "Professor of Management, Gujarat University",
+  sidebarLocation: "Ahmedabad, India",
+  sidebarEmail: "",
+  sidebarBlurb:
+    "Professor and Head, Department of Public Policy and Governance, B.K. School of Business Management.",
+  socialLinks: {},
   mainHtml: `
     <p><strong>Prof. (Dr.) NILAM PANCHAL</strong></p>
     <p>Ph.D. (Finance), Ph.D. (HR), M. Phil, MBA, PGDIRPM, MBA, FDPM &amp; SFDP (IIMA)</p>
@@ -28,9 +36,22 @@ export const defaultSiteContent: SiteContent = {
   `.trim(),
 };
 
-export const getSiteContent = async (): Promise<SiteContent> => {
+type SiteContentOptions = {
+  allowFallback?: boolean;
+};
+
+export const getSiteContent = async (
+  options: SiteContentOptions = {}
+): Promise<SiteContent> => {
+  const { allowFallback = true } = options;
   if (!process.env.BLOB_READ_WRITE_TOKEN) {
-    return defaultSiteContent;
+    console.warn(
+      "[siteContent] Missing BLOB_READ_WRITE_TOKEN; using fallback content."
+    );
+    if (!allowFallback) {
+      throw new Error("BLOB_READ_WRITE_TOKEN is not configured.");
+    }
+    return lastKnownContent || defaultSiteContent;
   }
 
   try {
@@ -39,7 +60,14 @@ export const getSiteContent = async (): Promise<SiteContent> => {
       cache: "no-store",
     });
     if (!response.ok) {
-      return defaultSiteContent;
+      console.error(
+        "[siteContent] Failed to fetch content from blob.",
+        { status: response.status, statusText: response.statusText }
+      );
+      if (!allowFallback) {
+        throw new Error("Failed to fetch site content from storage.");
+      }
+      return lastKnownContent || defaultSiteContent;
     }
     const data = (await response.json()) as Partial<SiteContent> & {
       name?: string;
@@ -76,12 +104,22 @@ export const getSiteContent = async (): Promise<SiteContent> => {
       `.trim();
     }
 
-    return {
+    const resolved: SiteContent = {
       ...defaultSiteContent,
       ...data,
+      socialLinks: {
+        ...defaultSiteContent.socialLinks,
+        ...(data.socialLinks || {}),
+      },
     };
-  } catch {
-    return defaultSiteContent;
+    lastKnownContent = resolved;
+    return resolved;
+  } catch (error) {
+    console.error("[siteContent] Error loading content.", error);
+    if (!allowFallback) {
+      throw new Error("Failed to load site content.");
+    }
+    return lastKnownContent || defaultSiteContent;
   }
 };
 

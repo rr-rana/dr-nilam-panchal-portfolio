@@ -1,0 +1,417 @@
+"use client";
+
+import { useEffect, useState, type FormEvent } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import type { SiteContent } from "@/lib/siteContentTypes";
+import { SOCIAL_LINK_OPTIONS } from "@/lib/socialLinks";
+
+const AdminSidebarEditor = () => {
+  const [content, setContent] = useState<SiteContent | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [profilePreview, setProfilePreview] = useState<string | null>(null);
+  const [pendingProfileFile, setPendingProfileFile] = useState<File | null>(
+    null
+  );
+  const [isUploadingProfile, setIsUploadingProfile] = useState(false);
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const [sessionRes, contentRes] = await Promise.all([
+          fetch("/api/admin/session", { cache: "no-store" }),
+          fetch("/api/admin/content", { cache: "no-store" }),
+        ]);
+        const session = await sessionRes.json();
+        if (!contentRes.ok) {
+          const payload = await contentRes.json().catch(() => ({}));
+          throw new Error(payload.error || "Failed to load content.");
+        }
+        const contentData = await contentRes.json();
+        setIsAuthenticated(session.authenticated);
+        setContent(contentData);
+      } catch (err) {
+        setError("Failed to load content.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    load();
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (profilePreview) {
+        URL.revokeObjectURL(profilePreview);
+      }
+    };
+  }, [profilePreview]);
+
+  const handleLogin = async (event: FormEvent) => {
+    event.preventDefault();
+    setError("");
+    setMessage("");
+
+    const response = await fetch("/api/admin/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password }),
+    });
+
+    if (!response.ok) {
+      const payload = await response.json().catch(() => ({}));
+      setError(payload.error || "Login failed.");
+      return;
+    }
+
+    setIsAuthenticated(true);
+    setUsername("");
+    setPassword("");
+  };
+
+  const handleLogout = async () => {
+    await fetch("/api/admin/logout", { method: "POST" });
+    setIsAuthenticated(false);
+  };
+
+  const uploadImage = async (file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    const response = await fetch("/api/admin/upload", {
+      method: "POST",
+      body: formData,
+    });
+    if (!response.ok) {
+      const payload = await response.json().catch(() => ({}));
+      throw new Error(payload.error || "Upload failed.");
+    }
+    const payload = await response.json();
+    return payload.url as string;
+  };
+
+  const withCacheBust = (url: string) => {
+    const separator = url.includes("?") ? "&" : "?";
+    return `${url}${separator}v=${Date.now()}`;
+  };
+
+  const handleSave = async () => {
+    if (!content) return;
+    setIsSaving(true);
+    setError("");
+    setMessage("");
+
+    try {
+      let nextContent = content;
+      if (pendingProfileFile) {
+        setIsUploadingProfile(true);
+        const profileUrl = withCacheBust(
+          await uploadImage(pendingProfileFile)
+        );
+        nextContent = { ...nextContent, profileImageUrl: profileUrl };
+      }
+
+      const response = await fetch("/api/admin/content", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(nextContent),
+      });
+
+      if (!response.ok) {
+        const payload = await response.json().catch(() => ({}));
+        throw new Error(payload.error || "Failed to save content.");
+      }
+
+      const saved = (await response.json()) as SiteContent;
+      setContent(saved);
+      setPendingProfileFile(null);
+      if (profilePreview) {
+        URL.revokeObjectURL(profilePreview);
+        setProfilePreview(null);
+      }
+      setMessage("Sidebar updated.");
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Failed to save content.";
+      setError(message);
+    } finally {
+      setIsUploadingProfile(false);
+      setIsSaving(false);
+    }
+  };
+
+  const handleSelectProfile = (file: File) => {
+    setError("");
+    setMessage("Profile photo updated locally. Click save to upload.");
+    if (profilePreview) {
+      URL.revokeObjectURL(profilePreview);
+    }
+    setPendingProfileFile(file);
+    setProfilePreview(URL.createObjectURL(file));
+  };
+
+  if (isLoading) {
+    return (
+      <div className="mx-auto max-w-3xl px-6 py-16 text-center text-sm text-[#4c5f66]">
+        Loading sidebar settings...
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-[60vh] bg-[radial-gradient(circle_at_top,#f6f1e7_0%,#f3ede1_35%,#ebe4d6_65%,#e2d9c7_100%)]">
+        <div className="mx-auto max-w-md px-6 py-16">
+          <div className="rounded-3xl border border-white/70 bg-white/80 p-8 shadow-xl backdrop-blur">
+            <h1 className="text-2xl font-semibold text-[#17323D]">
+              Admin Login
+            </h1>
+            <p className="mt-2 text-sm text-[#4c5f66]">
+              Sign in to update the sidebar content.
+            </p>
+            {error && (
+              <div className="mt-4 rounded-2xl bg-red-50 px-4 py-2 text-xs text-red-700">
+                {error}
+              </div>
+            )}
+            <form onSubmit={handleLogin} className="mt-6 space-y-4">
+              <input
+                type="text"
+                value={username}
+                onChange={(event) => setUsername(event.target.value)}
+                placeholder="Username"
+                className="w-full rounded-full border border-white/70 bg-white/90 px-4 py-2 text-sm text-[#2d3b41] outline-none"
+              />
+              <input
+                type="password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                placeholder="Password"
+                className="w-full rounded-full border border-white/70 bg-white/90 px-4 py-2 text-sm text-[#2d3b41] outline-none"
+              />
+              <button
+                type="submit"
+                className="w-full rounded-full bg-[#17323D] py-2 text-sm font-semibold text-white"
+              >
+                Sign in
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!content) {
+    return (
+      <div className="mx-auto max-w-3xl px-6 py-16 text-center text-sm text-[#4c5f66]">
+        No content loaded.
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top,#f6f1e7_0%,#f3ede1_35%,#ebe4d6_65%,#e2d9c7_100%)]">
+      <div className="max-w-5xl mx-auto px-4 pb-16">
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-6">
+          <div>
+            <h1 className="text-2xl font-semibold text-[#17323D]">
+              Sidebar Settings
+            </h1>
+            <p className="text-sm text-[#4c5f66]">
+              Update the profile card and social links shown on the homepage.
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/admin"
+              className="rounded-full border border-white/60 bg-white/70 px-4 py-2 text-xs font-semibold text-[#17323D]"
+            >
+              Back to Admin
+            </Link>
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="rounded-full border border-white/60 bg-white/70 px-4 py-2 text-xs font-semibold text-[#17323D]"
+            >
+              Log out
+            </button>
+            <button
+              type="button"
+              onClick={handleSave}
+              className="rounded-full bg-[#17323D] px-4 py-2 text-xs font-semibold text-white disabled:opacity-60"
+              disabled={isSaving}
+            >
+              {isSaving ? "Saving..." : "Save Changes"}
+            </button>
+          </div>
+        </div>
+
+        {(error || message) && (
+          <div className="mt-4 rounded-2xl border border-white/60 bg-white/80 px-4 py-2 text-xs text-[#17323D]">
+            {error || message}
+          </div>
+        )}
+
+        <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-[280px_1fr]">
+          <div className="space-y-4">
+            <div className="rounded-2xl border border-white/80 bg-white/80 p-5 shadow-xl backdrop-blur">
+              <div className="relative flex justify-center">
+                <Image
+                  src={profilePreview || content.profileImageUrl}
+                  alt="Profile portrait"
+                  className="h-44 w-44 rounded-2xl border-4 border-white object-cover shadow-lg"
+                  width={176}
+                  height={176}
+                />
+                <label className="absolute -bottom-3 rounded-full bg-white px-3 py-1 text-[10px] font-semibold text-[#17323D] shadow-md">
+                  {isUploadingProfile ? "Uploading..." : "Choose photo"}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(event) => {
+                      const file = event.target.files?.[0];
+                      if (file) handleSelectProfile(file);
+                    }}
+                    disabled={isUploadingProfile}
+                  />
+                </label>
+                {isUploadingProfile && (
+                  <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-black/40 text-xs font-semibold text-white">
+                    Uploading photo...
+                  </div>
+                )}
+              </div>
+              <p className="mt-6 text-xs text-[#5a6b73]">
+                Upload a square image for the sidebar profile card.
+              </p>
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            <section className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-xl backdrop-blur">
+              <h2 className="text-sm font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
+                Profile Details
+              </h2>
+              <div className="mt-4 grid gap-4">
+                <label className="space-y-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
+                  Name
+                  <input
+                    type="text"
+                    value={content.sidebarName}
+                    onChange={(event) =>
+                      setContent({ ...content, sidebarName: event.target.value })
+                    }
+                    placeholder="Name"
+                    className="w-full rounded-full border border-white/70 bg-white/90 px-4 py-2 text-sm font-normal normal-case tracking-normal text-[#2d3b41] outline-none"
+                  />
+                </label>
+                <label className="space-y-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
+                  Title / Role
+                  <input
+                    type="text"
+                    value={content.sidebarTitle}
+                    onChange={(event) =>
+                      setContent({ ...content, sidebarTitle: event.target.value })
+                    }
+                    placeholder="Title / Role"
+                    className="w-full rounded-full border border-white/70 bg-white/90 px-4 py-2 text-sm font-normal normal-case tracking-normal text-[#2d3b41] outline-none"
+                  />
+                </label>
+                <label className="space-y-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
+                  Location
+                  <input
+                    type="text"
+                    value={content.sidebarLocation}
+                    onChange={(event) =>
+                      setContent({
+                        ...content,
+                        sidebarLocation: event.target.value,
+                      })
+                    }
+                    placeholder="Location"
+                    className="w-full rounded-full border border-white/70 bg-white/90 px-4 py-2 text-sm font-normal normal-case tracking-normal text-[#2d3b41] outline-none"
+                  />
+                </label>
+                <label className="space-y-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
+                  Email
+                  <input
+                    type="email"
+                    value={content.sidebarEmail}
+                    onChange={(event) =>
+                      setContent({ ...content, sidebarEmail: event.target.value })
+                    }
+                    placeholder="Email"
+                    className="w-full rounded-full border border-white/70 bg-white/90 px-4 py-2 text-sm font-normal normal-case tracking-normal text-[#2d3b41] outline-none"
+                  />
+                </label>
+                <label className="space-y-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
+                  Short Bio
+                  <textarea
+                    value={content.sidebarBlurb}
+                    onChange={(event) =>
+                      setContent({ ...content, sidebarBlurb: event.target.value })
+                    }
+                    placeholder="Short bio blurb"
+                    className="min-h-[120px] w-full rounded-2xl border border-white/70 bg-white/90 px-4 py-3 text-sm font-normal normal-case tracking-normal text-[#2d3b41] outline-none"
+                  />
+                </label>
+              </div>
+            </section>
+
+            <section className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-xl backdrop-blur">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h2 className="text-sm font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
+                  Social Links
+                </h2>
+                <span className="text-xs text-[#4c5f66]">
+                  Only filled links will appear.
+                </span>
+              </div>
+              <div className="mt-4 space-y-3">
+                {SOCIAL_LINK_OPTIONS.map(({ id, label, Icon, placeholder }) => (
+                  <label
+                    key={id}
+                    className="space-y-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]"
+                  >
+                    {label}
+                    <div className="flex items-center gap-3">
+                      <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#f8f1e3] text-[#7A4C2C]">
+                        <Icon size={18} />
+                      </span>
+                      <input
+                        type="url"
+                        value={content.socialLinks?.[id] || ""}
+                        onChange={(event) =>
+                          setContent({
+                            ...content,
+                            socialLinks: {
+                              ...(content.socialLinks || {}),
+                              [id]: event.target.value,
+                            },
+                          })
+                        }
+                        placeholder={placeholder}
+                        className="w-full rounded-full border border-white/70 bg-white/90 px-4 py-2 text-sm font-normal normal-case tracking-normal text-[#2d3b41] outline-none"
+                        aria-label={`${label} URL`}
+                      />
+                    </div>
+                  </label>
+                ))}
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default AdminSidebarEditor;
