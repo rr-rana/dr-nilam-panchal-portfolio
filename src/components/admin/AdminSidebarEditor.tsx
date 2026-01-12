@@ -39,6 +39,7 @@ const AdminSidebarEditor = () => {
         setContent(contentData);
       } catch (err) {
         setError("Failed to load content.");
+        console.log(err)
       } finally {
         setIsLoading(false);
       }
@@ -371,7 +372,7 @@ const AdminSidebarEditor = () => {
                       setContent({ ...content, sidebarBlurb: event.target.value })
                     }
                     placeholder="Short bio blurb"
-                    className="min-h-[120px] w-full rounded-2xl border border-white/70 bg-white/90 px-4 py-3 text-sm font-normal normal-case tracking-normal text-[#2d3b41] outline-none"
+                    className="min-h-30 w-full rounded-2xl border border-white/70 bg-white/90 px-4 py-3 text-sm font-normal normal-case tracking-normal text-[#2d3b41] outline-none"
                   />
                 </label>
                 <label className="space-y-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
@@ -385,7 +386,7 @@ const AdminSidebarEditor = () => {
                       })
                     }
                     placeholder="Footer call-to-action text"
-                    className="min-h-[120px] w-full rounded-2xl border border-white/70 bg-white/90 px-4 py-3 text-sm font-normal normal-case tracking-normal text-[#2d3b41] outline-none"
+                    className="min-h-30 w-full rounded-2xl border border-white/70 bg-white/90 px-4 py-3 text-sm font-normal normal-case tracking-normal text-[#2d3b41] outline-none"
                   />
                 </label>
               </div>
