@@ -75,15 +75,13 @@ const HomeSidebar = ({ content }: HomeSidebarProps) => {
         </div>
       </div>
 
-      <div className="rounded-2xl border border-white/80 bg-[#17323D] p-5 text-white shadow-lg">
-        <p className="text-sm leading-relaxed text-white/90">
-          Science thrives on collaboration and critical discussion. If you&apos;re
-          curious to learn more about my work, open to engaging with my mission,
-          or interested in building a shared vision, I'd love to hear from you.
-          Please get in touch via email (see above) or through one of the
-          platforms below.
-        </p>
-      </div>
+      {content.sidebarFooter && (
+        <div className="rounded-2xl border border-white/80 bg-[#17323D] p-5 text-white shadow-lg">
+          <p className="text-sm leading-relaxed text-white/90">
+            {content.sidebarFooter}
+          </p>
+        </div>
+      )}
 
       <div className="rounded-2xl border border-white/80 bg-white/80 p-5 shadow-lg backdrop-blur">
         <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">

@@ -363,6 +363,20 @@ const AdminSidebarEditor = () => {
                     className="min-h-[120px] w-full rounded-2xl border border-white/70 bg-white/90 px-4 py-3 text-sm font-normal normal-case tracking-normal text-[#2d3b41] outline-none"
                   />
                 </label>
+                <label className="space-y-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
+                  Contact Message
+                  <textarea
+                    value={content.sidebarFooter}
+                    onChange={(event) =>
+                      setContent({
+                        ...content,
+                        sidebarFooter: event.target.value,
+                      })
+                    }
+                    placeholder="Footer call-to-action text"
+                    className="min-h-[120px] w-full rounded-2xl border border-white/70 bg-white/90 px-4 py-3 text-sm font-normal normal-case tracking-normal text-[#2d3b41] outline-none"
+                  />
+                </label>
               </div>
             </section>
 

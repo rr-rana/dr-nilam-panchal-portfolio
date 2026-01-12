@@ -24,6 +24,8 @@ export const defaultSiteContent: SiteContent = {
   sidebarEmail: "",
   sidebarBlurb:
     "Professor and Head, Department of Public Policy and Governance, B.K. School of Business Management.",
+  sidebarFooter:
+    "Science thrives on collaboration and critical discussion. If you're curious to learn more about my work, open to engaging with my mission, or interested in building a shared vision, I'd love to hear from you. Please get in touch via email (see above) or through one of the platforms below.",
   socialLinks: {},
   mainHtml: `
     <p><strong>Prof. (Dr.) NILAM PANCHAL</strong></p>
