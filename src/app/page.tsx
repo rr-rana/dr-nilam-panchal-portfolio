@@ -38,7 +38,7 @@ const Home = () => {
         <HomeBanner bannerImageUrl={content.bannerImageUrl} />
 
         <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[280px_1fr]">
-          <HomeSidebar profileImageUrl={content.profileImageUrl} />
+          <HomeSidebar content={content} />
           <HomeMainContent content={content} />
         </div>
       </div>

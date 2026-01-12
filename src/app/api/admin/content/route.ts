@@ -4,10 +4,16 @@ import { getSiteContent, saveSiteContent } from "@/lib/siteContent";
 import type { SiteContent } from "@/lib/siteContentTypes";
 
 export const GET = async () => {
-  const content = await getSiteContent();
-  const response = NextResponse.json(content);
-  response.headers.set("Cache-Control", "no-store, max-age=0");
-  return response;
+  try {
+    const content = await getSiteContent({ allowFallback: false });
+    const response = NextResponse.json(content);
+    response.headers.set("Cache-Control", "no-store, max-age=0");
+    return response;
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Failed to load content.";
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
 };
 
 export const PUT = async (request: NextRequest) => {
@@ -21,7 +27,16 @@ export const PUT = async (request: NextRequest) => {
   }
 
   try {
-    const saved = await saveSiteContent(body);
+    const current = await getSiteContent();
+    const nextContent: SiteContent = {
+      ...current,
+      ...body,
+      socialLinks: {
+        ...(current.socialLinks || {}),
+        ...(body.socialLinks || {}),
+      },
+    };
+    const saved = await saveSiteContent(nextContent);
     return NextResponse.json(saved);
   } catch (error) {
     const message =

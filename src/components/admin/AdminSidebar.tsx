@@ -1,70 +1,77 @@
 "use client";
 
 import Image from "next/image";
-import { BookOpen, CalendarCheck, Mail, MapPin, Medal } from "lucide-react";
+import Link from "next/link";
+import {
+  BookOpen,
+  CalendarCheck,
+  Mail,
+  MapPin,
+  Medal,
+  PencilLine,
+} from "lucide-react";
+import type { SiteContent } from "@/lib/siteContentTypes";
+import { SOCIAL_LINK_OPTIONS } from "@/lib/socialLinks";
 
 type AdminSidebarProps = {
-  profileImageUrl: string;
-  onSelect: (file: File) => void;
-  isUploading: boolean;
+  content: SiteContent;
+  showEditButton?: boolean;
 };
 
-const AdminSidebar = ({
-  profileImageUrl,
-  onSelect,
-  isUploading,
-}: AdminSidebarProps) => {
+const AdminSidebar = ({ content, showEditButton }: AdminSidebarProps) => {
   return (
     <aside className="space-y-6 lg:sticky lg:top-24">
       <div className="rounded-2xl border border-white/80 bg-white/80 p-5 shadow-xl backdrop-blur">
         <div className="relative flex justify-center -mt-28">
           <Image
-            src={profileImageUrl}
+            src={content.profileImageUrl}
             alt="Profile portrait"
             className="h-44 w-44 rounded-2xl border-4 border-white object-cover shadow-lg"
             width={176}
             height={176}
-            key={profileImageUrl}
+            key={content.profileImageUrl}
           />
-          <label className="absolute -bottom-3 rounded-full bg-white px-3 py-1 text-[10px] font-semibold text-[#17323D] shadow-md">
-            {isUploading ? "Uploading photo..." : "Choose photo"}
-            <input
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={(event) => {
-                const file = event.target.files?.[0];
-                if (file) onSelect(file);
-              }}
-              disabled={isUploading}
-            />
-          </label>
-          {isUploading && (
-            <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-black/40 text-xs font-semibold text-white">
-              Uploading photo...
-            </div>
-          )}
         </div>
-        <h2 className="mt-6 text-xl font-semibold text-[#17323D]">
-          Patrick Manser
+        {showEditButton && (
+          <div className="mt-4 flex justify-center">
+            <Link
+              href="/admin/sidebar"
+              className="inline-flex items-center gap-2 rounded-full border border-white/70 bg-gradient-to-r from-[#17323D] via-[#1f3b46] to-[#17323D] px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#F6F1E7] shadow-md shadow-[#17323D]/20 transition-transform duration-150 hover:-translate-y-0.5"
+            >
+              <PencilLine size={12} />
+              Edit Sidebar
+            </Link>
+          </div>
+        )}
+        <h2 className="mt-3 text-xl font-semibold text-[#17323D]">
+          {content.sidebarName}
         </h2>
-        <p className="mt-1 text-sm text-[#5a6b73]">
-          Visionary researcher on serious exergames for health.
-        </p>
-        <div className="mt-4 space-y-2 text-sm text-[#2d3b41]">
-          <p className="flex items-center gap-2">
-            <MapPin size={16} className="text-[#7A4C2C]" />
-            Zurich, Switzerland
+        {content.sidebarTitle && (
+          <p className="mt-1 text-sm text-[#5a6b73]">
+            {content.sidebarTitle}
           </p>
-          <p className="flex items-center gap-2">
-            <Mail size={16} className="text-[#7A4C2C]" />
-            patrick.manser@ki.se
-          </p>
-        </div>
-        <div className="mt-5 rounded-xl bg-[#f8f1e3] p-4 text-xs text-[#6b4a33]">
-          Currently leading the Exergame Lab at ETH Zurich, focused on
-          translational digital therapeutics.
-        </div>
+        )}
+        {(content.sidebarLocation || content.sidebarEmail) && (
+          <div className="mt-4 space-y-2 text-sm text-[#2d3b41]">
+            {content.sidebarLocation && (
+              <p className="flex items-center gap-2">
+                <MapPin size={16} className="text-[#7A4C2C]" />
+                {content.sidebarLocation}
+              </p>
+            )}
+            {content.sidebarEmail && (
+              <p className="flex items-center gap-2">
+                <Mail size={16} className="text-[#7A4C2C]" />
+                {content.sidebarEmail}
+              </p>
+            )}
+          </div>
+        )}
+        {content.sidebarBlurb && (
+          <div className="mt-5 rounded-xl bg-[#f8f1e3] p-4 text-xs text-[#6b4a33]">
+            {content.sidebarBlurb}
+          </div>
+        )}
       </div>
 
       <div className="rounded-2xl border border-white/80 bg-white/70 p-5 shadow-lg backdrop-blur">
@@ -102,42 +109,18 @@ const AdminSidebar = ({
           Social Links
         </h3>
         <div className="mt-4 space-y-2 text-sm text-[#1f2f36]">
-          <span className="flex items-center gap-3">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#17323D]/10 text-[10px] font-semibold uppercase text-[#17323D]">
-              in
-            </span>
-            LinkedIn
-          </span>
-          <span className="flex items-center gap-3">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#17323D]/10 text-[10px] font-semibold uppercase text-[#17323D]">
-              r
-            </span>
-            ResearchGate
-          </span>
-          <span className="flex items-center gap-3">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#17323D]/10 text-[10px] font-semibold uppercase text-[#17323D]">
-              w
-            </span>
-            Web of Science
-          </span>
-          <span className="flex items-center gap-3">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#17323D]/10 text-[10px] font-semibold uppercase text-[#17323D]">
-              id
-            </span>
-            ORCID
-          </span>
-          <span className="flex items-center gap-3">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#17323D]/10 text-[10px] font-semibold uppercase text-[#17323D]">
-              g
-            </span>
-            Google Scholar
-          </span>
-          <span className="flex items-center gap-3">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#17323D]/10 text-[10px] font-semibold uppercase text-[#17323D]">
-              i
-            </span>
-            Institutional Web Page
-          </span>
+          {SOCIAL_LINK_OPTIONS.map(({ id, label, Icon }) => {
+            const url = content.socialLinks?.[id];
+            if (!url) return null;
+            return (
+              <span key={id} className="flex items-center gap-3">
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#17323D]/10 text-[#17323D]">
+                  <Icon size={14} />
+                </span>
+                {label}
+              </span>
+            );
+          })}
         </div>
       </div>
     </aside>
