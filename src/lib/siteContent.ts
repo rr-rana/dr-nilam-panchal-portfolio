@@ -1,12 +1,18 @@
 import "server-only";
 
-import { head, put } from "@vercel/blob";
 import bannerImage from "@/assets/banner.png";
 import profileImage from "@/assets/profile.jpg";
 import type { SiteContent } from "@/lib/siteContentTypes";
+import mongoClient from "@/lib/mongo";
 
-const CONTENT_PATH = "content/site-content.json";
 let lastKnownContent: SiteContent | null = null;
+const CONTENT_ID = "site-content";
+
+type SiteContentDocument = {
+  _id: string;
+  content: SiteContent;
+  updatedAt?: Date;
+};
 
 export const defaultSiteContent: SiteContent = {
   bannerImageUrl: bannerImage.src,
@@ -44,32 +50,24 @@ export const getSiteContent = async (
   options: SiteContentOptions = {}
 ): Promise<SiteContent> => {
   const { allowFallback = true } = options;
-  if (!process.env.BLOB_READ_WRITE_TOKEN) {
-    console.warn(
-      "[siteContent] Missing BLOB_READ_WRITE_TOKEN; using fallback content."
-    );
+  if (!process.env.MONGODB_URI) {
+    console.warn("[siteContent] Missing MONGODB_URI; using fallback content.");
     if (!allowFallback) {
-      throw new Error("BLOB_READ_WRITE_TOKEN is not configured.");
+      throw new Error("MONGODB_URI is not configured.");
     }
     return lastKnownContent || defaultSiteContent;
   }
 
   try {
-    const metadata = await head(CONTENT_PATH);
-    const response = await fetch(metadata.url, {
-      cache: "no-store",
-    });
-    if (!response.ok) {
-      console.error(
-        "[siteContent] Failed to fetch content from blob.",
-        { status: response.status, statusText: response.statusText }
-      );
-      if (!allowFallback) {
-        throw new Error("Failed to fetch site content from storage.");
-      }
-      return lastKnownContent || defaultSiteContent;
-    }
-    const data = (await response.json()) as Partial<SiteContent> & {
+    const client = await mongoClient;
+    const dbName =
+      process.env.MONGODB_DB ||
+      new URL(process.env.MONGODB_URI || "").pathname.replace("/", "") ||
+      "app";
+    const collection =
+      client.db(dbName).collection<SiteContentDocument>("site_content");
+    const document = await collection.findOne({ _id: CONTENT_ID });
+    const data = (document?.content || document || {}) as Partial<SiteContent> & {
       name?: string;
       degrees?: string;
       specialization?: string;
@@ -126,16 +124,23 @@ export const getSiteContent = async (
 export const saveSiteContent = async (
   content: SiteContent
 ): Promise<SiteContent> => {
-  if (!process.env.BLOB_READ_WRITE_TOKEN) {
-    throw new Error("BLOB_READ_WRITE_TOKEN is not configured.");
+  if (!process.env.MONGODB_URI) {
+    throw new Error("MONGODB_URI is not configured.");
   }
 
-  await put(CONTENT_PATH, JSON.stringify(content, null, 2), {
-    access: "public",
-    contentType: "application/json",
-    addRandomSuffix: false,
-    allowOverwrite: true,
-  });
+  const client = await mongoClient;
+  const dbName =
+    process.env.MONGODB_DB ||
+    new URL(process.env.MONGODB_URI || "").pathname.replace("/", "") ||
+    "app";
+  const collection =
+    client.db(dbName).collection<SiteContentDocument>("site_content");
+  await collection.updateOne(
+    { _id: CONTENT_ID },
+    { $set: { content, updatedAt: new Date() } },
+    { upsert: true }
+  );
 
+  lastKnownContent = content;
   return content;
 };
