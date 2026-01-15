@@ -378,11 +378,6 @@ const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
               )}
             </div>
           </div>
-          {error && (
-            <div className="mt-3 rounded-2xl border border-white/60 bg-white/80 px-4 py-2 text-xs text-[#17323D]">
-              {error}
-            </div>
-          )}
         </div>
 
         <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[280px_1fr]">
@@ -473,7 +468,7 @@ const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
             )}
 
             {isEditing && draft && (
-              <section className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-xl backdrop-blur">
+              <section className="rounded-3xl border border-white/70 bg-white/90 p-6 shadow-xl backdrop-blur">
                 <div className="flex items-center justify-between">
                   <h2 className="text-sm font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
                     {editingId ? "Edit Item" : "New Item"}
@@ -481,14 +476,14 @@ const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
                   <button
                     type="button"
                     onClick={resetDraft}
-                    className="text-xs font-semibold text-[#7A4C2C]"
+                    className="cursor-pointer text-xs font-semibold text-[#7A4C2C] hover:text-[#5e351b]"
                   >
                     Cancel
                   </button>
                 </div>
 
-                <div className="mt-4 space-y-6">
-                  <div>
+                <div className="mt-6 space-y-6">
+                  <div className="rounded-2xl border border-white/70 bg-white/80 p-4">
                     <label className="text-xs font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
                       Heading
                     </label>
@@ -498,11 +493,11 @@ const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
                       onChange={(event) =>
                         setDraft({ ...draft, heading: event.target.value })
                       }
-                      className="mt-2 w-full rounded-full border border-white/70 bg-white/90 px-4 py-2 text-sm text-[#2d3b41] outline-none"
+                      className="mt-2 w-full rounded-2xl border border-[#e1d6c6] bg-white px-4 py-3 text-sm text-[#2d3b41] outline-none focus:border-[#17323D] focus:ring-2 focus:ring-[#17323D]/10"
                     />
                   </div>
 
-                  <div>
+                  <div className="rounded-2xl border border-white/70 bg-white/80 p-4">
                     <label className="text-xs font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
                       Description
                     </label>
@@ -516,7 +511,7 @@ const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
                     </div>
                   </div>
 
-                  <div>
+                  <div className="rounded-2xl border border-white/70 bg-white/80 p-4">
                     <label className="text-xs font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
                       Photos
                     </label>
@@ -527,7 +522,7 @@ const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
                       onChange={(event) =>
                         setPendingPhotos(Array.from(event.target.files || []))
                       }
-                      className="mt-2 block w-full text-xs text-[#4c5f66]"
+                      className="mt-2 block w-full text-xs text-[#4c5f66] file:mr-3 file:rounded-full file:border-0 file:bg-[#17323D] file:px-4 file:py-2 file:text-xs file:font-semibold file:text-white"
                     />
                     {draft.photos.length > 0 && (
                       <div className="mt-3 grid gap-3 sm:grid-cols-3">
@@ -557,7 +552,7 @@ const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
                     )}
                   </div>
 
-                  <div>
+                  <div className="rounded-2xl border border-white/70 bg-white/80 p-4">
                     <label className="text-xs font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
                       PDF
                     </label>
@@ -567,7 +562,7 @@ const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
                       onChange={(event) =>
                         setPendingPdf(event.target.files?.[0] || null)
                       }
-                      className="mt-2 block w-full text-xs text-[#4c5f66]"
+                      className="mt-2 block w-full text-xs text-[#4c5f66] file:mr-3 file:rounded-full file:border-0 file:bg-[#17323D] file:px-4 file:py-2 file:text-xs file:font-semibold file:text-white"
                     />
                     {draft.pdfUrl && (
                       <p className="mt-2 text-xs text-[#4c5f66]">
@@ -576,7 +571,7 @@ const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
                     )}
                   </div>
 
-                  <div>
+                  <div className="rounded-2xl border border-white/70 bg-white/80 p-4">
                     <label className="text-xs font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
                       Video Links
                     </label>
@@ -584,7 +579,7 @@ const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
                       {draft.videoLinks.map((link, index) => (
                         <div
                           key={`${link}-${index}`}
-                          className="flex items-center gap-2"
+                          className="flex flex-wrap items-center gap-2 rounded-2xl border border-white/70 bg-white/80 p-2"
                         >
                           <input
                             type="text"
@@ -592,12 +587,12 @@ const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
                             onChange={(event) =>
                               handleVideoChange(index, event.target.value)
                             }
-                            className="w-full rounded-full border border-white/70 bg-white/90 px-4 py-2 text-xs text-[#2d3b41] outline-none"
+                            className="min-w-[220px] flex-1 rounded-2xl border border-[#e1d6c6] bg-white px-4 py-2 text-xs text-[#2d3b41] outline-none focus:border-[#17323D] focus:ring-2 focus:ring-[#17323D]/10"
                           />
                           <button
                             type="button"
                             onClick={() => handleRemoveVideo(index)}
-                            className="rounded-full border border-white/60 bg-white/70 px-3 py-2 text-[10px] font-semibold text-[#17323D]"
+                            className="cursor-pointer rounded-full bg-rose-100 px-3 py-2 text-[10px] font-semibold text-rose-700 transition-colors hover:bg-rose-200"
                           >
                             Remove
                           </button>
@@ -606,8 +601,9 @@ const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
                       <button
                         type="button"
                         onClick={handleAddVideo}
-                        className="rounded-full border border-white/60 bg-white/70 px-4 py-2 text-xs font-semibold text-[#17323D]"
+                        className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-emerald-100 px-4 py-2 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-200"
                       >
+                        <Plus size={14} />
                         Add Video
                       </button>
                     </div>
