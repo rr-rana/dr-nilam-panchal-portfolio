@@ -6,6 +6,7 @@ type ConfirmModalProps = {
   message: string;
   confirmLabel?: string;
   cancelLabel?: string;
+  isConfirming?: boolean;
   onConfirm: () => void;
   onCancel: () => void;
 };
@@ -16,6 +17,7 @@ const ConfirmModal = ({
   message,
   confirmLabel = "Delete",
   cancelLabel = "Cancel",
+  isConfirming = false,
   onConfirm,
   onCancel,
 }: ConfirmModalProps) => {
@@ -37,7 +39,8 @@ const ConfirmModal = ({
           <button
             type="button"
             onClick={onConfirm}
-            className="cursor-pointer rounded-full bg-rose-600 px-4 py-2 text-xs font-semibold text-white"
+            className="cursor-pointer rounded-full bg-rose-600 px-4 py-2 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-70"
+            disabled={isConfirming}
           >
             {confirmLabel}
           </button>

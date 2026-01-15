@@ -59,6 +59,7 @@ const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
@@ -281,6 +282,7 @@ const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
 
   const handleDelete = async () => {
     if (!pendingDeleteId) return;
+    setIsDeleting(true);
     const response = await fetch(
       `/api/admin/items/${slug}/${pendingDeleteId}`,
       {
@@ -290,12 +292,14 @@ const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
     if (!response.ok) {
       const payload = await response.json().catch(() => ({}));
       setError(payload.error || "Delete failed.");
+      setIsDeleting(false);
       return;
     }
     await load();
     setPendingDeleteId(null);
     setPendingDeleteTitle("");
     setMessage("Item deleted.");
+    setIsDeleting(false);
   };
 
   const handleRemovePhoto = (url: string) => {
@@ -769,8 +773,9 @@ const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
             ? `Are you sure you want to delete “${pendingDeleteTitle}”? This cannot be undone.`
             : "Are you sure you want to delete this item? This cannot be undone."
         }
-        confirmLabel="Delete"
+        confirmLabel={isDeleting ? "Deleting..." : "Delete"}
         cancelLabel="Cancel"
+        isConfirming={isDeleting}
         onCancel={() => {
           setPendingDeleteId(null);
           setPendingDeleteTitle("");
