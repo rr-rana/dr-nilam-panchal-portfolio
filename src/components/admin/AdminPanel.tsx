@@ -181,7 +181,7 @@ const AdminPanel = () => {
   if (!isAuthenticated) {
     return (
       <AdminLoginPanel
-        subtitle="Use your admin credentials to edit the website content."
+        subtitle="Use your admin credentials to manage the website content."
         username={username}
         password={password}
         error={error}
