@@ -7,6 +7,7 @@ import { Pencil, Trash2, Plus } from "lucide-react";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import RichTextEditor from "@/components/admin/RichTextEditor";
 import AdminToast from "@/components/admin/AdminToast";
+import ConfirmModal from "@/components/admin/ConfirmModal";
 import type { SiteContent } from "@/lib/siteContentTypes";
 import type { PageItemPhoto } from "@/lib/pageItems";
 
@@ -53,6 +54,8 @@ const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const [pendingDeleteTitle, setPendingDeleteTitle] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
@@ -241,16 +244,27 @@ const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    const response = await fetch(`/api/admin/items/${slug}/${id}`, {
+  const requestDelete = (id: string, heading: string) => {
+    setPendingDeleteId(id);
+    setPendingDeleteTitle(heading);
+  };
+
+  const handleDelete = async () => {
+    if (!pendingDeleteId) return;
+    const response = await fetch(
+      `/api/admin/items/${slug}/${pendingDeleteId}`,
+      {
       method: "DELETE",
-    });
+      }
+    );
     if (!response.ok) {
       const payload = await response.json().catch(() => ({}));
       setError(payload.error || "Delete failed.");
       return;
     }
     await load();
+    setPendingDeleteId(null);
+    setPendingDeleteTitle("");
   };
 
   const handleRemovePhoto = (url: string) => {
@@ -452,7 +466,7 @@ const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
                             </button>
                             <button
                               type="button"
-                              onClick={() => handleDelete(item.id)}
+                              onClick={() => requestDelete(item.id, item.heading)}
                               className="inline-flex cursor-pointer items-center justify-center rounded-full bg-rose-100 p-2 text-rose-700 transition-colors hover:bg-rose-200"
                               aria-label="Delete item"
                             >
@@ -618,6 +632,22 @@ const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
         <AdminToast message={message} />
       )}
       {error && <AdminToast message={error} variant="error" />}
+      <ConfirmModal
+        isOpen={Boolean(pendingDeleteId)}
+        title="Delete item"
+        message={
+          pendingDeleteTitle
+            ? `Are you sure you want to delete “${pendingDeleteTitle}”? This cannot be undone.`
+            : "Are you sure you want to delete this item? This cannot be undone."
+        }
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        onCancel={() => {
+          setPendingDeleteId(null);
+          setPendingDeleteTitle("");
+        }}
+        onConfirm={handleDelete}
+      />
     </div>
   );
 };
