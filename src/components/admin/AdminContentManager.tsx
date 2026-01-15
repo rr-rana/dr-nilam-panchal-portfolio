@@ -1,0 +1,616 @@
+"use client";
+
+import { useEffect, useMemo, useState, type FormEvent } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import AdminSidebar from "@/components/admin/AdminSidebar";
+import RichTextEditor from "@/components/admin/RichTextEditor";
+import AdminToast from "@/components/admin/AdminToast";
+import type { SiteContent } from "@/lib/siteContentTypes";
+import type { PageItemPhoto } from "@/lib/pageItems";
+
+const stripHtml = (html: string) =>
+  html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+
+const getPreview = (html: string) => {
+  const text = stripHtml(html);
+  if (text.length <= 120) return text;
+  return `${text.slice(0, 117)}...`;
+};
+
+type AdminItem = {
+  id: string;
+  heading: string;
+  descriptionHtml: string;
+  photos: PageItemPhoto[];
+  videoLinks: string[];
+  pdfUrl?: string;
+};
+
+type AdminContentManagerProps = {
+  slug: string;
+  title: string;
+};
+
+const emptyDraft: Omit<AdminItem, "id"> = {
+  heading: "",
+  descriptionHtml: "",
+  photos: [],
+  videoLinks: [],
+  pdfUrl: "",
+};
+
+const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
+  const [siteContent, setSiteContent] = useState<SiteContent | null>(null);
+  const [items, setItems] = useState<AdminItem[]>([]);
+  const [draft, setDraft] = useState<Omit<AdminItem, "id"> | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [pendingPhotos, setPendingPhotos] = useState<File[]>([]);
+  const [pendingPdf, setPendingPdf] = useState<File | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+
+  const isEditing = useMemo(() => draft !== null, [draft]);
+
+  const load = async () => {
+    try {
+      const [sessionRes, siteRes, itemsRes] = await Promise.all([
+        fetch("/api/admin/session", { cache: "no-store" }),
+        fetch("/api/admin/content", { cache: "no-store" }),
+        fetch(`/api/admin/items/${slug}`, { cache: "no-store" }),
+      ]);
+      const session = await sessionRes.json();
+      if (!siteRes.ok || !itemsRes.ok) {
+        const payload = await (siteRes.ok ? itemsRes : siteRes)
+          .json()
+          .catch(() => ({}));
+        throw new Error(payload.error || "Failed to load content.");
+      }
+      const [siteData, itemsData] = await Promise.all([
+        siteRes.json(),
+        itemsRes.json(),
+      ]);
+      setIsAuthenticated(session.authenticated);
+      setSiteContent(siteData);
+      setItems(itemsData.items ?? []);
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Failed to load content.";
+      setError(message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [slug]);
+
+  useEffect(() => {
+    if (!message) return;
+    const timer = window.setTimeout(() => {
+      setMessage("");
+    }, 3000);
+    return () => window.clearTimeout(timer);
+  }, [message]);
+
+  useEffect(() => {
+    if (!error) return;
+    const timer = window.setTimeout(() => {
+      setError("");
+    }, 3000);
+    return () => window.clearTimeout(timer);
+  }, [error]);
+
+  const handleLogin = async (event: FormEvent) => {
+    event.preventDefault();
+    setError("");
+    setMessage("");
+
+    const response = await fetch("/api/admin/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password }),
+    });
+
+    if (!response.ok) {
+      const payload = await response.json().catch(() => ({}));
+      setError(payload.error || "Login failed.");
+      return;
+    }
+
+    setIsAuthenticated(true);
+    setUsername("");
+    setPassword("");
+    load();
+  };
+
+  const handleLogout = async () => {
+    await fetch("/api/admin/logout", { method: "POST" });
+    setIsAuthenticated(false);
+  };
+
+  const resetDraft = () => {
+    setDraft(null);
+    setEditingId(null);
+    setPendingPhotos([]);
+    setPendingPdf(null);
+  };
+
+  const handleCreate = () => {
+    setDraft({ ...emptyDraft });
+    setEditingId(null);
+    setPendingPhotos([]);
+    setPendingPdf(null);
+    setError("");
+  };
+
+  const handleEdit = (item: AdminItem) => {
+    setDraft({
+      heading: item.heading,
+      descriptionHtml: item.descriptionHtml,
+      photos: item.photos,
+      videoLinks: item.videoLinks,
+      pdfUrl: item.pdfUrl,
+    });
+    setEditingId(item.id);
+    setPendingPhotos([]);
+    setPendingPdf(null);
+    setError("");
+  };
+
+  const uploadFile = async (file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    const response = await fetch("/api/admin/upload", {
+      method: "POST",
+      body: formData,
+    });
+    if (!response.ok) {
+      const payload = await response.json().catch(() => ({}));
+      throw new Error(payload.error || "Upload failed.");
+    }
+    const payload = await response.json();
+    return payload.url as string;
+  };
+
+  const handleSave = async () => {
+    if (!draft) return;
+    setIsSaving(true);
+    setError("");
+    setMessage("");
+
+    try {
+      let nextPhotos = [...draft.photos];
+      if (pendingPhotos.length) {
+        const uploads = await Promise.all(
+          pendingPhotos.map((file) => uploadFile(file))
+        );
+        const uploadedPhotos = uploads.map((url, index) => ({
+          url,
+          alt: pendingPhotos[index]?.name || draft.heading,
+        }));
+        nextPhotos = [...nextPhotos, ...uploadedPhotos];
+      }
+
+      let nextPdfUrl = draft.pdfUrl;
+      if (pendingPdf) {
+        nextPdfUrl = await uploadFile(pendingPdf);
+      }
+
+      const payload = {
+        heading: draft.heading,
+        descriptionHtml: draft.descriptionHtml,
+        photos: nextPhotos,
+        videoLinks: draft.videoLinks,
+        pdfUrl: nextPdfUrl,
+      };
+
+      const response = await fetch(
+        editingId
+          ? `/api/admin/items/${slug}/${editingId}`
+          : `/api/admin/items/${slug}`,
+        {
+          method: editingId ? "PUT" : "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      if (!response.ok) {
+        const errorPayload = await response.json().catch(() => ({}));
+        throw new Error(errorPayload.error || "Failed to save content.");
+      }
+
+      await load();
+      resetDraft();
+      setMessage("Changes saved.");
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Failed to save content.";
+      setError(message);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    const response = await fetch(`/api/admin/items/${slug}/${id}`, {
+      method: "DELETE",
+    });
+    if (!response.ok) {
+      const payload = await response.json().catch(() => ({}));
+      setError(payload.error || "Delete failed.");
+      return;
+    }
+    await load();
+  };
+
+  const handleRemovePhoto = (url: string) => {
+    if (!draft) return;
+    setDraft({
+      ...draft,
+      photos: draft.photos.filter((photo) => photo.url !== url),
+    });
+  };
+
+  const handleVideoChange = (index: number, value: string) => {
+    if (!draft) return;
+    const next = [...draft.videoLinks];
+    next[index] = value;
+    setDraft({ ...draft, videoLinks: next });
+  };
+
+  const handleAddVideo = () => {
+    if (!draft) return;
+    setDraft({ ...draft, videoLinks: [...draft.videoLinks, ""] });
+  };
+
+  const handleRemoveVideo = (index: number) => {
+    if (!draft) return;
+    const next = draft.videoLinks.filter((_, idx) => idx !== index);
+    setDraft({ ...draft, videoLinks: next });
+  };
+
+  if (isLoading) {
+    return (
+      <div className="mx-auto max-w-3xl px-6 py-16 text-center text-sm text-[#4c5f66]">
+        Loading editor...
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-[60vh] bg-[radial-gradient(circle_at_top,#f6f1e7_0%,#f3ede1_35%,#ebe4d6_65%,#e2d9c7_100%)]">
+        <div className="mx-auto max-w-md px-6 py-16">
+          <div className="rounded-3xl border border-white/70 bg-white/80 p-8 shadow-xl backdrop-blur">
+            <h1 className="text-2xl font-semibold text-[#17323D]">
+              Admin Login
+            </h1>
+            <p className="mt-2 text-sm text-[#4c5f66]">
+              Sign in to edit this page content.
+            </p>
+            {error && (
+              <div className="mt-4 rounded-2xl bg-red-50 px-4 py-2 text-xs text-red-700">
+                {error}
+              </div>
+            )}
+            <form onSubmit={handleLogin} className="mt-6 space-y-4">
+              <input
+                type="text"
+                value={username}
+                onChange={(event) => setUsername(event.target.value)}
+                placeholder="Username"
+                className="w-full rounded-full border border-white/70 bg-white/90 px-4 py-2 text-sm text-[#2d3b41] outline-none"
+              />
+              <input
+                type="password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                placeholder="Password"
+                className="w-full rounded-full border border-white/70 bg-white/90 px-4 py-2 text-sm text-[#2d3b41] outline-none"
+              />
+              <button
+                type="submit"
+                className="w-full rounded-full bg-[#17323D] py-2 text-sm font-semibold text-white"
+              >
+                Sign in
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!siteContent) {
+    return (
+      <div className="mx-auto max-w-3xl px-6 py-16 text-center text-sm text-[#4c5f66]">
+        No content loaded.
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top,#f6f1e7_0%,#f3ede1_35%,#ebe4d6_65%,#e2d9c7_100%)]">
+      <div className="max-w-6xl mx-auto px-4 pb-16">
+        <div className="sticky top-24 z-30 rounded-3xl border border-white/70 bg-white/90 px-4 py-3 shadow-lg backdrop-blur">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h1 className="text-lg font-semibold text-[#17323D]">{title}</h1>
+              <p className="text-xs text-[#4c5f66]">
+                Manage the content cards and detail pages.
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <Link
+                href="/admin"
+                className="rounded-full border border-white/60 bg-white/70 px-4 py-2 text-xs font-semibold text-[#17323D]"
+              >
+                Back to Admin
+              </Link>
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="cursor-pointer rounded-full border border-white/60 bg-white/70 px-4 py-2 text-xs font-semibold text-[#17323D]"
+              >
+                Log out
+              </button>
+              <button
+                type="button"
+                onClick={handleCreate}
+                className="cursor-pointer rounded-full bg-[#17323D] px-4 py-2 text-xs font-semibold text-white"
+              >
+                New Item
+              </button>
+              {isEditing && (
+                <button
+                  type="button"
+                  onClick={handleSave}
+                  className="cursor-pointer rounded-full bg-[#17323D] px-4 py-2 text-xs font-semibold text-white disabled:opacity-60"
+                  disabled={isSaving}
+                >
+                  {isSaving ? "Saving..." : "Save Changes"}
+                </button>
+              )}
+            </div>
+          </div>
+          {error && (
+            <div className="mt-3 rounded-2xl border border-white/60 bg-white/80 px-4 py-2 text-xs text-[#17323D]">
+              {error}
+            </div>
+          )}
+        </div>
+
+        <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[280px_1fr]">
+          <AdminSidebar content={siteContent} showEditButton variant="compact" />
+          <main className="space-y-8">
+            <section className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-xl backdrop-blur">
+              <div className="flex items-center justify-between">
+                <h2 className="text-sm font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
+                  Content List
+                </h2>
+                <span className="text-xs text-[#4c5f66]">
+                  {items.length} entries
+                </span>
+              </div>
+              <div className="mt-4 space-y-4">
+                {items.length === 0 ? (
+                  <div className="rounded-2xl border border-dashed border-[#d5c9b8] px-4 py-6 text-center text-xs text-[#4c5f66]">
+                    No items created yet.
+                  </div>
+                ) : (
+                  items.map((item) => (
+                    <div
+                      key={item.id}
+                      className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-white/70 bg-white/90 p-4"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="relative h-14 w-20 overflow-hidden rounded-xl border border-white/80 bg-[#f3ede1]">
+                          {item.photos[0] ? (
+                            <Image
+                              src={item.photos[0].url}
+                              alt={item.photos[0].alt || item.heading}
+                              fill
+                              className="object-cover"
+                            />
+                          ) : (
+                            <div className="flex h-full w-full items-center justify-center text-[10px] font-semibold uppercase text-[#7A4C2C]">
+                              No Img
+                            </div>
+                          )}
+                        </div>
+                        <div>
+                          <div className="text-sm font-semibold text-[#17323D]">
+                            {item.heading}
+                          </div>
+                          <div className="text-xs text-[#4c5f66]">
+                            {getPreview(item.descriptionHtml) ||
+                              "No description yet."}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <button
+                          type="button"
+                          onClick={() => handleEdit(item)}
+                          className="rounded-full border border-white/60 bg-white/70 px-4 py-2 text-xs font-semibold text-[#17323D]"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(item.id)}
+                          className="rounded-full border border-white/60 bg-white/70 px-4 py-2 text-xs font-semibold text-[#17323D]"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </section>
+
+            {isEditing && draft && (
+              <section className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-xl backdrop-blur">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-sm font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
+                    {editingId ? "Edit Item" : "New Item"}
+                  </h2>
+                  <button
+                    type="button"
+                    onClick={resetDraft}
+                    className="text-xs font-semibold text-[#7A4C2C]"
+                  >
+                    Cancel
+                  </button>
+                </div>
+
+                <div className="mt-4 space-y-6">
+                  <div>
+                    <label className="text-xs font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
+                      Heading
+                    </label>
+                    <input
+                      type="text"
+                      value={draft.heading}
+                      onChange={(event) =>
+                        setDraft({ ...draft, heading: event.target.value })
+                      }
+                      className="mt-2 w-full rounded-full border border-white/70 bg-white/90 px-4 py-2 text-sm text-[#2d3b41] outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
+                      Description
+                    </label>
+                    <div className="mt-3">
+                      <RichTextEditor
+                        value={draft.descriptionHtml}
+                        onChange={(value) =>
+                          setDraft({ ...draft, descriptionHtml: value })
+                        }
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
+                      Photos
+                    </label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={(event) =>
+                        setPendingPhotos(Array.from(event.target.files || []))
+                      }
+                      className="mt-2 block w-full text-xs text-[#4c5f66]"
+                    />
+                    {draft.photos.length > 0 && (
+                      <div className="mt-3 grid gap-3 sm:grid-cols-3">
+                        {draft.photos.map((photo) => (
+                          <div
+                            key={photo.url}
+                            className="relative overflow-hidden rounded-2xl border border-white/80"
+                          >
+                            <div className="relative h-24 w-full">
+                              <Image
+                                src={photo.url}
+                                alt={photo.alt || draft.heading}
+                                fill
+                                className="object-cover"
+                              />
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => handleRemovePhoto(photo.url)}
+                              className="w-full border-t border-white/70 py-1 text-[10px] font-semibold uppercase text-[#7A4C2C]"
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
+                      PDF
+                    </label>
+                    <input
+                      type="file"
+                      accept="application/pdf"
+                      onChange={(event) =>
+                        setPendingPdf(event.target.files?.[0] || null)
+                      }
+                      className="mt-2 block w-full text-xs text-[#4c5f66]"
+                    />
+                    {draft.pdfUrl && (
+                      <p className="mt-2 text-xs text-[#4c5f66]">
+                        Current PDF attached.
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
+                      Video Links
+                    </label>
+                    <div className="mt-2 space-y-2">
+                      {draft.videoLinks.map((link, index) => (
+                        <div
+                          key={`${link}-${index}`}
+                          className="flex items-center gap-2"
+                        >
+                          <input
+                            type="text"
+                            value={link}
+                            onChange={(event) =>
+                              handleVideoChange(index, event.target.value)
+                            }
+                            className="w-full rounded-full border border-white/70 bg-white/90 px-4 py-2 text-xs text-[#2d3b41] outline-none"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveVideo(index)}
+                            className="rounded-full border border-white/60 bg-white/70 px-3 py-2 text-[10px] font-semibold text-[#17323D]"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      ))}
+                      <button
+                        type="button"
+                        onClick={handleAddVideo}
+                        className="rounded-full border border-white/60 bg-white/70 px-4 py-2 text-xs font-semibold text-[#17323D]"
+                      >
+                        Add Video
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            )}
+          </main>
+        </div>
+      </div>
+      {message && (
+        <AdminToast message={message} />
+      )}
+      {error && <AdminToast message={error} variant="error" />}
+    </div>
+  );
+};
+
+export default AdminContentManager;

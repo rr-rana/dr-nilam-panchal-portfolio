@@ -4,6 +4,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import AdminBanner from "@/components/admin/AdminBanner";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import AdminMainContent from "@/components/admin/AdminMainContent";
+import AdminToast from "@/components/admin/AdminToast";
 import type { SiteContent } from "@/lib/siteContentTypes";
 
 const AdminPanel = () => {
@@ -51,6 +52,14 @@ const AdminPanel = () => {
     }, 3000);
     return () => window.clearTimeout(timer);
   }, [message]);
+
+  useEffect(() => {
+    if (!error) return;
+    const timer = window.setTimeout(() => {
+      setError("");
+    }, 3000);
+    return () => window.clearTimeout(timer);
+  }, [error]);
 
   useEffect(() => {
     return () => {
@@ -267,10 +276,9 @@ const AdminPanel = () => {
         </div>
       </div>
       {message && (
-        <div className="fixed bottom-6 right-6 z-50 rounded-full bg-[#17323D] px-4 py-2 text-xs font-semibold text-white shadow-lg">
-          {message}
-        </div>
+        <AdminToast message={message} />
       )}
+      {error && <AdminToast message={error} variant="error" />}
     </div>
   );
 };

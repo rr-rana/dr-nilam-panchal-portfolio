@@ -6,6 +6,7 @@ import type { SiteContent } from "@/lib/siteContentTypes";
 import type { PageContent } from "@/lib/pageContent";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import RichTextEditor from "@/components/admin/RichTextEditor";
+import AdminToast from "@/components/admin/AdminToast";
 
 type AdminPageEditorProps = {
   slug: string;
@@ -64,6 +65,14 @@ const AdminPageEditor = ({ slug, title }: AdminPageEditorProps) => {
     }, 3000);
     return () => window.clearTimeout(timer);
   }, [message]);
+
+  useEffect(() => {
+    if (!error) return;
+    const timer = window.setTimeout(() => {
+      setError("");
+    }, 3000);
+    return () => window.clearTimeout(timer);
+  }, [error]);
 
   const handleLogin = async (event: FormEvent) => {
     event.preventDefault();
@@ -243,11 +252,8 @@ const AdminPageEditor = ({ slug, title }: AdminPageEditorProps) => {
           </main>
         </div>
       </div>
-      {message && (
-        <div className="fixed bottom-6 right-6 z-50 rounded-full bg-[#17323D] px-4 py-2 text-xs font-semibold text-white shadow-lg">
-          {message}
-        </div>
-      )}
+      {message && <AdminToast message={message} />}
+      {error && <AdminToast message={error} variant="error" />}
     </div>
   );
 };
