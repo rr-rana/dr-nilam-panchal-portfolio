@@ -339,7 +339,7 @@ const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
     );
   }
 
-  const showList = !isEditing || editingId;
+  const showList = !isEditing;
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,#f6f1e7_0%,#f3ede1_35%,#ebe4d6_65%,#e2d9c7_100%)]">
