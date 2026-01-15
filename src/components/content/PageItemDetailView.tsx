@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Calendar, User, FileText } from "lucide-react";
 import HomeSidebar from "@/components/HomeSidebar";
 import PageItemVideoSection from "@/components/content/PageItemVideoSection";
 import PageItemGallery from "@/components/content/PageItemGallery";
@@ -35,38 +36,39 @@ const PageItemDetailView = async ({
                   <h1 className="mt-3 text-2xl font-semibold text-[#17323D]">
                     {item.heading}
                   </h1>
-                  <div className="mt-3 flex flex-wrap gap-6 text-xs text-[#4c5f66]">
-                    <div>
-                      <span className="font-semibold text-[#17323D]">
-                        Author:
-                      </span>{" "}
-                      {item.author || "---"}
-                    </div>
-                    <div>
-                      <span className="font-semibold text-[#17323D]">
-                        Published Date:
-                      </span>{" "}
-                      {item.publishedDate || "---"}
-                    </div>
-                  </div>
                   {item.pdfUrl && (
                     <a
                       href={item.pdfUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="mt-4 inline-flex rounded-full bg-[#17323D] px-4 py-2 text-xs font-semibold text-white"
+                      className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#17323D] px-4 py-2 text-xs font-semibold text-white"
                     >
+                      <FileText size={14} />
                       View PDF
                     </a>
                   )}
                 </div>
-                <div className="min-w-[180px] rounded-2xl border border-white/70 bg-white/90 px-4 py-3 text-xs text-[#4c5f66] shadow-sm">
-                  <div className="font-semibold text-[#17323D]">Author</div>
-                  <div className="mt-1">{item.author || "---"}</div>
-                  <div className="mt-3 font-semibold text-[#17323D]">
-                    Published Date
+                <div className="min-w-[200px] rounded-2xl border border-white/70 bg-white/90 px-4 py-4 text-xs text-[#4c5f66] shadow-sm">
+                  <div className="flex items-start gap-2">
+                    <span className="mt-0.5 text-[#7A4C2C]">
+                      <User size={14} />
+                    </span>
+                    <div>
+                      <div className="font-semibold text-[#17323D]">Author</div>
+                      <div className="mt-1">{item.author || "---"}</div>
+                    </div>
                   </div>
-                  <div className="mt-1">{item.publishedDate || "---"}</div>
+                  <div className="mt-4 flex items-start gap-2">
+                    <span className="mt-0.5 text-[#7A4C2C]">
+                      <Calendar size={14} />
+                    </span>
+                    <div>
+                      <div className="font-semibold text-[#17323D]">
+                        Published Date
+                      </div>
+                      <div className="mt-1">{item.publishedDate || "---"}</div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </section>
