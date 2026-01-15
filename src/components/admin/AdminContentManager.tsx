@@ -433,12 +433,12 @@ const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
                     </div>
                   ) : (
                     items.map((item) => (
-                      <div
-                        key={item.id}
-                        className="group rounded-2xl border border-white/70 bg-white/90 p-4 transition-shadow hover:shadow-md"
-                      >
-                        <div className="flex flex-wrap items-center justify-between gap-4">
-                          <div className="flex min-w-0 items-center gap-4">
+                    <div
+                      key={item.id}
+                      className="group rounded-2xl border border-[#e6dccb] bg-white/90 p-4 shadow-sm transition-shadow hover:shadow-md"
+                    >
+                      <div className="flex flex-nowrap items-center justify-between gap-4">
+                        <div className="flex min-w-0 items-center gap-4">
                             <div className="relative h-16 w-24 overflow-hidden rounded-2xl border border-white/80 bg-[#f3ede1]">
                               {item.photos[0] ? (
                                 <Image
@@ -463,7 +463,7 @@ const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
                               </div>
                             </div>
                           </div>
-                          <div className="flex items-center gap-2">
+                        <div className="ml-auto flex shrink-0 items-center gap-2">
                             <button
                               type="button"
                               onClick={() => handleEdit(item)}

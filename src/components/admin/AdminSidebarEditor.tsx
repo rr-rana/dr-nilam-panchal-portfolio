@@ -306,7 +306,7 @@ const AdminSidebarEditor = () => {
           </div>
 
           <div className="space-y-6">
-            <section className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-xl backdrop-blur">
+            <section className="rounded-3xl border border-white/70 bg-white/90 p-6 shadow-xl backdrop-blur">
               <h2 className="text-sm font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
                 Profile Details
               </h2>
@@ -330,7 +330,7 @@ const AdminSidebarEditor = () => {
                       setContent({ ...content, sidebarName: event.target.value })
                     }
                     placeholder="Name"
-                    className="w-full rounded-full border border-white/70 bg-white/90 px-4 py-2 text-sm font-normal normal-case tracking-normal text-[#2d3b41] outline-none"
+                    className="w-full rounded-2xl border border-[#e1d6c6] bg-white px-4 py-3 text-sm font-normal normal-case tracking-normal text-[#2d3b41] outline-none focus:border-[#17323D] focus:ring-2 focus:ring-[#17323D]/10"
                   />
                 </label>
                 <label className="space-y-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
@@ -342,7 +342,7 @@ const AdminSidebarEditor = () => {
                       setContent({ ...content, sidebarTitle: event.target.value })
                     }
                     placeholder="Title / Role"
-                    className="w-full rounded-full border border-white/70 bg-white/90 px-4 py-2 text-sm font-normal normal-case tracking-normal text-[#2d3b41] outline-none"
+                    className="w-full rounded-2xl border border-[#e1d6c6] bg-white px-4 py-3 text-sm font-normal normal-case tracking-normal text-[#2d3b41] outline-none focus:border-[#17323D] focus:ring-2 focus:ring-[#17323D]/10"
                   />
                 </label>
                 <label className="space-y-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
@@ -357,7 +357,7 @@ const AdminSidebarEditor = () => {
                       })
                     }
                     placeholder="Location"
-                    className="w-full rounded-full border border-white/70 bg-white/90 px-4 py-2 text-sm font-normal normal-case tracking-normal text-[#2d3b41] outline-none"
+                    className="w-full rounded-2xl border border-[#e1d6c6] bg-white px-4 py-3 text-sm font-normal normal-case tracking-normal text-[#2d3b41] outline-none focus:border-[#17323D] focus:ring-2 focus:ring-[#17323D]/10"
                   />
                 </label>
                 <label className="space-y-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
@@ -369,7 +369,7 @@ const AdminSidebarEditor = () => {
                       setContent({ ...content, sidebarEmail: event.target.value })
                     }
                     placeholder="Email"
-                    className="w-full rounded-full border border-white/70 bg-white/90 px-4 py-2 text-sm font-normal normal-case tracking-normal text-[#2d3b41] outline-none"
+                    className="w-full rounded-2xl border border-[#e1d6c6] bg-white px-4 py-3 text-sm font-normal normal-case tracking-normal text-[#2d3b41] outline-none focus:border-[#17323D] focus:ring-2 focus:ring-[#17323D]/10"
                   />
                 </label>
                 <label className="space-y-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
@@ -380,7 +380,7 @@ const AdminSidebarEditor = () => {
                       setContent({ ...content, sidebarBlurb: event.target.value })
                     }
                     placeholder="Short bio blurb"
-                    className="min-h-30 w-full rounded-2xl border border-white/70 bg-white/90 px-4 py-3 text-sm font-normal normal-case tracking-normal text-[#2d3b41] outline-none"
+                    className="min-h-30 w-full rounded-2xl border border-[#e1d6c6] bg-white px-4 py-3 text-sm font-normal normal-case tracking-normal text-[#2d3b41] outline-none focus:border-[#17323D] focus:ring-2 focus:ring-[#17323D]/10"
                   />
                 </label>
                 <label className="space-y-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
@@ -394,13 +394,13 @@ const AdminSidebarEditor = () => {
                       })
                     }
                     placeholder="Footer call-to-action text"
-                    className="min-h-30 w-full rounded-2xl border border-white/70 bg-white/90 px-4 py-3 text-sm font-normal normal-case tracking-normal text-[#2d3b41] outline-none"
+                    className="min-h-30 w-full rounded-2xl border border-[#e1d6c6] bg-white px-4 py-3 text-sm font-normal normal-case tracking-normal text-[#2d3b41] outline-none focus:border-[#17323D] focus:ring-2 focus:ring-[#17323D]/10"
                   />
                 </label>
               </div>
             </section>
 
-            <section className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-xl backdrop-blur">
+            <section className="rounded-3xl border border-white/70 bg-white/90 p-6 shadow-xl backdrop-blur">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <h2 className="text-sm font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
                   Social Links
@@ -433,7 +433,7 @@ const AdminSidebarEditor = () => {
                           })
                         }
                         placeholder={placeholder}
-                        className="w-full rounded-full border border-white/70 bg-white/90 px-4 py-2 text-sm font-normal normal-case tracking-normal text-[#2d3b41] outline-none"
+                        className="w-full rounded-2xl border border-[#e1d6c6] bg-white px-4 py-3 text-sm font-normal normal-case tracking-normal text-[#2d3b41] outline-none focus:border-[#17323D] focus:ring-2 focus:ring-[#17323D]/10"
                         aria-label={`${label} URL`}
                       />
                     </div>
