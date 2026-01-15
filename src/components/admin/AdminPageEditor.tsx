@@ -17,37 +17,32 @@ type AdminPageEditorProps = {
 };
 
 const AdminPageEditor = ({ slug, title }: AdminPageEditorProps) => {
-  const { isAuthenticated, isLoading, siteContent } = useAdminSession();
-  const [localSiteContent, setLocalSiteContent] =
-    useState<SiteContent | null>(null);
+  const {
+    isAuthenticated,
+    isLoading,
+    siteContent,
+    pageContentBySlug,
+    pageContentLoadingBySlug,
+    refreshPageContent,
+    setPageContentForSlug,
+  } = useAdminSession();
   const [pageContent, setPageContent] = useState<PageContent | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const router = useRouter();
 
+  const cachedPageContent = pageContentBySlug[slug];
+  const isPageLoading = pageContentLoadingBySlug[slug] ?? false;
+
   useEffect(() => {
     if (!isAuthenticated) return;
-    const load = async () => {
-      try {
-        const pageRes = await fetch(`/api/admin/pages/${slug}`, {
-          cache: "no-store",
-        });
-        if (!pageRes.ok) {
-          const payload = await pageRes.json().catch(() => ({}));
-          throw new Error(payload.error || "Failed to load content.");
-        }
-        const pageData = await pageRes.json();
-        setPageContent(pageData);
-      } catch (err) {
-        const message =
-          err instanceof Error ? err.message : "Failed to load content.";
-        setError(message);
-      }
-    };
-
-    load();
-  }, [slug, isAuthenticated]);
+    if (!cachedPageContent) {
+      refreshPageContent(slug, { showLoader: true }).catch(() => {
+        setError("Failed to load content.");
+      });
+    }
+  }, [slug, isAuthenticated, cachedPageContent, refreshPageContent]);
 
   useEffect(() => {
     if (!message) return;
@@ -72,10 +67,12 @@ const AdminPageEditor = ({ slug, title }: AdminPageEditorProps) => {
   }, [isAuthenticated, isLoading, router]);
 
   useEffect(() => {
-    if (siteContent) {
-      setLocalSiteContent(siteContent);
+    if (cachedPageContent) {
+      setPageContent(cachedPageContent);
+      return;
     }
-  }, [siteContent]);
+    setPageContent(null);
+  }, [slug, cachedPageContent]);
 
   const handleLogout = async () => {
     await fetch("/api/admin/logout", { method: "POST" });
@@ -102,6 +99,7 @@ const AdminPageEditor = ({ slug, title }: AdminPageEditorProps) => {
 
       const saved = (await response.json()) as PageContent;
       setPageContent(saved);
+      setPageContentForSlug(slug, saved);
       setMessage("Changes saved.");
     } catch (err) {
       const message =
@@ -112,7 +110,9 @@ const AdminPageEditor = ({ slug, title }: AdminPageEditorProps) => {
     }
   };
 
-  if (isLoading || !pageContent) {
+  const showLoader = isLoading;
+
+  if (showLoader) {
     return (
       <div className="min-h-screen bg-[radial-gradient(circle_at_top,#f6f1e7_0%,#f3ede1_35%,#ebe4d6_65%,#e2d9c7_100%)]">
         <div className="mx-auto flex min-h-screen max-w-6xl items-center justify-center px-4">
@@ -123,7 +123,9 @@ const AdminPageEditor = ({ slug, title }: AdminPageEditorProps) => {
       </div>
     );
   }
-  if (!localSiteContent) {
+  const effectivePageContent = pageContent ?? cachedPageContent;
+
+  if (!siteContent) {
     return (
       <div className="mx-auto max-w-3xl px-6 py-16 text-center text-sm text-[#4c5f66]">
         No content loaded.
@@ -174,23 +176,28 @@ const AdminPageEditor = ({ slug, title }: AdminPageEditorProps) => {
         </div>
 
         <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[280px_1fr]">
-          <AdminSidebar
-            content={localSiteContent}
-            showEditButton
-            variant="compact"
-          />
+          <AdminSidebar content={siteContent} showEditButton variant="compact" />
           <main className="space-y-8">
             <section className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-xl backdrop-blur">
               <label className="text-xs font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
                 Page Content
               </label>
               <div className="mt-3">
-                <RichTextEditor
-                  value={pageContent.html}
-                  onChange={(value) =>
-                    setPageContent({ ...pageContent, html: value })
-                  }
-                />
+                  {effectivePageContent ? (
+                    <RichTextEditor
+                      value={effectivePageContent.html}
+                      onChange={(value) =>
+                        setPageContent({
+                          ...effectivePageContent,
+                          html: value,
+                        })
+                      }
+                    />
+                  ) : (
+                    <div className="rounded-2xl border border-white/70 bg-white/90 px-6 py-6 text-center text-xs text-[#4c5f66] shadow-sm">
+                      <LoadingSpinner />
+                    </div>
+                  )}
               </div>
             </section>
           </main>

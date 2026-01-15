@@ -1,9 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Menu, X, ChevronDown } from "lucide-react";
-import type { SiteContent } from "@/lib/siteContentTypes";
 import { MORE_PAGES, PRIMARY_PAGES } from "@/lib/pages";
 import { usePathname } from "next/navigation";
 
@@ -20,9 +19,7 @@ type HeaderProps = {
 const Header = ({ displayName }: HeaderProps) => {
     const [mobileOpen, setMobileOpen] = useState(false);
     const [mobileMoreOpen, setMobileMoreOpen] = useState(false);
-    const [name, setName] = useState(
-        displayName || "Prof. (Dr.) Nilam Panchal"
-    );
+    const name = displayName || "Prof. (Dr.) Nilam Panchal";
     const pathname = usePathname();
 
     const menuItems: MenuItem[] = useMemo(() => {
@@ -47,23 +44,6 @@ const Header = ({ displayName }: HeaderProps) => {
         if (!href || !pathname) return false;
         return pathname === href || pathname.startsWith(`${href}/`);
     };
-
-    useEffect(() => {
-        if (displayName) return;
-        let active = true;
-        const load = async () => {
-            const response = await fetch("/api/content");
-            if (!response.ok) return;
-            const data = (await response.json()) as SiteContent;
-            if (active && data.sidebarName) {
-                setName(data.sidebarName);
-            }
-        };
-        load();
-        return () => {
-            active = false;
-        };
-    }, [displayName]);
 
     return (
         <header className="fixed top-0 left-0 w-full z-50 bg-linear-to-r from-[#0F2B3A] via-[#103547] to-[#0F2B3A] text-[#F6F1E7] shadow-lg border-b border-white/10">
