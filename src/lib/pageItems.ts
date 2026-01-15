@@ -16,6 +16,7 @@ export type PageItem = {
   heading: string;
   author?: string;
   publishedDate?: string;
+  thumbnailUrl?: string;
   descriptionHtml: string;
   photos: PageItemPhoto[];
   videoLinks: string[];
@@ -28,6 +29,7 @@ export type PageItemInput = {
   heading: string;
   author?: string;
   publishedDate?: string;
+  thumbnailUrl?: string;
   descriptionHtml: string;
   photos: PageItemPhoto[];
   videoLinks: string[];
@@ -40,6 +42,7 @@ type PageItemDocument = {
   heading: string;
   author?: string;
   publishedDate?: string;
+  thumbnailUrl?: string;
   descriptionHtml: string;
   photos: PageItemPhoto[];
   videoLinks: string[];
@@ -61,6 +64,7 @@ const mapDocument = (document: PageItemDocument): PageItem => ({
   heading: document.heading,
   author: document.author,
   publishedDate: document.publishedDate,
+  thumbnailUrl: document.thumbnailUrl,
   descriptionHtml: document.descriptionHtml,
   photos: document.photos ?? [],
   videoLinks: document.videoLinks ?? [],
@@ -111,6 +115,7 @@ export const createPageItem = async (
     heading: input.heading,
     author: input.author,
     publishedDate: input.publishedDate,
+    thumbnailUrl: input.thumbnailUrl,
     descriptionHtml: input.descriptionHtml,
     photos: input.photos,
     videoLinks: input.videoLinks,
@@ -140,6 +145,7 @@ export const updatePageItem = async (
         heading: input.heading,
         author: input.author,
         publishedDate: input.publishedDate,
+        thumbnailUrl: input.thumbnailUrl,
         descriptionHtml: input.descriptionHtml,
         photos: input.photos,
         videoLinks: input.videoLinks,

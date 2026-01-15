@@ -76,7 +76,9 @@ const PageItemsView = async ({
               ) : (
                 items.map((item) => {
                   const preview = getPreview(item.descriptionHtml);
-                  const thumbnail = item.photos[0];
+                  const thumbnail = item.thumbnailUrl
+                    ? { url: item.thumbnailUrl, alt: item.heading }
+                    : item.photos[0];
                   return (
                     <article
                       key={item.id}

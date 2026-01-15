@@ -25,6 +25,7 @@ type AdminItem = {
   heading: string;
   author?: string;
   publishedDate?: string;
+  thumbnailUrl?: string;
   descriptionHtml: string;
   photos: PageItemPhoto[];
   videoLinks: string[];
@@ -40,6 +41,7 @@ const emptyDraft: Omit<AdminItem, "id"> = {
   heading: "",
   author: "",
   publishedDate: "",
+  thumbnailUrl: "",
   descriptionHtml: "",
   photos: [],
   videoLinks: [],
@@ -53,6 +55,7 @@ const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [pendingPhotos, setPendingPhotos] = useState<File[]>([]);
   const [pendingPdf, setPendingPdf] = useState<File | null>(null);
+  const [pendingThumbnail, setPendingThumbnail] = useState<File | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -149,6 +152,7 @@ const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
     setEditingId(null);
     setPendingPhotos([]);
     setPendingPdf(null);
+    setPendingThumbnail(null);
   };
 
   const handleCreate = () => {
@@ -156,6 +160,7 @@ const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
     setEditingId(null);
     setPendingPhotos([]);
     setPendingPdf(null);
+    setPendingThumbnail(null);
     setError("");
   };
 
@@ -164,6 +169,7 @@ const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
       heading: item.heading,
       author: item.author || "",
       publishedDate: item.publishedDate || "",
+      thumbnailUrl: item.thumbnailUrl || "",
       descriptionHtml: item.descriptionHtml,
       photos: item.photos,
       videoLinks: item.videoLinks,
@@ -172,6 +178,7 @@ const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
     setEditingId(item.id);
     setPendingPhotos([]);
     setPendingPdf(null);
+    setPendingThumbnail(null);
     setError("");
   };
 
@@ -197,6 +204,11 @@ const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
     setMessage("");
 
     try {
+      let nextThumbnailUrl = draft.thumbnailUrl;
+      if (pendingThumbnail) {
+        nextThumbnailUrl = await uploadFile(pendingThumbnail);
+      }
+
       let nextPhotos = [...draft.photos];
       if (pendingPhotos.length) {
         const uploads = await Promise.all(
@@ -218,6 +230,7 @@ const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
         heading: draft.heading,
         author: draft.author?.trim() || undefined,
         publishedDate: draft.publishedDate?.trim() || undefined,
+        thumbnailUrl: nextThumbnailUrl?.trim() || undefined,
         descriptionHtml: draft.descriptionHtml,
         photos: nextPhotos,
         videoLinks: draft.videoLinks.map((link) => link.trim()).filter(Boolean),
@@ -440,14 +453,14 @@ const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
                     >
                       <div className="flex flex-nowrap items-center justify-between gap-4">
                         <div className="flex min-w-0 items-center gap-4">
-                            <div className="relative h-16 w-24 overflow-hidden rounded-2xl border border-white/80 bg-[#f3ede1]">
-                              {item.photos[0] ? (
-                                <Image
-                                  src={item.photos[0].url}
-                                  alt={item.photos[0].alt || item.heading}
-                                  fill
-                                  className="object-cover"
-                                />
+                        <div className="relative h-16 w-24 overflow-hidden rounded-2xl border border-white/80 bg-[#f3ede1]">
+                          {item.thumbnailUrl || item.photos[0] ? (
+                            <Image
+                              src={item.thumbnailUrl || item.photos[0].url}
+                              alt={item.heading}
+                              fill
+                              className="object-cover"
+                            />
                               ) : (
                                 <div className="flex h-full w-full items-center justify-center text-[10px] font-semibold uppercase text-[#7A4C2C]">
                                   No Image
@@ -599,6 +612,35 @@ const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
                             </button>
                           </div>
                         ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="rounded-2xl border border-white/70 bg-white/80 p-4">
+                    <label className="text-xs font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
+                      Thumbnail Image
+                    </label>
+                    <p className="mt-2 text-xs text-[#4c5f66]">
+                      Recommended size: 600×600 px.
+                    </p>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(event) =>
+                        setPendingThumbnail(event.target.files?.[0] || null)
+                      }
+                      className="mt-3 block w-full text-xs text-[#4c5f66] file:mr-3 file:rounded-full file:border-0 file:bg-[#17323D] file:px-4 file:py-2 file:text-xs file:font-semibold file:text-white"
+                    />
+                    {draft.thumbnailUrl && (
+                      <div className="mt-3 overflow-hidden rounded-2xl border border-white/80 bg-[#f3ede1]">
+                        <div className="relative h-32 w-32">
+                          <Image
+                            src={draft.thumbnailUrl}
+                            alt={draft.heading || "Thumbnail"}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
                       </div>
                     )}
                   </div>

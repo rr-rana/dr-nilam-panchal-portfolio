@@ -1,7 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import { BookOpen, CalendarCheck, Mail, MapPin, Medal } from "lucide-react";
+import {
+  BookOpen,
+  CalendarCheck,
+  FileText,
+  Mail,
+  MapPin,
+  Medal,
+} from "lucide-react";
 import type { SiteContent } from "@/lib/siteContentTypes";
 import { SOCIAL_LINK_OPTIONS } from "@/lib/socialLinks";
 
@@ -59,6 +66,19 @@ const HomeSidebar = ({ content, variant = "default" }: HomeSidebarProps) => {
         {content.sidebarBlurb && (
           <div className="mt-5 rounded-xl bg-[#f8f1e3] p-4 text-xs text-[#6b4a33]">
             {content.sidebarBlurb}
+          </div>
+        )}
+        {content.sidebarCvUrl && (
+          <div className="mt-4 flex justify-center">
+            <a
+              href={content.sidebarCvUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 rounded-full bg-[#17323D] px-4 py-2 text-xs font-semibold text-white"
+            >
+              <FileText size={14} />
+              Curriculum Vitae
+            </a>
           </div>
         )}
       </div>

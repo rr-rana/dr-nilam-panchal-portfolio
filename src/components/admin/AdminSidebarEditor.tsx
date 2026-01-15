@@ -17,6 +17,7 @@ const AdminSidebarEditor = () => {
     null
   );
   const [isUploadingProfile, setIsUploadingProfile] = useState(false);
+  const [isUploadingCv, setIsUploadingCv] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [username, setUsername] = useState("");
@@ -91,7 +92,7 @@ const AdminSidebarEditor = () => {
     setIsAuthenticated(false);
   };
 
-  const uploadImage = async (file: File) => {
+  const uploadFile = async (file: File) => {
     const formData = new FormData();
     formData.append("file", file);
     const response = await fetch("/api/admin/upload", {
@@ -122,9 +123,14 @@ const AdminSidebarEditor = () => {
       if (pendingProfileFile) {
         setIsUploadingProfile(true);
         const profileUrl = withCacheBust(
-          await uploadImage(pendingProfileFile)
+          await uploadFile(pendingProfileFile)
         );
         nextContent = { ...nextContent, profileImageUrl: profileUrl };
+      }
+      if (pendingCvFile) {
+        setIsUploadingCv(true);
+        const cvUrl = withCacheBust(await uploadFile(pendingCvFile));
+        nextContent = { ...nextContent, sidebarCvUrl: cvUrl };
       }
 
       const response = await fetch("/api/admin/content", {
@@ -141,6 +147,7 @@ const AdminSidebarEditor = () => {
       const saved = (await response.json()) as SiteContent;
       setContent(saved);
       setPendingProfileFile(null);
+      setPendingCvFile(null);
       if (profilePreview) {
         URL.revokeObjectURL(profilePreview);
         setProfilePreview(null);
@@ -152,6 +159,7 @@ const AdminSidebarEditor = () => {
       setError(message);
     } finally {
       setIsUploadingProfile(false);
+      setIsUploadingCv(false);
       setIsSaving(false);
     }
   };
@@ -165,6 +173,8 @@ const AdminSidebarEditor = () => {
     setPendingProfileFile(file);
     setProfilePreview(URL.createObjectURL(file));
   };
+
+  const [pendingCvFile, setPendingCvFile] = useState<File | null>(null);
 
   if (isLoading) {
     return (
@@ -372,6 +382,43 @@ const AdminSidebarEditor = () => {
                     className="w-full rounded-2xl border border-[#e1d6c6] bg-white px-4 py-3 text-sm font-normal normal-case tracking-normal text-[#2d3b41] outline-none focus:border-[#17323D] focus:ring-2 focus:ring-[#17323D]/10"
                   />
                 </label>
+                <div className="rounded-2xl border border-white/70 bg-white/80 p-4">
+                  <label className="text-xs font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
+                    Curriculum Vitae (PDF)
+                  </label>
+                  <p className="mt-2 text-xs text-[#4c5f66]">
+                    PDF only. Upload to show the CV button in the sidebar.
+                  </p>
+                  <input
+                    type="file"
+                    accept="application/pdf"
+                    onChange={(event) =>
+                      setPendingCvFile(event.target.files?.[0] || null)
+                    }
+                    className="mt-3 block w-full text-xs text-[#4c5f66] file:mr-3 file:cursor-pointer file:rounded-full file:border-0 file:bg-[#17323D] file:px-4 file:py-2 file:text-xs file:font-semibold file:text-white"
+                  />
+                  {content.sidebarCvUrl && (
+                    <div className="mt-3 flex flex-wrap items-center gap-3">
+                      <a
+                        href={content.sidebarCvUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex rounded-full border border-white/70 bg-white/90 px-3 py-2 text-[10px] font-semibold text-[#17323D]"
+                      >
+                        View current CV
+                      </a>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setContent({ ...content, sidebarCvUrl: "" })
+                        }
+                        className="inline-flex cursor-pointer rounded-full border border-white/70 bg-white/90 px-3 py-2 text-[10px] font-semibold text-rose-700"
+                      >
+                        Remove CV
+                      </button>
+                    </div>
+                  )}
+                </div>
                 <label className="space-y-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
                   Short Bio
                   <textarea

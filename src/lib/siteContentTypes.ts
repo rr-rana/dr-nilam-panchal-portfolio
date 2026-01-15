@@ -18,5 +18,6 @@ export type SiteContent = {
   sidebarEmail: string;
   sidebarBlurb: string;
   sidebarFooter: string;
+  sidebarCvUrl?: string;
   socialLinks: Partial<Record<SocialLinkId, string>>;
 };

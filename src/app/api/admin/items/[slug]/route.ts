@@ -42,6 +42,7 @@ export const POST = async (request: NextRequest) => {
         heading?: string;
         author?: string;
         publishedDate?: string;
+        thumbnailUrl?: string;
         descriptionHtml?: string;
         photos?: { url: string; alt?: string }[];
         videoLinks?: string[];
@@ -61,6 +62,7 @@ export const POST = async (request: NextRequest) => {
       heading: body.heading,
       author: body.author?.trim() || undefined,
       publishedDate: body.publishedDate?.trim() || undefined,
+      thumbnailUrl: body.thumbnailUrl?.trim() || undefined,
       descriptionHtml: body.descriptionHtml,
       photos: body.photos ?? [],
       videoLinks: body.videoLinks ?? [],
