@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { put } from "@vercel/blob";
+import { v2 as cloudinary } from "cloudinary";
 import { isAdminRequest } from "@/lib/adminAuth";
 
 export const POST = async (request: NextRequest) => {
@@ -7,9 +7,13 @@ export const POST = async (request: NextRequest) => {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }
 
-  if (!process.env.BLOB_READ_WRITE_TOKEN) {
+  if (
+    !process.env.CLOUDINARY_CLOUD_NAME ||
+    !process.env.CLOUDINARY_API_KEY ||
+    !process.env.CLOUDINARY_API_SECRET
+  ) {
     return NextResponse.json(
-      { error: "BLOB_READ_WRITE_TOKEN is not configured." },
+      { error: "Cloudinary is not configured." },
       { status: 500 }
     );
   }
@@ -20,12 +24,28 @@ export const POST = async (request: NextRequest) => {
     return NextResponse.json({ error: "File not found." }, { status: 400 });
   }
 
-  const pathname = `uploads/${Date.now()}-${file.name}`;
-  const blob = await put(pathname, file, {
-    access: "public",
-    addRandomSuffix: true,
-    contentType: file.type || "application/octet-stream",
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
   });
 
-  return NextResponse.json({ url: blob.url });
+  const buffer = Buffer.from(await file.arrayBuffer());
+  const uploadResult = await new Promise<{ secure_url: string }>(
+    (resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        { resource_type: "auto", folder: "dr-nilam-panchal" },
+        (error, result) => {
+          if (error || !result) {
+            reject(error || new Error("Upload failed."));
+            return;
+          }
+          resolve(result as { secure_url: string });
+        }
+      );
+      uploadStream.end(buffer);
+    }
+  );
+
+  return NextResponse.json({ url: uploadResult.secure_url });
 };

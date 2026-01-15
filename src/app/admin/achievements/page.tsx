@@ -1,9 +1,9 @@
 "use client";
 
-import AdminPageEditor from "@/components/admin/AdminPageEditor";
+import AdminContentManager from "@/components/admin/AdminContentManager";
 
 const AdminPage = () => {
-  return <AdminPageEditor slug="achievements" title="Achievements" />;
+  return <AdminContentManager slug="achievements" title="Achievements" />;
 };
 
 export default AdminPage;

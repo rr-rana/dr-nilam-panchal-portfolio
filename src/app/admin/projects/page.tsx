@@ -1,9 +1,9 @@
 "use client";
 
-import AdminPageEditor from "@/components/admin/AdminPageEditor";
+import AdminContentManager from "@/components/admin/AdminContentManager";
 
 const AdminPage = () => {
-  return <AdminPageEditor slug="projects" title="Projects" />;
+  return <AdminContentManager slug="projects" title="Projects" />;
 };
 
 export default AdminPage;

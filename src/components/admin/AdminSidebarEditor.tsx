@@ -4,6 +4,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Info } from "lucide-react";
+import AdminLoginPanel from "@/components/admin/AdminLoginPanel";
 import type { SiteContent } from "@/lib/siteContentTypes";
 import { SOCIAL_LINK_OPTIONS } from "@/lib/socialLinks";
 
@@ -17,6 +18,7 @@ const AdminSidebarEditor = () => {
     null
   );
   const [isUploadingProfile, setIsUploadingProfile] = useState(false);
+  const [isUploadingCv, setIsUploadingCv] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [username, setUsername] = useState("");
@@ -91,7 +93,7 @@ const AdminSidebarEditor = () => {
     setIsAuthenticated(false);
   };
 
-  const uploadImage = async (file: File) => {
+  const uploadFile = async (file: File) => {
     const formData = new FormData();
     formData.append("file", file);
     const response = await fetch("/api/admin/upload", {
@@ -122,9 +124,14 @@ const AdminSidebarEditor = () => {
       if (pendingProfileFile) {
         setIsUploadingProfile(true);
         const profileUrl = withCacheBust(
-          await uploadImage(pendingProfileFile)
+          await uploadFile(pendingProfileFile)
         );
         nextContent = { ...nextContent, profileImageUrl: profileUrl };
+      }
+      if (pendingCvFile) {
+        setIsUploadingCv(true);
+        const cvUrl = withCacheBust(await uploadFile(pendingCvFile));
+        nextContent = { ...nextContent, sidebarCvUrl: cvUrl };
       }
 
       const response = await fetch("/api/admin/content", {
@@ -141,6 +148,7 @@ const AdminSidebarEditor = () => {
       const saved = (await response.json()) as SiteContent;
       setContent(saved);
       setPendingProfileFile(null);
+      setPendingCvFile(null);
       if (profilePreview) {
         URL.revokeObjectURL(profilePreview);
         setProfilePreview(null);
@@ -152,6 +160,7 @@ const AdminSidebarEditor = () => {
       setError(message);
     } finally {
       setIsUploadingProfile(false);
+      setIsUploadingCv(false);
       setIsSaving(false);
     }
   };
@@ -166,6 +175,8 @@ const AdminSidebarEditor = () => {
     setProfilePreview(URL.createObjectURL(file));
   };
 
+  const [pendingCvFile, setPendingCvFile] = useState<File | null>(null);
+
   if (isLoading) {
     return (
       <div className="mx-auto max-w-3xl px-6 py-16 text-center text-sm text-[#4c5f66]">
@@ -176,45 +187,15 @@ const AdminSidebarEditor = () => {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-[60vh] bg-[radial-gradient(circle_at_top,#f6f1e7_0%,#f3ede1_35%,#ebe4d6_65%,#e2d9c7_100%)]">
-        <div className="mx-auto max-w-md px-6 py-16">
-          <div className="rounded-3xl border border-white/70 bg-white/80 p-8 shadow-xl backdrop-blur">
-            <h1 className="text-2xl font-semibold text-[#17323D]">
-              Admin Login
-            </h1>
-            <p className="mt-2 text-sm text-[#4c5f66]">
-              Sign in to update the sidebar content.
-            </p>
-            {error && (
-              <div className="mt-4 rounded-2xl bg-red-50 px-4 py-2 text-xs text-red-700">
-                {error}
-              </div>
-            )}
-            <form onSubmit={handleLogin} className="mt-6 space-y-4">
-              <input
-                type="text"
-                value={username}
-                onChange={(event) => setUsername(event.target.value)}
-                placeholder="Username"
-                className="w-full rounded-full border border-white/70 bg-white/90 px-4 py-2 text-sm text-[#2d3b41] outline-none"
-              />
-              <input
-                type="password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                placeholder="Password"
-                className="w-full rounded-full border border-white/70 bg-white/90 px-4 py-2 text-sm text-[#2d3b41] outline-none"
-              />
-              <button
-                type="submit"
-                className="w-full rounded-full bg-[#17323D] py-2 text-sm font-semibold text-white"
-              >
-                Sign in
-              </button>
-            </form>
-          </div>
-        </div>
-      </div>
+      <AdminLoginPanel
+        subtitle="Sign in to update the sidebar content."
+        username={username}
+        password={password}
+        error={error}
+        onUsernameChange={setUsername}
+        onPasswordChange={setPassword}
+        onSubmit={handleLogin}
+      />
     );
   }
 
@@ -306,7 +287,7 @@ const AdminSidebarEditor = () => {
           </div>
 
           <div className="space-y-6">
-            <section className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-xl backdrop-blur">
+            <section className="rounded-3xl border border-white/70 bg-white/90 p-6 shadow-xl backdrop-blur">
               <h2 className="text-sm font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
                 Profile Details
               </h2>
@@ -330,7 +311,7 @@ const AdminSidebarEditor = () => {
                       setContent({ ...content, sidebarName: event.target.value })
                     }
                     placeholder="Name"
-                    className="w-full rounded-full border border-white/70 bg-white/90 px-4 py-2 text-sm font-normal normal-case tracking-normal text-[#2d3b41] outline-none"
+                    className="w-full rounded-2xl border border-[#e1d6c6] bg-white px-4 py-3 text-sm font-normal normal-case tracking-normal text-[#2d3b41] outline-none focus:border-[#17323D] focus:ring-2 focus:ring-[#17323D]/10"
                   />
                 </label>
                 <label className="space-y-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
@@ -342,7 +323,7 @@ const AdminSidebarEditor = () => {
                       setContent({ ...content, sidebarTitle: event.target.value })
                     }
                     placeholder="Title / Role"
-                    className="w-full rounded-full border border-white/70 bg-white/90 px-4 py-2 text-sm font-normal normal-case tracking-normal text-[#2d3b41] outline-none"
+                    className="w-full rounded-2xl border border-[#e1d6c6] bg-white px-4 py-3 text-sm font-normal normal-case tracking-normal text-[#2d3b41] outline-none focus:border-[#17323D] focus:ring-2 focus:ring-[#17323D]/10"
                   />
                 </label>
                 <label className="space-y-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
@@ -357,7 +338,7 @@ const AdminSidebarEditor = () => {
                       })
                     }
                     placeholder="Location"
-                    className="w-full rounded-full border border-white/70 bg-white/90 px-4 py-2 text-sm font-normal normal-case tracking-normal text-[#2d3b41] outline-none"
+                    className="w-full rounded-2xl border border-[#e1d6c6] bg-white px-4 py-3 text-sm font-normal normal-case tracking-normal text-[#2d3b41] outline-none focus:border-[#17323D] focus:ring-2 focus:ring-[#17323D]/10"
                   />
                 </label>
                 <label className="space-y-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
@@ -369,9 +350,46 @@ const AdminSidebarEditor = () => {
                       setContent({ ...content, sidebarEmail: event.target.value })
                     }
                     placeholder="Email"
-                    className="w-full rounded-full border border-white/70 bg-white/90 px-4 py-2 text-sm font-normal normal-case tracking-normal text-[#2d3b41] outline-none"
+                    className="w-full rounded-2xl border border-[#e1d6c6] bg-white px-4 py-3 text-sm font-normal normal-case tracking-normal text-[#2d3b41] outline-none focus:border-[#17323D] focus:ring-2 focus:ring-[#17323D]/10"
                   />
                 </label>
+                <div className="rounded-2xl border border-white/70 bg-white/80 p-4">
+                  <label className="text-xs font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
+                    Curriculum Vitae (PDF)
+                  </label>
+                  <p className="mt-2 text-xs text-[#4c5f66]">
+                    PDF only. Upload to show the CV button in the sidebar.
+                  </p>
+                  <input
+                    type="file"
+                    accept="application/pdf"
+                    onChange={(event) =>
+                      setPendingCvFile(event.target.files?.[0] || null)
+                    }
+                    className="mt-3 block w-full text-xs text-[#4c5f66] file:mr-3 file:cursor-pointer file:rounded-full file:border-0 file:bg-[#17323D] file:px-4 file:py-2 file:text-xs file:font-semibold file:text-white"
+                  />
+                  {content.sidebarCvUrl && (
+                    <div className="mt-3 flex flex-wrap items-center gap-3">
+                      <a
+                        href={content.sidebarCvUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex rounded-full border border-white/70 bg-white/90 px-3 py-2 text-[10px] font-semibold text-[#17323D]"
+                      >
+                        View current CV
+                      </a>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setContent({ ...content, sidebarCvUrl: "" })
+                        }
+                        className="inline-flex cursor-pointer rounded-full border border-white/70 bg-white/90 px-3 py-2 text-[10px] font-semibold text-rose-700"
+                      >
+                        Remove CV
+                      </button>
+                    </div>
+                  )}
+                </div>
                 <label className="space-y-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
                   Short Bio
                   <textarea
@@ -380,7 +398,7 @@ const AdminSidebarEditor = () => {
                       setContent({ ...content, sidebarBlurb: event.target.value })
                     }
                     placeholder="Short bio blurb"
-                    className="min-h-30 w-full rounded-2xl border border-white/70 bg-white/90 px-4 py-3 text-sm font-normal normal-case tracking-normal text-[#2d3b41] outline-none"
+                    className="min-h-30 w-full rounded-2xl border border-[#e1d6c6] bg-white px-4 py-3 text-sm font-normal normal-case tracking-normal text-[#2d3b41] outline-none focus:border-[#17323D] focus:ring-2 focus:ring-[#17323D]/10"
                   />
                 </label>
                 <label className="space-y-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
@@ -394,13 +412,13 @@ const AdminSidebarEditor = () => {
                       })
                     }
                     placeholder="Footer call-to-action text"
-                    className="min-h-30 w-full rounded-2xl border border-white/70 bg-white/90 px-4 py-3 text-sm font-normal normal-case tracking-normal text-[#2d3b41] outline-none"
+                    className="min-h-30 w-full rounded-2xl border border-[#e1d6c6] bg-white px-4 py-3 text-sm font-normal normal-case tracking-normal text-[#2d3b41] outline-none focus:border-[#17323D] focus:ring-2 focus:ring-[#17323D]/10"
                   />
                 </label>
               </div>
             </section>
 
-            <section className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-xl backdrop-blur">
+            <section className="rounded-3xl border border-white/70 bg-white/90 p-6 shadow-xl backdrop-blur">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <h2 className="text-sm font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
                   Social Links
@@ -433,7 +451,7 @@ const AdminSidebarEditor = () => {
                           })
                         }
                         placeholder={placeholder}
-                        className="w-full rounded-full border border-white/70 bg-white/90 px-4 py-2 text-sm font-normal normal-case tracking-normal text-[#2d3b41] outline-none"
+                        className="w-full rounded-2xl border border-[#e1d6c6] bg-white px-4 py-3 text-sm font-normal normal-case tracking-normal text-[#2d3b41] outline-none focus:border-[#17323D] focus:ring-2 focus:ring-[#17323D]/10"
                         aria-label={`${label} URL`}
                       />
                     </div>

@@ -6,6 +6,8 @@ import type { SiteContent } from "@/lib/siteContentTypes";
 import type { PageContent } from "@/lib/pageContent";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import RichTextEditor from "@/components/admin/RichTextEditor";
+import AdminToast from "@/components/admin/AdminToast";
+import AdminLoginPanel from "@/components/admin/AdminLoginPanel";
 
 type AdminPageEditorProps = {
   slug: string;
@@ -64,6 +66,14 @@ const AdminPageEditor = ({ slug, title }: AdminPageEditorProps) => {
     }, 3000);
     return () => window.clearTimeout(timer);
   }, [message]);
+
+  useEffect(() => {
+    if (!error) return;
+    const timer = window.setTimeout(() => {
+      setError("");
+    }, 3000);
+    return () => window.clearTimeout(timer);
+  }, [error]);
 
   const handleLogin = async (event: FormEvent) => {
     event.preventDefault();
@@ -132,45 +142,15 @@ const AdminPageEditor = ({ slug, title }: AdminPageEditorProps) => {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-[60vh] bg-[radial-gradient(circle_at_top,#f6f1e7_0%,#f3ede1_35%,#ebe4d6_65%,#e2d9c7_100%)]">
-        <div className="mx-auto max-w-md px-6 py-16">
-          <div className="rounded-3xl border border-white/70 bg-white/80 p-8 shadow-xl backdrop-blur">
-            <h1 className="text-2xl font-semibold text-[#17323D]">
-              Admin Login
-            </h1>
-            <p className="mt-2 text-sm text-[#4c5f66]">
-              Sign in to edit this page content.
-            </p>
-            {error && (
-              <div className="mt-4 rounded-2xl bg-red-50 px-4 py-2 text-xs text-red-700">
-                {error}
-              </div>
-            )}
-            <form onSubmit={handleLogin} className="mt-6 space-y-4">
-              <input
-                type="text"
-                value={username}
-                onChange={(event) => setUsername(event.target.value)}
-                placeholder="Username"
-                className="w-full rounded-full border border-white/70 bg-white/90 px-4 py-2 text-sm text-[#2d3b41] outline-none"
-              />
-              <input
-                type="password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                placeholder="Password"
-                className="w-full rounded-full border border-white/70 bg-white/90 px-4 py-2 text-sm text-[#2d3b41] outline-none"
-              />
-              <button
-                type="submit"
-                className="w-full rounded-full bg-[#17323D] py-2 text-sm font-semibold text-white"
-              >
-                Sign in
-              </button>
-            </form>
-          </div>
-        </div>
-      </div>
+      <AdminLoginPanel
+        subtitle="Sign in to edit this page content."
+        username={username}
+        password={password}
+        error={error}
+        onUsernameChange={setUsername}
+        onPasswordChange={setPassword}
+        onSubmit={handleLogin}
+      />
     );
   }
 
@@ -243,11 +223,8 @@ const AdminPageEditor = ({ slug, title }: AdminPageEditorProps) => {
           </main>
         </div>
       </div>
-      {message && (
-        <div className="fixed bottom-6 right-6 z-50 rounded-full bg-[#17323D] px-4 py-2 text-xs font-semibold text-white shadow-lg">
-          {message}
-        </div>
-      )}
+      {message && <AdminToast message={message} />}
+      {error && <AdminToast message={error} variant="error" />}
     </div>
   );
 };

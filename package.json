@@ -10,9 +10,11 @@
   },
   "dependencies": {
     "@vercel/blob": "^2.0.0",
+    "cloudinary": "^2.8.0",
     "draft-js": "^0.11.7",
     "draftjs-to-html": "^0.9.1",
     "html-to-draftjs": "^1.5.0",
+    "lightgallery": "^2.9.0",
     "lucide-react": "^0.562.0",
     "mongodb": "^6.19.0",
     "next": "16.1.1",
