@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { Pencil, Trash2, Plus } from "lucide-react";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import RichTextEditor from "@/components/admin/RichTextEditor";
 import AdminToast from "@/components/admin/AdminToast";
@@ -338,6 +339,8 @@ const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
     );
   }
 
+  const showList = !isEditing || editingId;
+
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,#f6f1e7_0%,#f3ede1_35%,#ebe4d6_65%,#e2d9c7_100%)]">
       <div className="max-w-6xl mx-auto px-4 pb-16">
@@ -363,13 +366,6 @@ const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
               >
                 Log out
               </button>
-              <button
-                type="button"
-                onClick={handleCreate}
-                className="cursor-pointer rounded-full bg-[#17323D] px-4 py-2 text-xs font-semibold text-white"
-              >
-                New Item
-              </button>
               {isEditing && (
                 <button
                   type="button"
@@ -392,72 +388,89 @@ const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
         <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[280px_1fr]">
           <AdminSidebar content={siteContent} showEditButton variant="compact" />
           <main className="space-y-8">
-            <section className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-xl backdrop-blur">
-              <div className="flex items-center justify-between">
-                <h2 className="text-sm font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
-                  Content List
-                </h2>
-                <span className="text-xs text-[#4c5f66]">
-                  {items.length} entries
-                </span>
-              </div>
-              <div className="mt-4 space-y-4">
-                {items.length === 0 ? (
-                  <div className="rounded-2xl border border-dashed border-[#d5c9b8] px-4 py-6 text-center text-xs text-[#4c5f66]">
-                    No items created yet.
+            {showList && (
+              <section className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-xl backdrop-blur">
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                  <div>
+                    <h2 className="text-sm font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
+                      Content List
+                    </h2>
+                    <p className="mt-1 text-xs text-[#4c5f66]">
+                      {items.length} entries
+                    </p>
                   </div>
-                ) : (
-                  items.map((item) => (
-                    <div
-                      key={item.id}
-                      className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-white/70 bg-white/90 p-4"
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="relative h-14 w-20 overflow-hidden rounded-xl border border-white/80 bg-[#f3ede1]">
-                          {item.photos[0] ? (
-                            <Image
-                              src={item.photos[0].url}
-                              alt={item.photos[0].alt || item.heading}
-                              fill
-                              className="object-cover"
-                            />
-                          ) : (
-                            <div className="flex h-full w-full items-center justify-center text-[10px] font-semibold uppercase text-[#7A4C2C]">
-                              No Img
-                            </div>
-                          )}
-                        </div>
-                        <div>
-                          <div className="text-sm font-semibold text-[#17323D]">
-                            {item.heading}
-                          </div>
-                          <div className="text-xs text-[#4c5f66]">
-                            {getPreview(item.descriptionHtml) ||
-                              "No description yet."}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <button
-                          type="button"
-                          onClick={() => handleEdit(item)}
-                          className="rounded-full border border-white/60 bg-white/70 px-4 py-2 text-xs font-semibold text-[#17323D]"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleDelete(item.id)}
-                          className="rounded-full border border-white/60 bg-white/70 px-4 py-2 text-xs font-semibold text-[#17323D]"
-                        >
-                          Delete
-                        </button>
-                      </div>
+                  <button
+                    type="button"
+                    onClick={handleCreate}
+                    className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-[#17323D] px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-[#1f3b47]"
+                  >
+                    <Plus size={14} />
+                    New Item
+                  </button>
+                </div>
+
+                <div className="mt-6 space-y-4">
+                  {items.length === 0 ? (
+                    <div className="rounded-2xl border border-dashed border-[#d5c9b8] px-4 py-6 text-center text-xs text-[#4c5f66]">
+                      No items created yet.
                     </div>
-                  ))
-                )}
-              </div>
-            </section>
+                  ) : (
+                    items.map((item) => (
+                      <div
+                        key={item.id}
+                        className="group rounded-2xl border border-white/70 bg-white/90 p-4 transition-shadow hover:shadow-md"
+                      >
+                        <div className="flex flex-wrap items-center justify-between gap-4">
+                          <div className="flex min-w-0 items-center gap-4">
+                            <div className="relative h-16 w-24 overflow-hidden rounded-2xl border border-white/80 bg-[#f3ede1]">
+                              {item.photos[0] ? (
+                                <Image
+                                  src={item.photos[0].url}
+                                  alt={item.photos[0].alt || item.heading}
+                                  fill
+                                  className="object-cover"
+                                />
+                              ) : (
+                                <div className="flex h-full w-full items-center justify-center text-[10px] font-semibold uppercase text-[#7A4C2C]">
+                                  No Image
+                                </div>
+                              )}
+                            </div>
+                            <div className="min-w-0">
+                              <div className="truncate text-sm font-semibold text-[#17323D]">
+                                {item.heading}
+                              </div>
+                              <div className="mt-1 line-clamp-2 text-xs text-[#4c5f66]">
+                                {getPreview(item.descriptionHtml) ||
+                                  "No description yet."}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => handleEdit(item)}
+                              className="inline-flex cursor-pointer items-center justify-center rounded-full bg-amber-100 p-2 text-amber-700 transition-colors hover:bg-amber-200"
+                              aria-label="Edit item"
+                            >
+                              <Pencil size={16} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDelete(item.id)}
+                              className="inline-flex cursor-pointer items-center justify-center rounded-full bg-rose-100 p-2 text-rose-700 transition-colors hover:bg-rose-200"
+                              aria-label="Delete item"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </section>
+            )}
 
             {isEditing && draft && (
               <section className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-xl backdrop-blur">
