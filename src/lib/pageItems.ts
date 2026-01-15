@@ -14,6 +14,8 @@ export type PageItem = {
   id: string;
   slug: PageSlug;
   heading: string;
+  author?: string;
+  publishedDate?: string;
   descriptionHtml: string;
   photos: PageItemPhoto[];
   videoLinks: string[];
@@ -24,6 +26,8 @@ export type PageItem = {
 
 export type PageItemInput = {
   heading: string;
+  author?: string;
+  publishedDate?: string;
   descriptionHtml: string;
   photos: PageItemPhoto[];
   videoLinks: string[];
@@ -34,6 +38,8 @@ type PageItemDocument = {
   _id: string;
   slug: PageSlug;
   heading: string;
+  author?: string;
+  publishedDate?: string;
   descriptionHtml: string;
   photos: PageItemPhoto[];
   videoLinks: string[];
@@ -53,6 +59,8 @@ const mapDocument = (document: PageItemDocument): PageItem => ({
   id: document._id,
   slug: document.slug,
   heading: document.heading,
+  author: document.author,
+  publishedDate: document.publishedDate,
   descriptionHtml: document.descriptionHtml,
   photos: document.photos ?? [],
   videoLinks: document.videoLinks ?? [],
@@ -101,6 +109,8 @@ export const createPageItem = async (
     _id: crypto.randomUUID(),
     slug,
     heading: input.heading,
+    author: input.author,
+    publishedDate: input.publishedDate,
     descriptionHtml: input.descriptionHtml,
     photos: input.photos,
     videoLinks: input.videoLinks,
@@ -128,6 +138,8 @@ export const updatePageItem = async (
     {
       $set: {
         heading: input.heading,
+        author: input.author,
+        publishedDate: input.publishedDate,
         descriptionHtml: input.descriptionHtml,
         photos: input.photos,
         videoLinks: input.videoLinks,

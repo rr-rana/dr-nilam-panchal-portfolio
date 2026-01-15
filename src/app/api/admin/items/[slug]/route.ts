@@ -40,6 +40,8 @@ export const POST = async (request: NextRequest) => {
   const body = (await request.json().catch(() => null)) as
     | {
         heading?: string;
+        author?: string;
+        publishedDate?: string;
         descriptionHtml?: string;
         photos?: { url: string; alt?: string }[];
         videoLinks?: string[];
@@ -57,6 +59,8 @@ export const POST = async (request: NextRequest) => {
   try {
     const item = await createPageItem(slug, {
       heading: body.heading,
+      author: body.author?.trim() || undefined,
+      publishedDate: body.publishedDate?.trim() || undefined,
       descriptionHtml: body.descriptionHtml,
       photos: body.photos ?? [],
       videoLinks: body.videoLinks ?? [],

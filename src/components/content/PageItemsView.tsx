@@ -15,6 +15,17 @@ const getPreview = (html: string) => {
   return `${text.slice(0, 157)}...`;
 };
 
+const formatDate = (value?: string) => {
+  if (!value) return "";
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return value;
+  return parsed.toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+};
+
 type PageItemsViewProps = {
   slug: PageSlug;
   title: string;
@@ -113,6 +124,16 @@ const PageItemsView = async ({
                               </a>
                             )}
                           </div>
+                        </div>
+                        <div className="min-w-[160px] text-right text-xs text-[#4c5f66]">
+                          <div className="font-semibold text-[#17323D]">
+                            Author:
+                          </div>
+                          <div>{item.author || "---"}</div>
+                          <div className="mt-2 font-semibold text-[#17323D]">
+                            Published Date:
+                          </div>
+                          <div>{formatDate(item.publishedDate) || "---"}</div>
                         </div>
                       </div>
                     </article>

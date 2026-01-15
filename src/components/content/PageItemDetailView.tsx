@@ -24,25 +24,51 @@ const PageItemDetailView = async ({
           <HomeSidebar content={siteContent} variant="compact" />
           <main className="space-y-6">
             <section className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-xl backdrop-blur">
-              <Link
-                href={`/${slug}`}
-                className="text-xs font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]"
-              >
-                Back to {title}
-              </Link>
-              <h1 className="mt-3 text-2xl font-semibold text-[#17323D]">
-                {item.heading}
-              </h1>
-              {item.pdfUrl && (
-                <a
-                  href={item.pdfUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="mt-4 inline-flex rounded-full bg-[#17323D] px-4 py-2 text-xs font-semibold text-white"
-                >
-                  View PDF
-                </a>
-              )}
+              <div className="flex flex-wrap items-start justify-between gap-6">
+                <div className="min-w-0">
+                  <Link
+                    href={`/${slug}`}
+                    className="text-xs font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]"
+                  >
+                    Back to {title}
+                  </Link>
+                  <h1 className="mt-3 text-2xl font-semibold text-[#17323D]">
+                    {item.heading}
+                  </h1>
+                  <div className="mt-3 flex flex-wrap gap-6 text-xs text-[#4c5f66]">
+                    <div>
+                      <span className="font-semibold text-[#17323D]">
+                        Author:
+                      </span>{" "}
+                      {item.author || "---"}
+                    </div>
+                    <div>
+                      <span className="font-semibold text-[#17323D]">
+                        Published Date:
+                      </span>{" "}
+                      {item.publishedDate || "---"}
+                    </div>
+                  </div>
+                  {item.pdfUrl && (
+                    <a
+                      href={item.pdfUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="mt-4 inline-flex rounded-full bg-[#17323D] px-4 py-2 text-xs font-semibold text-white"
+                    >
+                      View PDF
+                    </a>
+                  )}
+                </div>
+                <div className="min-w-[180px] rounded-2xl border border-white/70 bg-white/90 px-4 py-3 text-xs text-[#4c5f66] shadow-sm">
+                  <div className="font-semibold text-[#17323D]">Author</div>
+                  <div className="mt-1">{item.author || "---"}</div>
+                  <div className="mt-3 font-semibold text-[#17323D]">
+                    Published Date
+                  </div>
+                  <div className="mt-1">{item.publishedDate || "---"}</div>
+                </div>
+              </div>
             </section>
 
             {item.photos.length > 0 && (
