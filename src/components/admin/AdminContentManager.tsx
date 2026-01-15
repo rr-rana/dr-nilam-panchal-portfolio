@@ -11,7 +11,7 @@ import AdminToast from "@/components/admin/AdminToast";
 import ConfirmModal from "@/components/admin/ConfirmModal";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import type { SiteContent } from "@/lib/siteContentTypes";
-import type { PageItemPhoto } from "@/lib/pageItems";
+import type { PageItem, PageItemPhoto } from "@/lib/pageItems";
 import { useAdminSession } from "@/components/admin/AdminSessionProvider";
 
 const stripHtml = (html: string) =>
@@ -23,24 +23,15 @@ const getPreview = (html: string) => {
   return `${text.slice(0, 117)}...`;
 };
 
-type AdminItem = {
-  id: string;
-  heading: string;
-  author?: string;
-  publishedDate?: string;
-  thumbnailUrl?: string;
-  descriptionHtml: string;
-  photos: PageItemPhoto[];
-  videoLinks: string[];
-  pdfUrl?: string;
-};
+type AdminItem = PageItem;
+type AdminItemDraft = Omit<PageItem, "id" | "slug" | "createdAt" | "updatedAt">;
 
 type AdminContentManagerProps = {
   slug: string;
   title: string;
 };
 
-const emptyDraft: Omit<AdminItem, "id"> = {
+const emptyDraft: AdminItemDraft = {
   heading: "",
   author: "",
   publishedDate: "",
@@ -63,7 +54,7 @@ const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
   } = useAdminSession();
   const items = itemsBySlug[slug] ?? [];
   const isItemsLoading = itemsLoadingBySlug[slug] ?? false;
-  const [draft, setDraft] = useState<Omit<AdminItem, "id"> | null>(null);
+  const [draft, setDraft] = useState<AdminItemDraft | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [pendingPhotos, setPendingPhotos] = useState<File[]>([]);
   const [pendingPdf, setPendingPdf] = useState<File | null>(null);
