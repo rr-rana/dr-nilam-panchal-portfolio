@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
+import Link from "next/link";
 
 const Footer = () => {
   const pathname = usePathname();
@@ -21,9 +22,9 @@ const Footer = () => {
       <div className="bg-[#0f2c3c]">
         <div className="max-w-6xl mx-auto px-4 py-6 text-center text-sm text-white/80">
           © {year} Prof. (Dr.) Nilam Panchal ·{" "}
-          <a className="underline underline-offset-4" href={privacyHref}>
+          <Link className="underline underline-offset-4" href={privacyHref}>
             Privacy Policy
-          </a>
+          </Link>
         </div>
       </div>
     </footer>
