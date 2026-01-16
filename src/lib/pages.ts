@@ -1,4 +1,5 @@
 export type PageSlug =
+  | "research-publications"
   | "projects"
   | "achievements"
   | "testimonials"
@@ -23,6 +24,7 @@ export type PageLink = {
 };
 
 export const PRIMARY_PAGES: PageLink[] = [
+  { slug: "research-publications", label: "Research & Publications" },
   { slug: "projects", label: "Projects" },
   { slug: "achievements", label: "Achievements" },
   { slug: "testimonials", label: "Testimonials" },
