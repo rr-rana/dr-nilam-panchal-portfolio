@@ -69,8 +69,8 @@ export const POST = async (request: NextRequest) => {
       pdfUrl: body.pdfUrl,
     });
 
-    revalidateTag("page-items", "max");
-    revalidateTag(`page-items:${slug}`, "max");
+    revalidateTag("page-items");
+    revalidateTag(`page-items:${slug}`);
 
     return NextResponse.json(item);
   } catch (error) {

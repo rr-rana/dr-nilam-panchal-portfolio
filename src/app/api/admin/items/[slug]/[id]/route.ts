@@ -83,9 +83,9 @@ export const PUT = async (request: NextRequest) => {
       return NextResponse.json({ error: "Not found." }, { status: 404 });
     }
 
-    revalidateTag("page-items", "max");
-    revalidateTag(`page-items:${slug}`, "max");
-    revalidateTag(`page-item:${slug}:${id}`, "max");
+    revalidateTag("page-items");
+    revalidateTag(`page-items:${slug}`);
+    revalidateTag(`page-item:${slug}:${id}`);
 
     return NextResponse.json(item);
   } catch (error) {
@@ -111,9 +111,9 @@ export const DELETE = async (request: NextRequest) => {
       return NextResponse.json({ error: "Not found." }, { status: 404 });
     }
 
-    revalidateTag("page-items", "max");
-    revalidateTag(`page-items:${slug}`, "max");
-    revalidateTag(`page-item:${slug}:${id}`, "max");
+    revalidateTag("page-items");
+    revalidateTag(`page-items:${slug}`);
+    revalidateTag(`page-item:${slug}:${id}`);
 
     return NextResponse.json({ ok: true });
   } catch (error) {

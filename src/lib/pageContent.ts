@@ -58,5 +58,5 @@ export const getCachedPageContent = (slug: PageSlug) =>
   unstable_cache(
     async () => getPageContent(slug),
     ["page-content", slug],
-    { revalidate: 300, tags: ["page-content", `page-content:${slug}`] }
+    { revalidate: false, tags: ["page-content", `page-content:${slug}`] }
   )();

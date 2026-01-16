@@ -176,12 +176,12 @@ export const getCachedPageItems = (slug: PageSlug) =>
   unstable_cache(
     async () => listPageItems(slug),
     ["page-items", slug],
-    { revalidate: 300, tags: ["page-items", `page-items:${slug}`] }
+    { revalidate: false, tags: ["page-items", `page-items:${slug}`] }
   )();
 
 export const getCachedPageItem = (slug: PageSlug, id: string) =>
   unstable_cache(
     async () => getPageItem(slug, id),
     ["page-item", slug, id],
-    { revalidate: 300, tags: ["page-items", `page-item:${slug}:${id}`] }
+    { revalidate: false, tags: ["page-items", `page-item:${slug}:${id}`] }
   )();

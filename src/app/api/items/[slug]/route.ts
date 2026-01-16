@@ -18,7 +18,7 @@ export const GET = async (
   const response = NextResponse.json({ items });
   response.headers.set(
     "Cache-Control",
-    "public, max-age=60, stale-while-revalidate=300"
+    "no-store, max-age=0"
   );
   return response;
 };

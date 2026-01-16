@@ -24,8 +24,8 @@ export const PUT = async (request: NextRequest) => {
 
   try {
     const saved = await savePageContent("conference", body.html);
-    revalidateTag("page-content", "max");
-    revalidateTag("page-content:conference", "max");
+    revalidateTag("page-content");
+    revalidateTag("page-content:conference");
     return NextResponse.json(saved);
   } catch (error) {
     const message =

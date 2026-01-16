@@ -4,6 +4,6 @@ import { getCachedPageContent } from "@/lib/pageContent";
 export const GET = async () => {
   const content = await getCachedPageContent("supervision");
   const response = NextResponse.json(content);
-  response.headers.set("Cache-Control", "public, max-age=60, stale-while-revalidate=300");
+  response.headers.set("Cache-Control", "no-store, max-age=0");
   return response;
 };
