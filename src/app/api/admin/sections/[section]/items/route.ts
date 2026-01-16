@@ -74,9 +74,9 @@ export const POST = async (
       pdfUrl: body.pdfUrl,
     });
 
-    revalidateTag("section-items");
-    revalidateTag(`section-items:${section}`);
-    revalidateTag(`section-items:${section}:${body.submenuSlug}`);
+    revalidateTag("section-items", "default");
+    revalidateTag(`section-items:${section}`, "default");
+    revalidateTag(`section-items:${section}:${body.submenuSlug}`, "default");
     return NextResponse.json(item);
   } catch (error) {
     const message =

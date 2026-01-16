@@ -42,8 +42,8 @@ export const POST = async (
 
   try {
     const submenu = await createSectionSubmenu(section, body.label);
-    revalidateTag("section-submenus");
-    revalidateTag(`section-submenus:${section}`);
+    revalidateTag("section-submenus", "default");
+    revalidateTag(`section-submenus:${section}`, "default");
     return NextResponse.json(submenu);
   } catch (error) {
     const message =

@@ -62,10 +62,10 @@ export const PUT = async (
       return NextResponse.json({ error: "Item not found." }, { status: 404 });
     }
 
-    revalidateTag("section-items");
-    revalidateTag(`section-items:${section}`);
-    revalidateTag(`section-items:${section}:${body.submenuSlug}`);
-    revalidateTag(`section-item:${section}:${body.submenuSlug}:${id}`);
+    revalidateTag("section-items", "default");
+    revalidateTag(`section-items:${section}`, "default");
+    revalidateTag(`section-items:${section}:${body.submenuSlug}`, "default");
+    revalidateTag(`section-item:${section}:${body.submenuSlug}:${id}`, "default");
     return NextResponse.json(item);
   } catch (error) {
     const message =
@@ -92,8 +92,8 @@ export const DELETE = async (
     if (!ok) {
       return NextResponse.json({ error: "Item not found." }, { status: 404 });
     }
-    revalidateTag("section-items");
-    revalidateTag(`section-items:${section}`);
+    revalidateTag("section-items", "default");
+    revalidateTag(`section-items:${section}`, "default");
     return NextResponse.json({ success: true });
   } catch (error) {
     const message =

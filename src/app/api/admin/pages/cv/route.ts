@@ -24,8 +24,8 @@ export const PUT = async (request: NextRequest) => {
 
   try {
     const saved = await savePageContent("cv", body.html);
-    revalidateTag("page-content");
-    revalidateTag("page-content:cv");
+    revalidateTag("page-content", "default");
+    revalidateTag("page-content:cv", "default");
     return NextResponse.json(saved);
   } catch (error) {
     const message =

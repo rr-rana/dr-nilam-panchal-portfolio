@@ -38,7 +38,7 @@ export const PUT = async (request: NextRequest) => {
       },
     };
     const saved = await saveSiteContent(nextContent);
-    revalidateTag("site-content");
+    revalidateTag("site-content", "default");
     return NextResponse.json(saved);
   } catch (error) {
     const message =

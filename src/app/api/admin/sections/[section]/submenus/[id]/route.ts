@@ -32,10 +32,10 @@ export const PUT = async (
     if (!updated) {
       return NextResponse.json({ error: "Submenu not found." }, { status: 404 });
     }
-    revalidateTag("section-submenus");
-    revalidateTag(`section-submenus:${section}`);
-    revalidateTag("section-items");
-    revalidateTag(`section-items:${section}`);
+    revalidateTag("section-submenus", "default");
+    revalidateTag(`section-submenus:${section}`, "default");
+    revalidateTag("section-items", "default");
+    revalidateTag(`section-items:${section}`, "default");
     return NextResponse.json(updated);
   } catch (error) {
     const message =
@@ -62,10 +62,10 @@ export const DELETE = async (
     if (!ok) {
       return NextResponse.json({ error: "Submenu not found." }, { status: 404 });
     }
-    revalidateTag("section-submenus");
-    revalidateTag(`section-submenus:${section}`);
-    revalidateTag("section-items");
-    revalidateTag(`section-items:${section}`);
+    revalidateTag("section-submenus", "default");
+    revalidateTag(`section-submenus:${section}`, "default");
+    revalidateTag("section-items", "default");
+    revalidateTag(`section-items:${section}`, "default");
     return NextResponse.json({ success: true });
   } catch (error) {
     const message =
