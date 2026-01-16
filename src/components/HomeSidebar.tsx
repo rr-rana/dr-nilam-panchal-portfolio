@@ -94,36 +94,36 @@ const HomeSidebar = ({ content, variant = "default" }: HomeSidebarProps) => {
         <div className="mt-4 space-y-3 text-sm text-[#1f2f36]">
           <a
             className={`flex items-center gap-2 transition-colors ${
-              isActive("/publications")
+              isActive("/research-publications")
                 ? "underline underline-offset-4 decoration-white"
                 : "hover:text-[#7A4C2C]"
             }`}
-            href="/publications"
+            href="/research-publications"
           >
             <BookOpen size={16} />
-            Publications
+            Research & Publications
           </a>
           <a
             className={`flex items-center gap-2 transition-colors ${
-              isActive("/awards")
+              isActive("/achievements-awards")
                 ? "underline underline-offset-4 decoration-white"
                 : "hover:text-[#7A4C2C]"
             }`}
-            href="/awards"
+            href="/achievements-awards"
           >
             <Medal size={16} />
-            Awards & Grants
+            Achievements & Awards
           </a>
           <a
             className={`flex items-center gap-2 transition-colors ${
-              isActive("/teaching")
+              isActive("/teaching-training")
                 ? "underline underline-offset-4 decoration-white"
                 : "hover:text-[#7A4C2C]"
             }`}
-            href="/teaching"
+            href="/teaching-training"
           >
             <CalendarCheck size={16} />
-            Talks & Teaching
+            Teaching & Training
           </a>
         </div>
       </div>

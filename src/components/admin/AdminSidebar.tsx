@@ -111,33 +111,33 @@ const AdminSidebar = ({
         <div className="mt-4 space-y-3 text-sm text-[#1f2f36]">
           <span
             className={`flex items-center gap-2 ${
-              isActive("/publications")
+              isActive("/research-publications")
                 ? "underline underline-offset-4 decoration-white"
                 : ""
             }`}
           >
             <BookOpen size={16} />
-            Publications
+            Research & Publications
           </span>
           <span
             className={`flex items-center gap-2 ${
-              isActive("/awards")
+              isActive("/achievements-awards")
                 ? "underline underline-offset-4 decoration-white"
                 : ""
             }`}
           >
             <Medal size={16} />
-            Awards & Grants
+            Achievements & Awards
           </span>
           <span
             className={`flex items-center gap-2 ${
-              isActive("/teaching")
+              isActive("/teaching-training")
                 ? "underline underline-offset-4 decoration-white"
                 : ""
             }`}
           >
             <CalendarCheck size={16} />
-            Talks & Teaching
+            Teaching & Training
           </span>
         </div>
       </div>
