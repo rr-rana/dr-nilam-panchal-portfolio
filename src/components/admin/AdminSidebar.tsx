@@ -11,6 +11,7 @@ import {
   Medal,
   PencilLine,
 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import type { SiteContent } from "@/lib/siteContentTypes";
 import { SOCIAL_LINK_OPTIONS } from "@/lib/socialLinks";
@@ -28,8 +29,16 @@ const AdminSidebar = ({
 }: AdminSidebarProps) => {
   const isCompact = variant === "compact";
   const pathname = usePathname();
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  const effectivePathname = isMounted ? pathname : "";
   const isActive = (href: string) =>
-    pathname === href || pathname?.startsWith(`${href}/`);
+    effectivePathname === href ||
+    effectivePathname?.startsWith(`${href}/`);
   return (
     <aside className="space-y-6 lg:sticky lg:top-24">
       <div className="rounded-2xl border border-white/80 bg-white/80 p-5 shadow-xl backdrop-blur">
@@ -111,33 +120,33 @@ const AdminSidebar = ({
         <div className="mt-4 space-y-3 text-sm text-[#1f2f36]">
           <span
             className={`flex items-center gap-2 ${
-              isActive("/publications")
+              isActive("/research-publications")
                 ? "underline underline-offset-4 decoration-white"
                 : ""
             }`}
           >
             <BookOpen size={16} />
-            Publications
+            Research & Publications
           </span>
           <span
             className={`flex items-center gap-2 ${
-              isActive("/awards")
+              isActive("/achievements-awards")
                 ? "underline underline-offset-4 decoration-white"
                 : ""
             }`}
           >
             <Medal size={16} />
-            Awards & Grants
+            Achievements & Awards
           </span>
           <span
             className={`flex items-center gap-2 ${
-              isActive("/teaching")
+              isActive("/teaching-training")
                 ? "underline underline-offset-4 decoration-white"
                 : ""
             }`}
           >
             <CalendarCheck size={16} />
-            Talks & Teaching
+            Teaching & Training
           </span>
         </div>
       </div>

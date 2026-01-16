@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { MORE_PAGES, PRIMARY_PAGES } from "@/lib/pages";
 import { usePathname } from "next/navigation";
@@ -21,9 +21,16 @@ const Header = ({ displayName }: HeaderProps) => {
     const [mobileMoreOpen, setMobileMoreOpen] = useState(false);
     const name = displayName || "Prof. (Dr.) Nilam Panchal";
     const pathname = usePathname();
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
+    const effectivePathname = isMounted ? pathname : "";
 
     const menuItems: MenuItem[] = useMemo(() => {
-        const isAdmin = pathname?.startsWith("/admin");
+        const isAdmin = /^\/admin(?:\/|$)/.test(effectivePathname || "");
         const base = isAdmin ? "/admin" : "";
         return [
             ...PRIMARY_PAGES.map((page) => ({
@@ -38,11 +45,14 @@ const Header = ({ displayName }: HeaderProps) => {
                 })),
             },
         ];
-    }, [pathname]);
+    }, [effectivePathname]);
 
     const isActive = (href?: string) => {
-        if (!href || !pathname) return false;
-        return pathname === href || pathname.startsWith(`${href}/`);
+        if (!href || !effectivePathname) return false;
+        return (
+            effectivePathname === href ||
+            effectivePathname.startsWith(`${href}/`)
+        );
     };
 
     return (

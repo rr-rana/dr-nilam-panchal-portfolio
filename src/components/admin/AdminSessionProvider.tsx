@@ -11,7 +11,6 @@ import {
 } from "react";
 import type { SiteContent } from "@/lib/siteContentTypes";
 import type { PageContent } from "@/lib/pageContent";
-import type { PageItem } from "@/lib/pageItems";
 
 type AdminSessionContextValue = {
   isAuthenticated: boolean;
@@ -19,12 +18,6 @@ type AdminSessionContextValue = {
   siteContent: SiteContent | null;
   setSiteContent: (content: SiteContent) => void;
   refreshSession: (options?: { showLoader?: boolean }) => Promise<void>;
-  itemsBySlug: Record<string, PageItem[]>;
-  itemsLoadingBySlug: Record<string, boolean>;
-  refreshItems: (
-    slug: string,
-    options?: { showLoader?: boolean }
-  ) => Promise<void>;
   pageContentBySlug: Record<string, PageContent>;
   pageContentLoadingBySlug: Record<string, boolean>;
   refreshPageContent: (
@@ -32,22 +25,21 @@ type AdminSessionContextValue = {
     options?: { showLoader?: boolean }
   ) => Promise<void>;
   setPageContentForSlug: (slug: string, content: PageContent) => void;
-  setItemsForSlug: (slug: string, items: PageItem[]) => void;
 };
 
 const AdminSessionContext = createContext<AdminSessionContextValue | null>(null);
+
+const ADMIN_CACHE_TTL_MS = 30_000;
+let cachedSiteContent: SiteContent | null = null;
+let cachedSiteContentAt = 0;
+const cachedPageContent = new Map<string, PageContent>();
+const cachedPageContentAt = new Map<string, number>();
 
 export const AdminSessionProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [siteContent, setSiteContent] = useState<SiteContent | null>(null);
   const [hasLoaded, setHasLoaded] = useState(false);
-  const [itemsBySlug, setItemsBySlug] = useState<Record<string, PageItem[]>>(
-    {}
-  );
-  const [itemsLoadingBySlug, setItemsLoadingBySlug] = useState<
-    Record<string, boolean>
-  >({});
   const [pageContentBySlug, setPageContentBySlug] = useState<
     Record<string, PageContent>
   >({});
@@ -57,19 +49,28 @@ export const AdminSessionProvider = ({ children }: { children: ReactNode }) => {
 
   const refreshSession = useCallback(
     async ({ showLoader = false }: { showLoader?: boolean } = {}) => {
+      const now = Date.now();
+      const isSiteFresh =
+        cachedSiteContent && now - cachedSiteContentAt < ADMIN_CACHE_TTL_MS;
       if (showLoader) {
         setIsLoading(true);
       }
       try {
         const [sessionRes, contentRes] = await Promise.all([
           fetch("/api/admin/session", { cache: "no-store" }),
-          fetch("/api/admin/content", { cache: "no-store" }),
+          isSiteFresh
+            ? Promise.resolve(
+                new Response(JSON.stringify(cachedSiteContent), { status: 200 })
+              )
+            : fetch("/api/admin/content", { cache: "no-store" }),
         ]);
         const session = await sessionRes.json();
         setIsAuthenticated(Boolean(session.authenticated));
 
         if (contentRes.ok) {
           const contentData = (await contentRes.json()) as SiteContent;
+          cachedSiteContent = contentData;
+          cachedSiteContentAt = now;
           setSiteContent(contentData);
         }
       } catch (error) {
@@ -88,41 +89,33 @@ export const AdminSessionProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [hasLoaded, refreshSession]);
 
-  const refreshItems = useCallback(
-    async ({ slug, showLoader = false }: { slug: string; showLoader?: boolean }) => {
-      if (showLoader) {
-        setItemsLoadingBySlug((prev) => ({ ...prev, [slug]: true }));
-      }
-      try {
-        const response = await fetch(`/api/admin/items/${slug}`, {
-          cache: "no-store",
-        });
-        if (!response.ok) {
-          return;
-        }
-        const data = (await response.json()) as { items?: PageItem[] };
-        setItemsBySlug((prev) => ({ ...prev, [slug]: data.items ?? [] }));
-      } finally {
-        setItemsLoadingBySlug((prev) => ({ ...prev, [slug]: false }));
-      }
-    },
-    []
-  );
-
   const refreshPageContent = useCallback(
     async ({ slug, showLoader = false }: { slug: string; showLoader?: boolean }) => {
+      const now = Date.now();
+      const cached = cachedPageContent.get(slug);
+      const cachedAt = cachedPageContentAt.get(slug) ?? 0;
+      const isFresh = cached && now - cachedAt < ADMIN_CACHE_TTL_MS;
       if (showLoader) {
         setPageContentLoadingBySlug((prev) => ({ ...prev, [slug]: true }));
       }
       try {
-        const response = await fetch(`/api/admin/pages/${slug}`, {
-          cache: "no-store",
-        });
-        if (!response.ok) {
-          return;
+        let data: PageContent | null = null;
+        if (isFresh) {
+          data = cached;
+        } else {
+          const response = await fetch(`/api/admin/pages/${slug}`, {
+            cache: "no-store",
+          });
+          if (!response.ok) {
+            return;
+          }
+          data = (await response.json()) as PageContent;
         }
-        const data = (await response.json()) as PageContent;
-        setPageContentBySlug((prev) => ({ ...prev, [slug]: data }));
+        if (data) {
+          cachedPageContent.set(slug, data);
+          cachedPageContentAt.set(slug, now);
+          setPageContentBySlug((prev) => ({ ...prev, [slug]: data }));
+        }
       } finally {
         setPageContentLoadingBySlug((prev) => ({ ...prev, [slug]: false }));
       }
@@ -130,34 +123,35 @@ export const AdminSessionProvider = ({ children }: { children: ReactNode }) => {
     []
   );
 
+  const setSiteContentCached = useCallback((content: SiteContent) => {
+    cachedSiteContent = content;
+    cachedSiteContentAt = Date.now();
+    setSiteContent(content);
+  }, []);
+
   const value = useMemo(
     () => ({
       isAuthenticated,
       isLoading,
       siteContent,
-      setSiteContent,
+      setSiteContent: setSiteContentCached,
       refreshSession,
-      itemsBySlug,
-      itemsLoadingBySlug,
-      refreshItems: (slug: string, options?: { showLoader?: boolean }) =>
-        refreshItems({ slug, showLoader: options?.showLoader }),
       pageContentBySlug,
       pageContentLoadingBySlug,
       refreshPageContent: (slug: string, options?: { showLoader?: boolean }) =>
         refreshPageContent({ slug, showLoader: options?.showLoader }),
-      setPageContentForSlug: (slug: string, content: PageContent) =>
-        setPageContentBySlug((prev) => ({ ...prev, [slug]: content })),
-      setItemsForSlug: (slug: string, items: PageItem[]) =>
-        setItemsBySlug((prev) => ({ ...prev, [slug]: items })),
+      setPageContentForSlug: (slug: string, content: PageContent) => {
+        cachedPageContent.set(slug, content);
+        cachedPageContentAt.set(slug, Date.now());
+        setPageContentBySlug((prev) => ({ ...prev, [slug]: content }));
+      },
     }),
     [
       isAuthenticated,
       isLoading,
       siteContent,
+      setSiteContentCached,
       refreshSession,
-      itemsBySlug,
-      itemsLoadingBySlug,
-      refreshItems,
       pageContentBySlug,
       pageContentLoadingBySlug,
       refreshPageContent,

@@ -1,18 +1,13 @@
 export type PageSlug =
-  | "projects"
-  | "achievements"
-  | "testimonials"
-  | "publications"
-  | "awards"
-  | "grants"
-  | "media"
-  | "teaching"
-  | "supervision"
-  | "peer-reviews"
-  | "editorial"
-  | "conference"
-  | "committee"
-  | "news"
+  | "research-publications"
+  | "moocs-e-content"
+  | "events-engagements"
+  | "teaching-training"
+  | "seminar-conferences"
+  | "invited-lectures"
+  | "achievements-awards"
+  | "administrative"
+  | "others"
   | "cv"
   | "contact"
   | "privacy";
@@ -23,25 +18,18 @@ export type PageLink = {
 };
 
 export const PRIMARY_PAGES: PageLink[] = [
-  { slug: "projects", label: "Projects" },
-  { slug: "achievements", label: "Achievements" },
-  { slug: "testimonials", label: "Testimonials" },
-  { slug: "publications", label: "Publications" },
-  { slug: "awards", label: "Awards" },
-  { slug: "grants", label: "Grants" },
-  { slug: "media", label: "Media" },
+  { slug: "research-publications", label: "Research & Publications" },
+  { slug: "moocs-e-content", label: "MOOCs and E-Content" },
+  { slug: "events-engagements", label: "Events & Engagements" },
+  { slug: "teaching-training", label: "Teaching & Training" },
 ];
 
 export const MORE_PAGES: PageLink[] = [
-  { slug: "teaching", label: "Teaching" },
-  { slug: "supervision", label: "Supervision" },
-  { slug: "peer-reviews", label: "Peer-Reviews" },
-  { slug: "editorial", label: "Editorial Roles" },
-  { slug: "conference", label: "Conference Contributions" },
-  { slug: "committee", label: "Committee and Board Duties" },
-  { slug: "news", label: "News" },
-  { slug: "cv", label: "CV" },
-  { slug: "contact", label: "Contact" },
+  { slug: "seminar-conferences", label: "Seminar & Conferences" },
+  { slug: "invited-lectures", label: "Invited Lectures" },
+  { slug: "achievements-awards", label: "Achievements & Awards" },
+  { slug: "administrative", label: "Administrative" },
+  { slug: "others", label: "Others" },
 ];
 
 export const ALL_PAGES: PageLink[] = [...PRIMARY_PAGES, ...MORE_PAGES];

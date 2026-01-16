@@ -16,24 +16,24 @@ const BottomLinks = async () => {
           <div className="mt-4 space-y-3 text-sm text-[#1f2f36]">
             <Link
               className="flex items-center gap-2 hover:text-[#7A4C2C]"
-              href="/publications"
+              href="/research-publications"
             >
               <BookOpen size={16} />
-              Publications
+              Research & Publications
             </Link>
             <Link
               className="flex items-center gap-2 hover:text-[#7A4C2C]"
-              href="/awards"
+              href="/achievements-awards"
             >
               <Medal size={16} />
-              Awards & Grants
+              Achievements & Awards
             </Link>
             <Link
               className="flex items-center gap-2 hover:text-[#7A4C2C]"
-              href="/teaching"
+              href="/teaching-training"
             >
               <CalendarCheck size={16} />
-              Talks & Teaching
+              Teaching & Training
             </Link>
           </div>
         </div>

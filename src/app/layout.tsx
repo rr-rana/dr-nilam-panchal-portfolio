@@ -13,7 +13,7 @@ export default async function RootLayout({
 }>) {
   const content = await getCachedSiteContent();
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className="min-h-screen antialiased flex flex-col">
         <Header displayName={content.sidebarName} />
         <main className="pt-20 flex-1">{children}</main>

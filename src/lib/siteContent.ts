@@ -146,5 +146,5 @@ export const saveSiteContent = async (
 export const getCachedSiteContent = unstable_cache(
   async () => getSiteContent({ allowFallback: true }),
   ["site-content"],
-  { revalidate: 300, tags: ["site-content"] }
+  { revalidate: false, tags: ["site-content"] }
 );
