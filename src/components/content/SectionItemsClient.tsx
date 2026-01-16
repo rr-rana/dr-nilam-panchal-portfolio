@@ -26,6 +26,7 @@ type SectionItemsClientProps = {
   showBackButton?: boolean;
   backHref?: string;
   backLabel?: string;
+  headerLeft?: React.ReactNode;
 };
 
 const stripHtml = (html: string) =>
@@ -57,6 +58,7 @@ const SectionItemsClient = ({
   showBackButton = false,
   backHref,
   backLabel = "Back",
+  headerLeft,
 }: SectionItemsClientProps) => {
   const searchParams = useSearchParams();
   const [submenus, setSubmenus] = useState<SectionSubmenu[]>(
@@ -190,6 +192,14 @@ const SectionItemsClient = ({
   }, [section, activeSubmenu]);
 
   const basePath = `/${section}`;
+  const fallbackHeaderLeft = (
+    <div>
+      <h1 className="text-2xl font-semibold text-[#17323D]">{title}</h1>
+      <p className="mt-2 text-sm text-[#4c5f66]">
+        Explore the latest updates and detailed academic highlights.
+      </p>
+    </div>
+  );
 
   const showItems = Boolean(initialSubmenu && activeSubmenu);
   const isLoading =
@@ -227,42 +237,41 @@ const SectionItemsClient = ({
             {showHeader && (
               <section className="rounded-3xl border border-white/70 bg-white/95 p-6 shadow-xl backdrop-blur">
                 <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-                  <div>
-                    <h1 className="text-2xl font-semibold text-[#17323D]">
-                      {title}
-                    </h1>
-                    <p className="mt-2 text-sm text-[#4c5f66]">
-                      Explore the latest updates and detailed academic highlights.
-                    </p>
-                  </div>
+                  <div>{headerLeft ?? fallbackHeaderLeft}</div>
                   {showSubmenuLinks && (
                     <div className="rounded-2xl border border-white/70 bg-[#f8f3ea] p-4">
                       <h2 className="text-[11px] font-semibold uppercase tracking-[0.25em] text-[#7A4C2C]">
                         Submenus
                       </h2>
                       <div className="mt-3 space-y-2">
-                        {submenus.map((submenu) => (
-                          <Link
-                            key={submenu.id}
-                            href={`${basePath}/${submenu.slug}`}
-                            className={`group flex items-center justify-between rounded-2xl border px-4 py-3 text-sm font-semibold transition-all ${
-                              submenu.slug === activeSubmenu
-                                ? "border-[#17323D] bg-[#17323D] text-white shadow-md"
-                                : "border-white/80 bg-white text-[#17323D] hover:-translate-y-0.5 hover:border-[#17323D]/30 hover:shadow-md"
-                            }`}
-                          >
-                            <span>{submenu.label}</span>
-                            <span
-                              className={`text-xs transition-opacity ${
+                        {submenus.length === 0 ? (
+                          <div className="rounded-2xl border border-dashed border-[#e1d6c6] bg-white/70 px-4 py-6 text-center text-xs text-[#4c5f66]">
+                            No submenus yet. Please check back soon.
+                          </div>
+                        ) : (
+                          submenus.map((submenu) => (
+                            <Link
+                              key={submenu.id}
+                              href={`${basePath}/${submenu.slug}`}
+                              className={`group flex items-center justify-between rounded-2xl border px-4 py-3 text-sm font-semibold transition-all ${
                                 submenu.slug === activeSubmenu
-                                  ? "opacity-90"
-                                  : "opacity-40 group-hover:opacity-70"
+                                  ? "border-[#17323D] bg-[#17323D] text-white shadow-md"
+                                  : "border-white/80 bg-white text-[#17323D] hover:-translate-y-0.5 hover:border-[#17323D]/30 hover:shadow-md"
                               }`}
                             >
-                              →
-                            </span>
-                          </Link>
-                        ))}
+                              <span>{submenu.label}</span>
+                              <span
+                                className={`text-xs transition-opacity ${
+                                  submenu.slug === activeSubmenu
+                                    ? "opacity-90"
+                                    : "opacity-40 group-hover:opacity-70"
+                                }`}
+                              >
+                                →
+                              </span>
+                            </Link>
+                          ))
+                        )}
                       </div>
                     </div>
                   )}
