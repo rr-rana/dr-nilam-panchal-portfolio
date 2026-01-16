@@ -68,6 +68,7 @@ const AdminSectionContentManager = ({
     slug: string;
   } | null>(null);
   const [isSubmenuLoading, setIsSubmenuLoading] = useState(false);
+  const [isSubmittingSubmenu, setIsSubmittingSubmenu] = useState(false);
   const [activeSubmenu, setActiveSubmenu] = useState<string | null>(null);
 
   const [items, setItems] = useState<AdminItem[]>([]);
@@ -420,6 +421,7 @@ const AdminSectionContentManager = ({
   const handleCreateSubmenu = async () => {
     if (!submenuLabel.trim()) return;
     setError("");
+    setIsSubmittingSubmenu(true);
     try {
       const response = await fetch(`/api/admin/sections/${section}/submenus`, {
         method: "POST",
@@ -444,6 +446,8 @@ const AdminSectionContentManager = ({
       const message =
         err instanceof Error ? err.message : "Failed to create submenu.";
       setError(message);
+    } finally {
+      setIsSubmittingSubmenu(false);
     }
   };
 
@@ -576,27 +580,17 @@ const AdminSectionContentManager = ({
             <div className="flex items-center gap-3">
               <Link
                 href="/admin"
-                className="rounded-full border border-white/60 bg-white/70 px-4 py-2 text-xs font-semibold text-[#17323D]"
+                className="rounded-full border border-white/60 bg-white/70 px-4 py-2 text-xs font-semibold text-[#17323D] transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-white hover:shadow-md"
               >
                 Back to Admin
               </Link>
               <button
                 type="button"
                 onClick={handleLogout}
-                className="cursor-pointer rounded-full border border-white/60 bg-white/70 px-4 py-2 text-xs font-semibold text-[#17323D]"
+                className="cursor-pointer rounded-full border border-white/60 bg-white/70 px-4 py-2 text-xs font-semibold text-[#17323D] transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-white hover:shadow-md"
               >
                 Log out
               </button>
-              {isEditing && (
-                <button
-                  type="button"
-                  onClick={handleSave}
-                  className="cursor-pointer rounded-full bg-[#17323D] px-4 py-2 text-xs font-semibold text-white disabled:opacity-60"
-                  disabled={isSaving}
-                >
-                  {isSaving ? "Saving..." : "Save Changes"}
-                </button>
-              )}
             </div>
           </div>
         </div>
@@ -620,15 +614,16 @@ const AdminSectionContentManager = ({
                     placeholder="New submenu label"
                     value={submenuLabel}
                     onChange={(event) => setSubmenuLabel(event.target.value)}
-                    className="w-48 rounded-full border border-white/70 bg-white px-4 py-2 text-xs text-[#2d3b41] outline-none focus:border-[#17323D] focus:ring-2 focus:ring-[#17323D]/10"
+                    className="w-48 rounded-full border border-[#e1d6c6] bg-white px-4 py-2 text-xs text-[#2d3b41] outline-none transition-all duration-200 ease-out focus:border-[#17323D] focus:ring-2 focus:ring-[#17323D]/10 hover:border-[#17323D]/40"
                   />
                   <button
                     type="button"
                     onClick={handleCreateSubmenu}
-                    className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-[#17323D] px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-[#1f3b47]"
+                    className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-[#17323D] px-4 py-2 text-xs font-semibold text-white transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-[#1f3b47] hover:shadow-md disabled:cursor-not-allowed disabled:opacity-60"
+                    disabled={isSubmittingSubmenu}
                   >
                     <Plus size={14} />
-                    Add Submenu
+                    {isSubmittingSubmenu ? "Adding..." : "Add Submenu"}
                   </button>
                 </div>
               </div>
@@ -659,7 +654,7 @@ const AdminSectionContentManager = ({
                           onChange={(event) =>
                             setSubmenuEditingLabel(event.target.value)
                           }
-                          className="w-32 rounded-full border border-white/70 bg-white px-3 py-1 text-xs text-[#2d3b41] outline-none focus:border-[#17323D] focus:ring-2 focus:ring-[#17323D]/10"
+                          className="w-32 rounded-full border border-[#e1d6c6] bg-white px-3 py-1 text-xs text-[#2d3b41] outline-none transition-all duration-200 ease-out focus:border-[#17323D] focus:ring-2 focus:ring-[#17323D]/10 hover:border-[#17323D]/40"
                         />
                       ) : (
                         <button
@@ -674,42 +669,42 @@ const AdminSectionContentManager = ({
                           <button
                             type="button"
                             onClick={handleUpdateSubmenu}
-                            className="rounded-full bg-emerald-100 px-2 py-1 text-[10px] text-emerald-700"
+                            className="cursor-pointer rounded-full bg-emerald-100 px-2 py-1 text-[10px] text-emerald-700"
                           >
                             Save
                           </button>
                           <button
                             type="button"
                             onClick={cancelEditSubmenu}
-                            className="rounded-full bg-gray-100 px-2 py-1 text-[10px] text-gray-700"
+                            className="cursor-pointer rounded-full bg-gray-100 px-2 py-1 text-[10px] text-gray-700"
                           >
                             Cancel
                           </button>
                         </div>
                       ) : (
                         <div className="flex items-center gap-1">
-                          <button
-                            type="button"
-                            onClick={() => startEditSubmenu(submenu)}
-                            className="inline-flex items-center justify-center rounded-full bg-amber-100 p-1 text-amber-700 transition-colors hover:bg-amber-200"
-                            aria-label="Edit submenu"
-                          >
-                            <Pencil size={12} />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setSubmenuPendingDelete({
-                                id: submenu.id,
-                                label: submenu.label,
-                                slug: submenu.slug,
-                              })
-                            }
-                            className="inline-flex items-center justify-center rounded-full bg-rose-100 p-1 text-rose-700 transition-colors hover:bg-rose-200"
-                            aria-label="Delete submenu"
-                          >
-                            <Trash2 size={12} />
-                          </button>
+                            <button
+                              type="button"
+                              onClick={() => startEditSubmenu(submenu)}
+                              className="inline-flex cursor-pointer items-center justify-center rounded-full bg-amber-100 p-1 text-amber-700 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-amber-200 hover:shadow-sm"
+                              aria-label="Edit submenu"
+                            >
+                              <Pencil size={12} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setSubmenuPendingDelete({
+                                  id: submenu.id,
+                                  label: submenu.label,
+                                  slug: submenu.slug,
+                                })
+                              }
+                              className="inline-flex cursor-pointer items-center justify-center rounded-full bg-rose-100 p-1 text-rose-700 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-rose-200 hover:shadow-sm"
+                              aria-label="Delete submenu"
+                            >
+                              <Trash2 size={12} />
+                            </button>
                         </div>
                       )}
                     </div>
@@ -732,7 +727,7 @@ const AdminSectionContentManager = ({
                   <button
                     type="button"
                     onClick={handleCreate}
-                    className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-[#17323D] px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-[#1f3b47]"
+                    className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-[#17323D] px-4 py-2 text-xs font-semibold text-white transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-[#1f3b47] hover:shadow-md"
                   >
                     <Plus size={14} />
                     New Item
@@ -784,7 +779,7 @@ const AdminSectionContentManager = ({
                             <button
                               type="button"
                               onClick={() => handleEdit(item)}
-                              className="inline-flex cursor-pointer items-center justify-center rounded-full bg-amber-100 p-2 text-amber-700 transition-colors hover:bg-amber-200"
+                              className="inline-flex cursor-pointer items-center justify-center rounded-full bg-amber-100 p-2 text-amber-700 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-amber-200 hover:shadow-sm"
                               aria-label="Edit item"
                             >
                               <Pencil size={16} />
@@ -792,7 +787,7 @@ const AdminSectionContentManager = ({
                             <button
                               type="button"
                               onClick={() => requestDelete(item.id, item.heading)}
-                              className="inline-flex cursor-pointer items-center justify-center rounded-full bg-rose-100 p-2 text-rose-700 transition-colors hover:bg-rose-200"
+                              className="inline-flex cursor-pointer items-center justify-center rounded-full bg-rose-100 p-2 text-rose-700 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-rose-200 hover:shadow-sm"
                               aria-label="Delete item"
                             >
                               <Trash2 size={16} />
@@ -856,7 +851,7 @@ const AdminSectionContentManager = ({
                   <button
                     type="button"
                     onClick={resetDraft}
-                    className="cursor-pointer text-xs font-semibold text-[#7A4C2C] hover:text-[#5e351b]"
+                    className="cursor-pointer text-xs font-semibold text-[#7A4C2C] transition-colors duration-200 ease-out hover:text-[#5e351b]"
                   >
                     Cancel
                   </button>
@@ -1048,7 +1043,7 @@ const AdminSectionContentManager = ({
                           <button
                             type="button"
                             onClick={() => handleRemoveVideo(index)}
-                            className="cursor-pointer rounded-full bg-rose-100 px-3 py-2 text-[10px] font-semibold text-rose-700 transition-colors hover:bg-rose-200"
+                            className="cursor-pointer rounded-full bg-rose-100 px-3 py-2 text-[10px] font-semibold text-rose-700 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-rose-200 hover:shadow-sm"
                           >
                             Remove
                           </button>
@@ -1057,12 +1052,22 @@ const AdminSectionContentManager = ({
                       <button
                         type="button"
                         onClick={handleAddVideo}
-                        className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-emerald-100 px-4 py-2 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-200"
+                        className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-emerald-100 px-4 py-2 text-xs font-semibold text-emerald-700 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-emerald-200 hover:shadow-sm"
                       >
                         <Plus size={14} />
                         Add Video
                       </button>
                     </div>
+                  </div>
+                  <div className="flex justify-end">
+                    <button
+                      type="button"
+                      onClick={handleSave}
+                      className="cursor-pointer rounded-full bg-[#17323D] px-6 py-3 text-xs font-semibold text-white transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-[#1f3b47] hover:shadow-md disabled:opacity-60"
+                      disabled={isSaving}
+                    >
+                      {isSaving ? "Saving..." : "Save Changes"}
+                    </button>
                   </div>
                 </div>
               </section>
