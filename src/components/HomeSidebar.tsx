@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import type { SiteContent } from "@/lib/siteContentTypes";
 import { SOCIAL_LINK_OPTIONS } from "@/lib/socialLinks";
+import Link from "next/link";
 
 type HomeSidebarProps = {
   content: SiteContent;
@@ -101,7 +102,7 @@ const HomeSidebar = ({ content, variant = "default" }: HomeSidebarProps) => {
           Quick Links
         </h3>
         <div className="mt-4 space-y-3 text-sm text-[#1f2f36]">
-          <a
+          <Link
             className={`flex items-center gap-2 transition-colors ${
               isActive("/research-publications")
                 ? "underline underline-offset-4 decoration-white"
@@ -111,8 +112,8 @@ const HomeSidebar = ({ content, variant = "default" }: HomeSidebarProps) => {
           >
             <BookOpen size={16} />
             Research & Publications
-          </a>
-          <a
+          </Link>
+          <Link
             className={`flex items-center gap-2 transition-colors ${
               isActive("/achievements-awards")
                 ? "underline underline-offset-4 decoration-white"
@@ -122,8 +123,8 @@ const HomeSidebar = ({ content, variant = "default" }: HomeSidebarProps) => {
           >
             <Medal size={16} />
             Achievements & Awards
-          </a>
-          <a
+          </Link>
+          <Link
             className={`flex items-center gap-2 transition-colors ${
               isActive("/teaching-training")
                 ? "underline underline-offset-4 decoration-white"
@@ -133,7 +134,7 @@ const HomeSidebar = ({ content, variant = "default" }: HomeSidebarProps) => {
           >
             <CalendarCheck size={16} />
             Teaching & Training
-          </a>
+          </Link>
         </div>
       </div>
 
