@@ -11,6 +11,7 @@ type AdminLoginPanelProps = {
   password: string;
   error?: string;
   isSubmitting?: boolean;
+  profile?: PublicContent;
   onUsernameChange: (value: string) => void;
   onPasswordChange: (value: string) => void;
   onSubmit: (event: FormEvent) => void;
@@ -36,23 +37,11 @@ const AdminLoginPanel = ({
   password,
   error,
   isSubmitting = false,
+  profile = {},
   onUsernameChange,
   onPasswordChange,
   onSubmit,
 }: AdminLoginPanelProps) => {
-  const [profile, setProfile] = useState<PublicContent>({});
-
-  useEffect(() => {
-    const load = async () => {
-      const response = await fetch("/api/content", { cache: "no-store" });
-      if (!response.ok) return;
-      const data = (await response.json()) as PublicContent;
-      setProfile(data || {});
-    };
-
-    load();
-  }, []);
-
   const [greeting, setGreeting] = useState("Welcome");
   const name = profile.sidebarName || "Admin";
   const [showPassword, setShowPassword] = useState(false);
