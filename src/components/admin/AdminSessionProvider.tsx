@@ -49,23 +49,28 @@ export const AdminSessionProvider = ({ children }: { children: ReactNode }) => {
 
   const refreshSession = useCallback(
     async ({ showLoader = false }: { showLoader?: boolean } = {}) => {
-      const now = Date.now();
-      const isSiteFresh =
-        cachedSiteContent && now - cachedSiteContentAt < ADMIN_CACHE_TTL_MS;
       if (showLoader) {
         setIsLoading(true);
       }
       try {
-        const [sessionRes, contentRes] = await Promise.all([
-          fetch("/api/admin/session", { cache: "no-store" }),
-          isSiteFresh
-            ? Promise.resolve(
-                new Response(JSON.stringify(cachedSiteContent), { status: 200 })
-              )
-            : fetch("/api/admin/content", { cache: "no-store" }),
-        ]);
+        const sessionRes = await fetch("/api/admin/session", {
+          cache: "no-store",
+        });
         const session = await sessionRes.json();
-        setIsAuthenticated(Boolean(session.authenticated));
+        const authenticated = Boolean(session.authenticated);
+        setIsAuthenticated(authenticated);
+
+        if (!authenticated) {
+          setSiteContent(null);
+          return;
+        }
+
+        const now = Date.now();
+        const isSiteFresh =
+          cachedSiteContent && now - cachedSiteContentAt < ADMIN_CACHE_TTL_MS;
+        const contentRes = isSiteFresh
+          ? new Response(JSON.stringify(cachedSiteContent), { status: 200 })
+          : await fetch("/api/admin/content", { cache: "no-store" });
 
         if (contentRes.ok) {
           const contentData = (await contentRes.json()) as SiteContent;
@@ -75,6 +80,7 @@ export const AdminSessionProvider = ({ children }: { children: ReactNode }) => {
         }
       } catch (error) {
         setIsAuthenticated(false);
+        setSiteContent(null);
       } finally {
         setHasLoaded(true);
         setIsLoading(false);

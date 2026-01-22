@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { ChevronLeft, ChevronRight, FileText, Eye } from "lucide-react";
+import { ChevronLeft, ChevronRight, FileText, Eye, FolderOpen } from "lucide-react";
 import HomeSidebar from "@/components/HomeSidebar";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import type { SectionSlug } from "@/lib/sections";
@@ -66,6 +66,7 @@ const SectionItemsClient = ({
   );
   const [activeSubmenu, setActiveSubmenu] = useState<string | null>(null);
   const [items, setItems] = useState<SectionItem[] | null>(null);
+  const [loadedSubmenu, setLoadedSubmenu] = useState<string | null>(null);
   const [siteContent, setSiteContent] = useState<SiteContent | null>(
     () => siteContentCache
   );
@@ -153,6 +154,7 @@ const SectionItemsClient = ({
   useEffect(() => {
     if (!activeSubmenu) {
       setItems([]);
+      setLoadedSubmenu(null);
       return;
     }
 
@@ -160,6 +162,7 @@ const SectionItemsClient = ({
     const cached = itemsCache.get(cacheKey);
     if (cached) {
       setItems(cached);
+      setLoadedSubmenu(activeSubmenu);
       setIsLoadingItems(false);
       return;
     }
@@ -179,6 +182,7 @@ const SectionItemsClient = ({
         const resolved = data.items ?? [];
         itemsCache.set(cacheKey, resolved);
         setItems(resolved);
+        setLoadedSubmenu(activeSubmenu);
       } finally {
         if (isActive) {
           setIsLoadingItems(false);
@@ -203,7 +207,9 @@ const SectionItemsClient = ({
 
   const showItems = Boolean(initialSubmenu && activeSubmenu);
   const isLoading =
-    isLoadingSubmenus || (showItems && isLoadingItems) || isLoadingContent;
+    isLoadingSubmenus ||
+    isLoadingContent ||
+    (showItems && (isLoadingItems || loadedSubmenu !== activeSubmenu));
   const pageSize = 5;
   const paginationState = useMemo(() => {
     const allItems = showItems ? items ?? [] : [];
@@ -216,7 +222,7 @@ const SectionItemsClient = ({
     return { pagedItems, totalItems, totalPages, currentPage };
   }, [items, searchParams]);
 
-  if (isLoading || !siteContent) {
+  if (!siteContent) {
     return (
       <div className="min-h-screen bg-[radial-gradient(circle_at_top,#f6f1e7_0%,#f3ede1_35%,#ebe4d6_65%,#e2d9c7_100%)]">
         <div className="mx-auto flex min-h-screen max-w-6xl items-center justify-center px-4">
@@ -244,7 +250,16 @@ const SectionItemsClient = ({
                         Submenus
                       </h2>
                       <div className="mt-3 space-y-2">
-                        {submenus.length === 0 ? (
+                        {isLoadingSubmenus ? (
+                          <>
+                            {Array.from({ length: 4 }).map((_, index) => (
+                              <div
+                                key={index}
+                                className="skeleton-shimmer h-10 rounded-2xl border border-white/70"
+                              />
+                            ))}
+                          </>
+                        ) : submenus.length === 0 ? (
                           <div className="rounded-2xl border border-dashed border-[#e1d6c6] bg-white/70 px-4 py-6 text-center text-xs text-[#4c5f66]">
                             No submenus yet. Please check back soon.
                           </div>
@@ -291,9 +306,49 @@ const SectionItemsClient = ({
             )}
 
             <section className="space-y-4">
-              {!activeSubmenu || !showItems ? null : paginationState.pagedItems.length === 0 ? (
-                <div className="rounded-3xl border border-white/70 bg-white/95 p-8 text-center text-sm text-[#4c5f66] shadow-xl backdrop-blur">
-                  No content yet. Please check back soon.
+              {!activeSubmenu || !showItems ? null : isLoadingItems || isLoadingContent ? (
+                <>
+                  {Array.from({ length: 3 }).map((_, index) => (
+                    <div
+                      key={index}
+                      className="rounded-3xl border border-white/70 bg-white/95 p-4 shadow-xl backdrop-blur sm:p-5"
+                    >
+                      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
+                        <div className="skeleton-shimmer h-20 w-20 rounded-2xl sm:h-24 sm:w-24" />
+                        <div className="min-w-0 flex-1 space-y-3">
+                          <div className="skeleton-shimmer h-5 w-3/4 rounded-full" />
+                          <div className="skeleton-shimmer h-4 w-full rounded-full" />
+                          <div className="skeleton-shimmer h-4 w-5/6 rounded-full" />
+                          <div className="flex flex-wrap items-center gap-3">
+                            <div className="skeleton-shimmer h-8 w-28 rounded-full" />
+                            <div className="skeleton-shimmer h-8 w-32 rounded-full" />
+                          </div>
+                        </div>
+                        <div className="space-y-2 sm:min-w-[160px]">
+                          <div className="skeleton-shimmer h-4 w-20 rounded-full sm:ml-auto" />
+                          <div className="skeleton-shimmer h-4 w-24 rounded-full sm:ml-auto" />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </>
+              ) : items &&
+                loadedSubmenu === activeSubmenu &&
+                paginationState.pagedItems.length === 0 ? (
+                <div className="rounded-3xl border border-white/70 bg-white/95 p-8 shadow-xl backdrop-blur">
+                  <div className="mx-auto flex max-w-xl flex-col items-center gap-4 text-center">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/70 bg-[#f3ede1] text-[#7A4C2C] shadow-inner">
+                      <FolderOpen size={24} />
+                    </div>
+                    <h3 className="text-base font-semibold text-[#17323D]">
+                      No items yet
+                    </h3>
+                    <div className="w-full max-w-sm space-y-2">
+                      <div className="h-3 w-3/4 rounded-full bg-[#efe7d9] mx-auto" />
+                      <div className="h-3 w-full rounded-full bg-[#f3ede1] mx-auto" />
+                      <div className="h-3 w-2/3 rounded-full bg-[#efe7d9] mx-auto" />
+                    </div>
+                  </div>
                 </div>
               ) : (
                 paginationState.pagedItems.map((item) => {
@@ -312,7 +367,7 @@ const SectionItemsClient = ({
                       key={item.id}
                       className="rounded-3xl border border-white/70 bg-white/95 p-4 shadow-xl backdrop-blur sm:p-5"
                     >
-                      <div className="flex flex-wrap items-center gap-4 sm:gap-6">
+                      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
                         <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl border border-white/80 bg-[#f3ede1] sm:h-24 sm:w-24">
                           {thumbnail ? (
                             <Image
@@ -328,10 +383,10 @@ const SectionItemsClient = ({
                           )}
                         </div>
                         <div className="min-w-0 flex-1">
-                          <h2 className="truncate text-base font-semibold text-[#17323D]">
+                          <h2 className="line-clamp-2 text-base font-semibold text-[#17323D]">
                             {item.heading}
                           </h2>
-                          <p className="mt-2 text-sm text-[#4c5f66]">
+                          <p className="mt-2 line-clamp-3 text-sm text-[#4c5f66]">
                             {preview || "No description yet."}
                           </p>
                           <div className="mt-3 flex flex-wrap items-center gap-3">
@@ -356,7 +411,7 @@ const SectionItemsClient = ({
                           </div>
                         </div>
                         {showMeta && (
-                          <div className="min-w-[160px] text-right text-xs text-[#4c5f66]">
+                          <div className="text-xs text-[#4c5f66] sm:min-w-[160px] sm:text-right">
                             {author && (
                               <>
                                 <div className="font-semibold text-[#17323D]">

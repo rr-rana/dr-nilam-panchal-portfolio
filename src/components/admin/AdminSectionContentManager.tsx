@@ -638,16 +638,37 @@ const AdminSectionContentManager = ({
                     No submenus created yet.
                   </div>
                 ) : (
-                  submenus.map((submenu) => (
-                    <div
-                      key={submenu.id}
-                      className={`flex items-center gap-2 rounded-full border px-3 py-2 text-xs font-semibold ${
-                        submenu.slug === activeSubmenu
-                          ? "border-[#17323D] bg-[#17323D] text-white"
-                          : "border-white/70 bg-white/80 text-[#17323D]"
-                      }`}
-                    >
-                      {submenuEditingId === submenu.id ? (
+                  submenus.map((submenu) => {
+                    const isEditing = submenuEditingId === submenu.id;
+                    const isActive = submenu.slug === activeSubmenu;
+
+                    return (
+                      <div
+                        key={submenu.id}
+                        role={isEditing ? undefined : "button"}
+                        tabIndex={isEditing ? -1 : 0}
+                        onClick={
+                          isEditing ? undefined : () => setActiveSubmenu(submenu.slug)
+                        }
+                        onKeyDown={
+                          isEditing
+                            ? undefined
+                            : (event) => {
+                                if (event.key === "Enter" || event.key === " ") {
+                                  event.preventDefault();
+                                  setActiveSubmenu(submenu.slug);
+                                }
+                              }
+                        }
+                        className={`flex items-center gap-2 rounded-full border px-3 py-2 text-xs font-semibold transition-all duration-200 ease-out ${
+                          isEditing ? "" : "cursor-pointer"
+                        } ${
+                          isActive
+                            ? "border-[#17323D] bg-[#17323D] text-white shadow-sm"
+                            : "border-white/70 bg-white/80 text-[#17323D] hover:-translate-y-0.5 hover:border-[#d6c6b3] hover:bg-white hover:shadow-sm"
+                        }`}
+                      >
+                        {isEditing ? (
                         <input
                           type="text"
                           value={submenuEditingLabel}
@@ -657,14 +678,9 @@ const AdminSectionContentManager = ({
                           className="w-32 rounded-full border border-[#e1d6c6] bg-white px-3 py-1 text-xs text-[#2d3b41] outline-none transition-all duration-200 ease-out focus:border-[#17323D] focus:ring-2 focus:ring-[#17323D]/10 hover:border-[#17323D]/40"
                         />
                       ) : (
-                        <button
-                          type="button"
-                          onClick={() => setActiveSubmenu(submenu.slug)}
-                        >
-                          {submenu.label}
-                        </button>
+                        <span>{submenu.label}</span>
                       )}
-                      {submenuEditingId === submenu.id ? (
+                      {isEditing ? (
                         <div className="flex items-center gap-1">
                           <button
                             type="button"
@@ -685,7 +701,10 @@ const AdminSectionContentManager = ({
                         <div className="flex items-center gap-1">
                             <button
                               type="button"
-                              onClick={() => startEditSubmenu(submenu)}
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                startEditSubmenu(submenu);
+                              }}
                               className="inline-flex cursor-pointer items-center justify-center rounded-full bg-amber-100 p-1 text-amber-700 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-amber-200 hover:shadow-sm"
                               aria-label="Edit submenu"
                             >
@@ -693,13 +712,14 @@ const AdminSectionContentManager = ({
                             </button>
                             <button
                               type="button"
-                              onClick={() =>
+                              onClick={(event) => {
+                                event.stopPropagation();
                                 setSubmenuPendingDelete({
                                   id: submenu.id,
                                   label: submenu.label,
                                   slug: submenu.slug,
-                                })
-                              }
+                                });
+                              }}
                               className="inline-flex cursor-pointer items-center justify-center rounded-full bg-rose-100 p-1 text-rose-700 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-rose-200 hover:shadow-sm"
                               aria-label="Delete submenu"
                             >
@@ -707,8 +727,9 @@ const AdminSectionContentManager = ({
                             </button>
                         </div>
                       )}
-                    </div>
-                  ))
+                      </div>
+                    );
+                  })
                 )}
               </div>
             </section>
@@ -747,10 +768,10 @@ const AdminSectionContentManager = ({
                     pagedItems.map((item) => (
                       <div
                         key={item.id}
-                        className="group rounded-2xl border border-[#e6dccb] bg-white/90 p-4 shadow-sm transition-shadow hover:shadow-md"
+                        className="group overflow-hidden rounded-2xl border border-[#e6dccb] bg-white/90 p-4 shadow-sm transition-shadow hover:shadow-md"
                       >
-                        <div className="flex flex-nowrap items-center justify-between gap-4">
-                          <div className="flex min-w-0 items-center gap-4">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex min-w-0 items-start gap-4">
                             <div className="relative h-16 w-24 overflow-hidden rounded-2xl border border-white/80 bg-[#f3ede1]">
                               {item.thumbnailUrl || item.photos[0] ? (
                                 <Image
@@ -766,7 +787,7 @@ const AdminSectionContentManager = ({
                               )}
                             </div>
                             <div className="min-w-0">
-                              <div className="truncate text-sm font-semibold text-[#17323D]">
+                              <div className="line-clamp-2 break-words text-sm font-semibold text-[#17323D]">
                                 {item.heading}
                               </div>
                               <div className="mt-1 line-clamp-2 text-xs text-[#4c5f66]">

@@ -10,6 +10,8 @@ type AdminLoginPanelProps = {
   username: string;
   password: string;
   error?: string;
+  isSubmitting?: boolean;
+  profile?: PublicContent;
   onUsernameChange: (value: string) => void;
   onPasswordChange: (value: string) => void;
   onSubmit: (event: FormEvent) => void;
@@ -34,23 +36,12 @@ const AdminLoginPanel = ({
   username,
   password,
   error,
+  isSubmitting = false,
+  profile = {},
   onUsernameChange,
   onPasswordChange,
   onSubmit,
 }: AdminLoginPanelProps) => {
-  const [profile, setProfile] = useState<PublicContent>({});
-
-  useEffect(() => {
-    const load = async () => {
-      const response = await fetch("/api/content", { cache: "no-store" });
-      if (!response.ok) return;
-      const data = (await response.json()) as PublicContent;
-      setProfile(data || {});
-    };
-
-    load();
-  }, []);
-
   const [greeting, setGreeting] = useState("Welcome");
   const name = profile.sidebarName || "Admin";
   const [showPassword, setShowPassword] = useState(false);
@@ -125,9 +116,10 @@ const AdminLoginPanel = ({
               </div>
               <button
                 type="submit"
-                className="w-full cursor-pointer rounded-full bg-[#17323D] py-2 text-sm font-semibold text-white"
+                className="w-full cursor-pointer rounded-full bg-[#17323D] py-2 text-sm font-semibold text-white disabled:opacity-60"
+                disabled={isSubmitting}
               >
-                Sign in
+                {isSubmitting ? "Signing in..." : "Sign in"}
               </button>
             </form>
           </div>
