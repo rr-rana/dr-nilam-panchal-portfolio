@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import AdminBanner from "@/components/admin/AdminBanner";
 import AdminToast from "@/components/admin/AdminToast";
+import ConfirmModal from "@/components/admin/ConfirmModal";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import type { BannerSlide, SiteContent } from "@/lib/siteContentTypes";
 import { useAdminSession } from "@/components/admin/AdminSessionProvider";
@@ -44,6 +45,10 @@ const AdminBannerManager = () => {
   );
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const [pendingDeleteBannerId, setPendingDeleteBannerId] = useState<
+    string | null
+  >(null);
+  const [isDeletingBanner, setIsDeletingBanner] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -193,25 +198,64 @@ const AdminBannerManager = () => {
   };
 
   const handleRemoveBanner = (id: string) => {
-    if (!content || content.bannerSlides.length <= 1) return;
-    const previewUrl = bannerPreviews[id];
-    if (previewUrl) {
-      URL.revokeObjectURL(previewUrl);
+    setPendingDeleteBannerId(id);
+  };
+
+  const confirmRemoveBanner = async () => {
+    if (!content || !pendingDeleteBannerId || content.bannerSlides.length <= 1) {
+      setPendingDeleteBannerId(null);
+      return;
     }
-    setBannerPreviews((prev) => {
-      const next = { ...prev };
-      delete next[id];
-      return next;
-    });
-    setPendingBannerFiles((prev) => {
-      const next = { ...prev };
-      delete next[id];
-      return next;
-    });
-    setContent({
+    const id = pendingDeleteBannerId;
+    const nextContent = {
       ...content,
       bannerSlides: content.bannerSlides.filter((slide) => slide.id !== id),
-    });
+    };
+    const resolvedNextContent = {
+      ...nextContent,
+      bannerImageUrl: nextContent.bannerSlides[0]?.imageUrl || "",
+    };
+
+    setIsDeletingBanner(true);
+    setError("");
+    setMessage("");
+    try {
+      const response = await fetch("/api/admin/content", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(resolvedNextContent),
+      });
+      if (!response.ok) {
+        const payload = await response.json().catch(() => ({}));
+        throw new Error(payload.error || "Failed to delete banner.");
+      }
+
+      const saved = (await response.json()) as SiteContent;
+      setContent(saved);
+      setSiteContent(saved);
+      const previewUrl = bannerPreviews[id];
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+      setBannerPreviews((prev) => {
+        const next = { ...prev };
+        delete next[id];
+        return next;
+      });
+      setPendingBannerFiles((prev) => {
+        const next = { ...prev };
+        delete next[id];
+        return next;
+      });
+      setMessage("Banner deleted.");
+    } catch (err) {
+      const msg =
+        err instanceof Error ? err.message : "Failed to delete banner.";
+      setError(msg);
+    } finally {
+      setIsDeletingBanner(false);
+      setPendingDeleteBannerId(null);
+    }
   };
 
   const handleMoveBanner = (id: string, direction: "up" | "down") => {
@@ -270,6 +314,11 @@ const AdminBannerManager = () => {
     );
   }
 
+  const pendingDeleteBanner = pendingDeleteBannerId
+    ? content.bannerSlides.find((slide) => slide.id === pendingDeleteBannerId) ||
+      null
+    : null;
+
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,#f6f1e7_0%,#f3ede1_35%,#ebe4d6_65%,#e2d9c7_100%)]">
       <div className="mx-auto max-w-6xl px-4 pb-16">
@@ -324,6 +373,19 @@ const AdminBannerManager = () => {
           uploadingId={uploadingBannerId}
         />
       </div>
+      <ConfirmModal
+        isOpen={Boolean(pendingDeleteBanner)}
+        title="Delete Banner Slide"
+        message={`Delete ${
+          pendingDeleteBanner?.title?.trim()
+            ? `"${pendingDeleteBanner.title.trim()}"`
+            : "this untitled slide"
+        }?`}
+        confirmLabel="Delete Slide"
+        isConfirming={isDeletingBanner}
+        onConfirm={confirmRemoveBanner}
+        onCancel={() => setPendingDeleteBannerId(null)}
+      />
       {message && <AdminToast message={message} />}
       {error && <AdminToast message={error} variant="error" />}
     </div>

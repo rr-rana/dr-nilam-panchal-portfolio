@@ -44,7 +44,7 @@ const AdminBanner = ({
             <button
               type="button"
               onClick={onAdd}
-              className="inline-flex items-center gap-2 rounded-full bg-[#17323D] px-4 py-2 text-xs font-semibold text-white shadow-md transition-colors hover:bg-[#0f2630]"
+              className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-[#17323D] px-4 py-2 text-xs font-semibold text-white shadow-md transition-colors hover:bg-[#0f2630]"
             >
               <Plus size={14} />
               Add Banner
@@ -78,7 +78,7 @@ const AdminBanner = ({
                   type="button"
                   onClick={() => onMove(banner.id, "up")}
                   disabled={index === 0}
-                  className="rounded-full border border-[#d5c9b8] bg-white p-2 text-[#17323D] shadow-sm transition-colors hover:bg-[#f7efe2] disabled:opacity-35"
+                  className="cursor-pointer rounded-full border border-[#d5c9b8] bg-white p-2 text-[#17323D] shadow-sm transition-colors hover:bg-[#f7efe2] disabled:cursor-not-allowed disabled:opacity-35"
                   aria-label="Move banner up"
                   title="Move up"
                 >
@@ -88,7 +88,7 @@ const AdminBanner = ({
                   type="button"
                   onClick={() => onMove(banner.id, "down")}
                   disabled={index === banners.length - 1}
-                  className="rounded-full border border-[#d5c9b8] bg-white p-2 text-[#17323D] shadow-sm transition-colors hover:bg-[#f7efe2] disabled:opacity-35"
+                  className="cursor-pointer rounded-full border border-[#d5c9b8] bg-white p-2 text-[#17323D] shadow-sm transition-colors hover:bg-[#f7efe2] disabled:cursor-not-allowed disabled:opacity-35"
                   aria-label="Move banner down"
                   title="Move down"
                 >
@@ -98,7 +98,7 @@ const AdminBanner = ({
                   type="button"
                   onClick={() => onRemove(banner.id)}
                   disabled={banners.length === 1}
-                  className="rounded-full border border-[#e4c2bf] bg-white p-2 text-[#8d2f25] shadow-sm transition-colors hover:bg-[#fff2f0] disabled:opacity-35"
+                  className="cursor-pointer rounded-full border border-[#e4c2bf] bg-white p-2 text-[#8d2f25] shadow-sm transition-colors hover:bg-[#fff2f0] disabled:cursor-not-allowed disabled:opacity-35"
                   aria-label="Remove banner"
                   title="Delete slide"
                 >
