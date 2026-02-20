@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, Pencil, Trash2, Plus } from "lucide-react";
+import { ChevronLeft, ChevronRight, Pencil, Trash2, Plus, X } from "lucide-react";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import RichTextEditor from "@/components/admin/RichTextEditor";
 import AdminToast from "@/components/admin/AdminToast";
@@ -24,11 +24,21 @@ const getPreview = (html: string) => {
   return `${text.slice(0, 117)}...`;
 };
 
+const createLocalId = () =>
+  typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+    ? crypto.randomUUID()
+    : `tmp-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
 type AdminItem = SectionItem;
 type AdminItemDraft = Omit<
   SectionItem,
   "id" | "section" | "createdAt" | "updatedAt"
 >;
+type PendingPhoto = {
+  id: string;
+  file: File;
+  previewUrl: string;
+};
 
 type AdminSectionContentManagerProps = {
   section: SectionSlug;
@@ -75,7 +85,7 @@ const AdminSectionContentManager = ({
   const [isItemsLoading, setIsItemsLoading] = useState(false);
   const [draft, setDraft] = useState<AdminItemDraft | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [pendingPhotos, setPendingPhotos] = useState<File[]>([]);
+  const [pendingPhotos, setPendingPhotos] = useState<PendingPhoto[]>([]);
   const [pendingPdf, setPendingPdf] = useState<File | null>(null);
   const [pendingThumbnail, setPendingThumbnail] = useState<File | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -219,10 +229,17 @@ const AdminSectionContentManager = ({
     router.replace("/admin/login");
   };
 
+  const clearPendingPhotos = () => {
+    setPendingPhotos((prev) => {
+      prev.forEach((photo) => URL.revokeObjectURL(photo.previewUrl));
+      return [];
+    });
+  };
+
   const resetDraft = () => {
     setDraft(null);
     setEditingId(null);
-    setPendingPhotos([]);
+    clearPendingPhotos();
     setPendingPdf(null);
     setPendingThumbnail(null);
   };
@@ -234,7 +251,7 @@ const AdminSectionContentManager = ({
     }
     setDraft({ ...emptyDraft, submenuSlug: activeSubmenu });
     setEditingId(null);
-    setPendingPhotos([]);
+    clearPendingPhotos();
     setPendingPdf(null);
     setPendingThumbnail(null);
     setError("");
@@ -253,7 +270,7 @@ const AdminSectionContentManager = ({
       pdfUrl: item.pdfUrl,
     });
     setEditingId(item.id);
-    setPendingPhotos([]);
+    clearPendingPhotos();
     setPendingPdf(null);
     setPendingThumbnail(null);
     setError("");
@@ -289,11 +306,11 @@ const AdminSectionContentManager = ({
       let nextPhotos = [...draft.photos];
       if (pendingPhotos.length) {
         const uploads = await Promise.all(
-          pendingPhotos.map((file) => uploadFile(file))
+          pendingPhotos.map((entry) => uploadFile(entry.file))
         );
         const uploadedPhotos: SectionItemPhoto[] = uploads.map((url, index) => ({
           url,
-          alt: pendingPhotos[index]?.name || draft.heading,
+          alt: pendingPhotos[index]?.file.name || draft.heading,
         }));
         nextPhotos = [...nextPhotos, ...uploadedPhotos];
       }
@@ -397,6 +414,40 @@ const AdminSectionContentManager = ({
     setDraft({
       ...draft,
       photos: draft.photos.filter((photo) => photo.url !== url),
+    });
+  };
+
+  const handleAddPendingPhotos = (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    const selected = Array.from(files);
+    setPendingPhotos((prev) => {
+      const next = [...prev];
+      selected.forEach((file) => {
+        const duplicate = next.some(
+          (entry) =>
+            entry.file.name === file.name &&
+            entry.file.size === file.size &&
+            entry.file.lastModified === file.lastModified
+        );
+        if (!duplicate) {
+          next.push({
+            id: createLocalId(),
+            file,
+            previewUrl: URL.createObjectURL(file),
+          });
+        }
+      });
+      return next;
+    });
+  };
+
+  const handleRemovePendingPhoto = (id: string) => {
+    setPendingPhotos((prev) => {
+      const target = prev.find((photo) => photo.id === id);
+      if (target) {
+        URL.revokeObjectURL(target.previewUrl);
+      }
+      return prev.filter((photo) => photo.id !== id);
     });
   };
 
@@ -962,12 +1013,13 @@ const AdminSectionContentManager = ({
                       type="file"
                       accept="image/*"
                       multiple
-                      onChange={(event) =>
-                        setPendingPhotos(Array.from(event.target.files || []))
-                      }
+                      onChange={(event) => {
+                        handleAddPendingPhotos(event.target.files);
+                        event.currentTarget.value = "";
+                      }}
                       className="mt-2 block w-full text-xs text-[#4c5f66] file:mr-3 file:rounded-full file:border-0 file:bg-[#17323D] file:px-4 file:py-2 file:text-xs file:font-semibold file:text-white"
                     />
-                    {draft.photos.length > 0 && (
+                    {(draft.photos.length > 0 || pendingPhotos.length > 0) && (
                       <div className="mt-3 grid gap-3 sm:grid-cols-3">
                         {draft.photos.map((photo) => (
                           <div
@@ -985,9 +1037,33 @@ const AdminSectionContentManager = ({
                             <button
                               type="button"
                               onClick={() => handleRemovePhoto(photo.url)}
-                              className="w-full border-t border-white/70 py-1 text-[10px] font-semibold uppercase text-[#7A4C2C]"
+                              className="absolute right-1 top-1 inline-flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-black/55 text-white transition-colors hover:bg-black/75"
+                              aria-label="Remove photo"
                             >
-                              Remove
+                              <X size={14} />
+                            </button>
+                          </div>
+                        ))}
+                        {pendingPhotos.map((photo) => (
+                          <div
+                            key={photo.id}
+                            className="relative overflow-hidden rounded-2xl border border-[#d6c9b9] bg-[#fff9ef]"
+                          >
+                            <div className="relative h-24 w-full">
+                              <Image
+                                src={photo.previewUrl}
+                                alt={photo.file.name || draft.heading}
+                                fill
+                                className="object-cover"
+                              />
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => handleRemovePendingPhoto(photo.id)}
+                              className="absolute right-1 top-1 inline-flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-black/55 text-white transition-colors hover:bg-black/75"
+                              aria-label="Remove pending photo"
+                            >
+                              <X size={14} />
                             </button>
                           </div>
                         ))}
