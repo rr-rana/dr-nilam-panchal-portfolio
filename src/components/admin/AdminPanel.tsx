@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import AdminBanner from "@/components/admin/AdminBanner";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import AdminMainContent from "@/components/admin/AdminMainContent";
 import AdminToast from "@/components/admin/AdminToast";
@@ -15,9 +16,6 @@ const AdminPanel = () => {
     useAdminSession();
   const [content, setContent] = useState<SiteContent | null>(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [bannerPreview, setBannerPreview] = useState<string | null>(null);
-  const [pendingBannerFile, setPendingBannerFile] = useState<File | null>(null);
-  const [isUploadingBanner, setIsUploadingBanner] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const router = useRouter();
@@ -50,37 +48,9 @@ const AdminPanel = () => {
     }
   }, [isAuthenticated, isLoading, router]);
 
-  useEffect(() => {
-    return () => {
-      if (bannerPreview) {
-        URL.revokeObjectURL(bannerPreview);
-      }
-    };
-  }, [bannerPreview]);
-
   const handleLogout = async () => {
     await fetch("/api/admin/logout", { method: "POST" });
     router.replace("/admin/login");
-  };
-
-  const uploadImage = async (file: File) => {
-    const formData = new FormData();
-    formData.append("file", file);
-    const response = await fetch("/api/admin/upload", {
-      method: "POST",
-      body: formData,
-    });
-    if (!response.ok) {
-      const payload = await response.json().catch(() => ({}));
-      throw new Error(payload.error || "Upload failed.");
-    }
-    const payload = await response.json();
-    return payload.url as string;
-  };
-
-  const withCacheBust = (url: string) => {
-    const separator = url.includes("?") ? "&" : "?";
-    return `${url}${separator}v=${Date.now()}`;
   };
 
   const handleSave = async () => {
@@ -90,17 +60,10 @@ const AdminPanel = () => {
     setMessage("");
 
     try {
-      let nextContent = content;
-      if (pendingBannerFile) {
-        setIsUploadingBanner(true);
-        const bannerUrl = withCacheBust(await uploadImage(pendingBannerFile));
-        nextContent = { ...nextContent, bannerImageUrl: bannerUrl };
-      }
-
       const response = await fetch("/api/admin/content", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(nextContent),
+        body: JSON.stringify(content),
       });
 
       if (!response.ok) {
@@ -111,30 +74,14 @@ const AdminPanel = () => {
       const saved = (await response.json()) as SiteContent;
       setContent(saved);
       setSiteContent(saved);
-      setPendingBannerFile(null);
-      if (bannerPreview) {
-        URL.revokeObjectURL(bannerPreview);
-        setBannerPreview(null);
-      }
       setMessage("Changes saved.");
     } catch (err) {
-      const message =
+      const msg =
         err instanceof Error ? err.message : "Failed to save content.";
-      setError(message);
+      setError(msg);
     } finally {
-      setIsUploadingBanner(false);
       setIsSaving(false);
     }
-  };
-
-  const handleSelectBanner = (file: File) => {
-    setError("");
-    setMessage("Banner updated locally. Click save to upload.");
-    if (bannerPreview) {
-      URL.revokeObjectURL(bannerPreview);
-    }
-    setPendingBannerFile(file);
-    setBannerPreview(URL.createObjectURL(file));
   };
 
   if (isLoading) {
@@ -169,6 +116,8 @@ const AdminPanel = () => {
     );
   }
 
+  const firstBanner = content.bannerSlides?.[0];
+
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,#f6f1e7_0%,#f3ede1_35%,#ebe4d6_65%,#e2d9c7_100%)]">
       <div className="max-w-6xl mx-auto px-4 pb-16">
@@ -176,7 +125,7 @@ const AdminPanel = () => {
           <div>
             <h1 className="text-2xl font-semibold text-[#17323D]">Admin</h1>
             <p className="text-sm text-[#4c5f66]">
-              Edit the homepage content and save changes.
+              Edit homepage content. Manage slider banners from a separate page.
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -204,20 +153,46 @@ const AdminPanel = () => {
           </div>
         )}
 
-        <AdminBanner
-          bannerImageUrl={bannerPreview || content.bannerImageUrl}
-          onSelect={handleSelectBanner}
-          isUploading={isUploadingBanner}
-        />
+        <section className="mt-6 rounded-3xl border border-white/70 bg-white/90 p-4 shadow-xl backdrop-blur sm:p-5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
+                Banner
+              </h2>
+              <p className="mt-1 text-sm text-[#4c5f66]">
+                Primary banner preview shown on homepage.
+              </p>
+            </div>
+            <Link
+              href="/admin/banners"
+              className="rounded-full bg-[#17323D] px-4 py-2 text-xs font-semibold text-white"
+            >
+              Manage All Banners
+            </Link>
+          </div>
+          {firstBanner?.imageUrl && (
+            <div className="relative mt-4 h-40 overflow-hidden rounded-2xl border border-white/70 bg-[#ede4d6] md:h-48">
+              <Image
+                src={firstBanner.imageUrl}
+                alt={firstBanner.title || "Banner"}
+                fill
+                sizes="(max-width: 1024px) 100vw, 1000px"
+                className="object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-black/45 via-black/15 to-transparent" />
+              <div className="absolute bottom-3 left-3 rounded-xl bg-black/45 px-3 py-1 text-xs font-semibold text-white">
+                {firstBanner.title || "Untitled banner"}
+              </div>
+            </div>
+          )}
+        </section>
 
         <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[280px_1fr]">
           <AdminSidebar content={content} showEditButton />
           <AdminMainContent content={content} onChange={setContent} />
         </div>
       </div>
-      {message && (
-        <AdminToast message={message} />
-      )}
+      {message && <AdminToast message={message} />}
       {error && <AdminToast message={error} variant="error" />}
     </div>
   );

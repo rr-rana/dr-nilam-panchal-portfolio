@@ -44,7 +44,7 @@ const AdminSidebar = ({
       <div className="rounded-2xl border border-white/80 bg-white/80 p-5 shadow-xl backdrop-blur">
         <div
           className={`relative flex justify-center ${
-            isCompact ? "mt-0" : "-mt-28"
+            isCompact ? "mt-0" : "mt-0"
           }`}
         >
           <Image

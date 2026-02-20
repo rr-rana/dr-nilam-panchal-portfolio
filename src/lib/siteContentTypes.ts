@@ -10,8 +10,15 @@ export type SocialLinkId =
   | "googleScholar"
   | "orcid";
 
+export type BannerSlide = {
+  id: string;
+  imageUrl: string;
+  title: string;
+};
+
 export type SiteContent = {
-  bannerImageUrl: string;
+  bannerImageUrl?: string;
+  bannerSlides: BannerSlide[];
   profileImageUrl: string;
   videoUrl: string;
   mainHtml: string;

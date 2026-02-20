@@ -2,7 +2,7 @@ import "server-only";
 
 import bannerImage from "@/assets/banner.png";
 import profileImage from "@/assets/profile.jpg";
-import type { SiteContent } from "@/lib/siteContentTypes";
+import type { BannerSlide, SiteContent } from "@/lib/siteContentTypes";
 import mongoClient, { getMongoDbName } from "@/lib/mongo";
 import { unstable_cache } from "next/cache";
 
@@ -17,6 +17,13 @@ type SiteContentDocument = {
 
 export const defaultSiteContent: SiteContent = {
   bannerImageUrl: bannerImage.src,
+  bannerSlides: [
+    {
+      id: "default-banner-1",
+      imageUrl: bannerImage.src,
+      title: "Academic Highlights",
+    },
+  ],
   profileImageUrl: profileImage.src,
   videoUrl: "https://www.youtube.com/watch?v=Fi-HdiBbIWc",
   sidebarName: "Prof. (Dr.) Nilam Panchal",
@@ -44,6 +51,32 @@ export const defaultSiteContent: SiteContent = {
     <p>A distinguished academician, she has authored 150+ research papers and 45 books. She has coordinated 452 workshops/seminars and delivered 371+ expert lectures across diverse areas of Management. Prof. Panchal has developed five MOOCs on UGC SWAYAM and created 300+ e content modules for SWAYAM PRABHA (DTH Channels) in Economics, Commerce, and Management. She serves as Chief Editor of the IJMPR Journal and is on the editorial boards of Vidya and Vidyavrutt publications (GU).</p>
     <p>She has contributed to course development for PG programmes of BAOU, IGNOU, MGNCRE, and other Government of India academic initiatives. She has been awarded six research and seminar grants by ICSSR and NHRC (GOI). To date, 24 PhD scholars have completed their doctoral research under her supervision. Prof. Panchal is a Life Member of AIMA, AIMS, ISTD, NEMA, and NHRD. She has trained more than 20,000 professionals through FDPs, EDPs, MDPs, and SDPs for corporates and academic institutions. She was also invited as a Member and Presenter to the 16th Finance Commission, Government of India.</p>
   `.trim(),
+};
+
+const normalizeBannerSlides = (
+  data: Partial<SiteContent> & { bannerImageUrl?: string }
+): BannerSlide[] => {
+  const slides = Array.isArray(data.bannerSlides)
+    ? data.bannerSlides
+        .filter((slide) => slide?.imageUrl)
+        .map((slide, index) => ({
+          id: slide.id || `banner-${index + 1}`,
+          imageUrl: slide.imageUrl,
+          title: slide.title || `Banner ${index + 1}`,
+        }))
+    : [];
+
+  if (slides.length > 0) return slides;
+
+  const fallbackImage =
+    data.bannerImageUrl || defaultSiteContent.bannerImageUrl || bannerImage.src;
+  return [
+    {
+      id: "legacy-banner-1",
+      imageUrl: fallbackImage,
+      title: "Academic Highlights",
+    },
+  ];
 };
 
 type SiteContentOptions = {
@@ -106,6 +139,7 @@ export const getSiteContent = async (
     const resolved: SiteContent = {
       ...defaultSiteContent,
       ...data,
+      bannerSlides: normalizeBannerSlides(data),
       socialLinks: {
         ...defaultSiteContent.socialLinks,
         ...(data.socialLinks || {}),
@@ -130,17 +164,23 @@ export const saveSiteContent = async (
   }
 
   const client = await mongoClient;
+  const normalizedSlides = normalizeBannerSlides(content);
+  const normalizedContent: SiteContent = {
+    ...content,
+    bannerSlides: normalizedSlides,
+    bannerImageUrl: normalizedSlides[0]?.imageUrl || content.bannerImageUrl,
+  };
   const collection = client
     .db(getMongoDbName())
     .collection<SiteContentDocument>("site_content");
   await collection.updateOne(
     { _id: CONTENT_ID },
-    { $set: { content, updatedAt: new Date() } },
+    { $set: { content: normalizedContent, updatedAt: new Date() } },
     { upsert: true }
   );
 
-  lastKnownContent = content;
-  return content;
+  lastKnownContent = normalizedContent;
+  return normalizedContent;
 };
 
 export const getCachedSiteContent = unstable_cache(
