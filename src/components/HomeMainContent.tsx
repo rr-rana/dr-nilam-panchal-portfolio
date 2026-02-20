@@ -14,8 +14,11 @@ type HomeMainContentProps = {
 const HomeMainContent = ({ content }: HomeMainContentProps) => {
   return (
     <main className="space-y-8">
-      <section className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-xl backdrop-blur">
-        <div className="aspect-video overflow-hidden rounded-2xl border border-white/80 bg-black/90">
+      <section className="site-panel p-6">
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="site-kicker">Featured Lecture</h2>
+        </div>
+        <div className="aspect-video overflow-hidden rounded-2xl border border-[#c7d6df] bg-[#163645]">
           <ReactPlayer
             url={content.videoUrl}
             width="100%"
@@ -25,9 +28,10 @@ const HomeMainContent = ({ content }: HomeMainContentProps) => {
         </div>
       </section>
 
-      <section className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-xl backdrop-blur">
+      <section className="site-panel p-6">
+        <h2 className="site-kicker">Academic Profile</h2>
         <div
-          className="space-y-4 text-sm leading-relaxed text-[#4c5f66] [&_p]:mb-4 [&_p:last-child]:mb-0 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_strong]:font-semibold"
+          className="mt-4 space-y-4 text-sm leading-relaxed text-[#415261] [&_p]:mb-4 [&_p:last-child]:mb-0 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_strong]:font-semibold [&_strong]:text-[#17324a]"
           dangerouslySetInnerHTML={{ __html: content.mainHtml }}
         />
       </section>

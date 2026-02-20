@@ -44,7 +44,7 @@ const HomeBanner = ({
 
   return (
     <section className="pt-6">
-      <div className="relative h-56 overflow-hidden rounded-3xl border border-white/60 bg-white/50 shadow-2xl md:h-72">
+      <div className="relative h-56 overflow-hidden rounded-[1.25rem] border border-[#cdd8df] bg-white shadow-xl md:h-80">
         <Image
           src={activeSlide.imageUrl}
           alt={activeSlide.title || "Banner"}
@@ -54,8 +54,8 @@ const HomeBanner = ({
           priority
           key={activeSlide.id}
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-black/20 to-transparent" />
-        <div className="absolute bottom-4 left-4 rounded-xl bg-black/40 px-4 py-2 text-sm font-semibold text-white backdrop-blur-sm">
+        <div className="absolute inset-0 bg-gradient-to-r from-[#103239]/70 via-[#103239]/35 to-transparent" />
+        <div className="absolute bottom-5 left-5 rounded-xl border border-white/40 bg-[#0f766e]/85 px-4 py-2 text-sm font-semibold text-white backdrop-blur-sm">
           {activeSlide.title}
         </div>
         {slides.length > 1 && (
@@ -63,7 +63,7 @@ const HomeBanner = ({
             <button
               type="button"
               onClick={goPrev}
-              className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-black/35 p-2 text-white backdrop-blur-sm"
+              className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full border border-white/70 bg-white/85 p-2 text-[#1d3144] backdrop-blur-sm"
               aria-label="Previous banner"
             >
               <ChevronLeft size={18} />
@@ -71,7 +71,7 @@ const HomeBanner = ({
             <button
               type="button"
               onClick={goNext}
-              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-black/35 p-2 text-white backdrop-blur-sm"
+              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full border border-white/70 bg-white/85 p-2 text-[#1d3144] backdrop-blur-sm"
               aria-label="Next banner"
             >
               <ChevronRight size={18} />
@@ -83,7 +83,7 @@ const HomeBanner = ({
                   type="button"
                   onClick={() => setActiveIndex(index)}
                   className={`h-2.5 w-2.5 rounded-full border border-white/70 ${
-                    index === safeActiveIndex ? "bg-white" : "bg-white/30"
+                    index === safeActiveIndex ? "bg-[#0f766e]" : "bg-white/45"
                   }`}
                   aria-label={`Go to banner ${index + 1}`}
                 />

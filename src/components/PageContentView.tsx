@@ -15,18 +15,18 @@ const PageContentView = async ({ slug }: PageContentViewProps) => {
   ]);
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,#f6f1e7_0%,#f3ede1_35%,#ebe4d6_65%,#e2d9c7_100%)]">
+    <div className="site-bg">
       <div className="max-w-6xl mx-auto px-4 pb-16">
-        <div className="pt-8 grid grid-cols-1 gap-8 lg:grid-cols-[280px_1fr]">
-          <HomeSidebar content={siteContent} variant="compact" />
+        <div className="pt-8 grid grid-cols-1 gap-8 lg:grid-cols-[1fr_300px]">
           <main className="space-y-8">
-            <section className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-xl backdrop-blur">
+            <section className="site-panel p-6">
               <div
-                className="content-body space-y-4 text-sm leading-relaxed text-[#4c5f66] [&_p]:mb-4 [&_p:last-child]:mb-0 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_strong]:font-semibold"
+                className="content-body space-y-4 text-sm leading-relaxed text-[#415261] [&_p]:mb-4 [&_p:last-child]:mb-0 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_strong]:font-semibold [&_strong]:text-[#17324a]"
                 dangerouslySetInnerHTML={{ __html: pageContent.html }}
               />
             </section>
           </main>
+          <HomeSidebar content={siteContent} variant="compact" />
         </div>
       </div>
     </div>
