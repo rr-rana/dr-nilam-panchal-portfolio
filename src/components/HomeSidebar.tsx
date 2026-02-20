@@ -9,7 +9,6 @@ import {
   MapPin,
   Medal,
 } from "lucide-react";
-import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import type { SiteContent } from "@/lib/siteContentTypes";
 import { SOCIAL_LINK_OPTIONS } from "@/lib/socialLinks";
@@ -23,60 +22,52 @@ type HomeSidebarProps = {
 const HomeSidebar = ({ content, variant = "default" }: HomeSidebarProps) => {
   const isCompact = variant === "compact";
   const pathname = usePathname();
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  const effectivePathname = isMounted ? pathname : "";
+  const effectivePathname = pathname || "";
   const isActive = (href: string) =>
     effectivePathname === href ||
     effectivePathname?.startsWith(`${href}/`);
   return (
     <aside className="space-y-6 lg:sticky lg:top-24">
-      <div className="rounded-2xl border border-white/80 bg-white/80 p-5 shadow-xl backdrop-blur">
+      <div className="site-panel p-5">
         <div
-          className={`relative flex justify-center ${isCompact ? "mt-0" : "-mt-28"
-            }`}
+          className={`relative flex justify-center ${isCompact ? "mt-0" : "mt-4"}`}
         >
           <Image
             src={content.profileImageUrl}
             alt="Profile portrait"
-            className={`rounded-2xl border-4 border-white object-cover shadow-lg ${isCompact ? "h-36 w-36" : "h-44 w-44"
-              }`}
+            className={`rounded-full border-4 border-white object-cover shadow-lg ${isCompact ? "h-36 w-36" : "h-40 w-40"}`}
             width={176}
             height={176}
             key={content.profileImageUrl}
           />
         </div>
-        <h2 className={`${isCompact ? "mt-4" : "mt-4"} text-xl font-semibold text-[#17323D]`}>
+        <h2 className="mt-4 text-xl font-semibold text-[#17324a]">
           {content.sidebarName}
         </h2>
         {content.sidebarTitle && (
-          <p className="mt-1 text-sm text-[#5a6b73]">{content.sidebarTitle}</p>
+          <p className="mt-1 text-sm text-[#516171]">{content.sidebarTitle}</p>
         )}
         {(content.sidebarLocation || content.sidebarEmail) && (
           <div className="mt-4 space-y-2 text-sm text-[#2d3b41]">
             {content.sidebarLocation && (
               <p className="flex items-center gap-2">
-                <MapPin size={16} className="text-[#7A4C2C]" />
+                <MapPin size={16} className="text-[#31567a]" />
                 {content.sidebarLocation}
               </p>
             )}
             {content.sidebarEmail && (
               <a
-                className="flex items-center gap-2 hover:text-[#7A4C2C]"
+                className="flex items-center gap-2 hover:text-[#1b3b5a]"
                 href={`mailto:${content.sidebarEmail}`}
               >
-                <Mail size={16} className="text-[#7A4C2C]" />
+                <Mail size={16} className="text-[#31567a]" />
                 {content.sidebarEmail}
               </a>
             )}
           </div>
         )}
         {content.sidebarBlurb && (
-          <div className="mt-5 rounded-xl bg-[#f8f1e3] p-4 text-xs text-[#6b4a33]">
+          <div className="mt-5 rounded-xl border border-[#d4deea] bg-[#f4f8fd] p-4 text-xs text-[#4c5f73]">
             {content.sidebarBlurb}
           </div>
         )}
@@ -86,7 +77,7 @@ const HomeSidebar = ({ content, variant = "default" }: HomeSidebarProps) => {
               href={content.sidebarCvUrl}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-full bg-[#17323D] px-4 py-2 text-xs font-semibold text-white"
+              className="inline-flex items-center gap-2 rounded-full border border-[#c8d8ea] bg-[#dce8f8] px-4 py-2 text-xs font-semibold text-[#17324a]"
             >
               <FileText size={14} />
               Curriculum Vitae
@@ -95,15 +86,15 @@ const HomeSidebar = ({ content, variant = "default" }: HomeSidebarProps) => {
         )}
       </div>
 
-      <div className="hidden lg:block rounded-2xl border border-white/80 bg-white/70 p-5 shadow-lg backdrop-blur">
-        <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
+      <div className="hidden lg:block site-panel p-5">
+        <h3 className="site-kicker">
           Quick Links
         </h3>
-        <div className="mt-4 space-y-3 text-sm text-[#1f2f36]">
+        <div className="mt-4 space-y-3 text-sm text-[#23384c]">
           <Link
             className={`flex items-center gap-2 transition-colors ${isActive("/research-publications")
-                ? "underline underline-offset-4 decoration-white"
-                : "hover:text-[#7A4C2C]"
+                ? "font-semibold text-[#17324a]"
+                : "hover:text-[#1b3b5a]"
               }`}
             href="/research-publications"
           >
@@ -112,8 +103,8 @@ const HomeSidebar = ({ content, variant = "default" }: HomeSidebarProps) => {
           </Link>
           <Link
             className={`flex items-center gap-2 transition-colors ${isActive("/achievements-awards")
-                ? "underline underline-offset-4 decoration-white"
-                : "hover:text-[#7A4C2C]"
+                ? "font-semibold text-[#17324a]"
+                : "hover:text-[#1b3b5a]"
               }`}
             href="/achievements-awards"
           >
@@ -122,8 +113,8 @@ const HomeSidebar = ({ content, variant = "default" }: HomeSidebarProps) => {
           </Link>
           <Link
             className={`flex items-center gap-2 transition-colors ${isActive("/teaching-training")
-                ? "underline underline-offset-4 decoration-white"
-                : "hover:text-[#7A4C2C]"
+                ? "font-semibold text-[#17324a]"
+                : "hover:text-[#1b3b5a]"
               }`}
             href="/teaching-training"
           >
@@ -134,18 +125,18 @@ const HomeSidebar = ({ content, variant = "default" }: HomeSidebarProps) => {
       </div>
 
       {content.sidebarFooter && (
-        <div className="rounded-2xl border border-white/80 bg-[#17323D] p-5 text-white shadow-lg">
-          <p className="text-sm leading-relaxed text-white/90">
+        <div className="rounded-2xl border border-[#c8d8ea] bg-[#dce8f8] p-5 text-[#17324a] shadow-lg">
+          <p className="text-sm leading-relaxed text-[#2f4d69]">
             {content.sidebarFooter}
           </p>
         </div>
       )}
 
-      <div className="hidden lg:block rounded-2xl border border-white/80 bg-white/80 p-5 shadow-lg backdrop-blur">
-        <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
+      <div className="hidden lg:block site-panel p-5">
+        <h3 className="site-kicker">
           Social Links
         </h3>
-        <div className="mt-4 space-y-2 text-sm text-[#1f2f36]">
+        <div className="mt-4 space-y-2 text-sm text-[#23384c]">
           {SOCIAL_LINK_OPTIONS.map(({ id, label, Icon }) => {
             const url = content.socialLinks?.[id];
             if (!url) return null;
@@ -155,12 +146,12 @@ const HomeSidebar = ({ content, variant = "default" }: HomeSidebarProps) => {
             return (
               <Link
                 key={id}
-                className="flex items-center gap-3 hover:text-[#7A4C2C]"
+                className="flex items-center gap-3 hover:text-[#1b3b5a]"
                 href={finalUrl}
                 target="_blank"
                 rel="noreferrer"
               >
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#17323D]/10 text-[#17323D]">
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#e7eff8] text-[#17324a]">
                   <Icon size={14} />
                 </span>
                 {label}

@@ -21,12 +21,12 @@ const PageItemGallery = ({ photos, heading }: PageItemGalleryProps) => {
   if (!photos.length) return null;
 
   return (
-    <section className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-xl backdrop-blur">
+    <section className="site-panel p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
+        <h3 className="site-kicker">
           Gallery
         </h3>
-        <span className="rounded-full border border-white/80 bg-[#f7f4ee] px-3 py-1 text-[10px] font-semibold text-[#17323D]">
+        <span className="rounded-full border border-[#d4deea] bg-[#eef4fb] px-3 py-1 text-[10px] font-semibold text-[#17324a]">
           {photos.length} Photos
         </span>
       </div>
@@ -48,7 +48,7 @@ const PageItemGallery = ({ photos, heading }: PageItemGalleryProps) => {
                   : "col-span-1"
               }`}
             >
-              <div className="group w-full overflow-hidden rounded-2xl border border-[#e6dccb] bg-white shadow-sm">
+              <div className="group w-full overflow-hidden rounded-2xl border border-[#d4deea] bg-white shadow-sm">
                 <img
                   src={photo.url}
                   alt={photo.alt || heading}

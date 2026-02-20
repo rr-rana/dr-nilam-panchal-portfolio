@@ -1,8 +1,14 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f4f7fb;
+  --foreground: #14202b;
+  --surface: #ffffff;
+  --surface-soft: #eef2f8;
+  --border: #d4deea;
+  --accent: #1b3b5a;
+  --accent-soft: #e4edf7;
+  --muted: #516171;
 }
 
 @theme inline {
@@ -12,17 +18,10 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #f4eee2;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Manrope", "Avenir Next", "Segoe UI", sans-serif;
 }
 
 .rdw-editor-wrapper {
@@ -49,7 +48,7 @@ body {
 .skeleton-shimmer {
   position: relative;
   overflow: hidden;
-  background: #f2eadc;
+  background: #e6edf7;
 }
 
 .skeleton-shimmer::after {
@@ -64,6 +63,35 @@ body {
     transparent
   );
   animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+.site-bg {
+  min-height: 100vh;
+  background:
+    radial-gradient(1100px 500px at -10% -20%, #dce8f8 0%, transparent 70%),
+    radial-gradient(900px 420px at 120% 0%, #e8eff9 0%, transparent 60%),
+    linear-gradient(180deg, #f5f8fc 0%, #eef3f9 100%);
+}
+
+.site-panel {
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 1.25rem;
+  box-shadow: 0 12px 30px rgba(25, 45, 70, 0.08);
+}
+
+.site-panel-soft {
+  border: 1px solid var(--border);
+  background: rgba(238, 242, 248, 0.8);
+  border-radius: 1rem;
+}
+
+.site-kicker {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #31567a;
 }
 
 @media (prefers-reduced-motion: reduce) {
