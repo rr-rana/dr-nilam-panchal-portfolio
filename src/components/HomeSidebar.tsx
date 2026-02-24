@@ -41,7 +41,7 @@ const HomeSidebar = ({ content, variant = "default" }: HomeSidebarProps) => {
             key={content.profileImageUrl}
           />
         </div>
-        <h2 className={`${isCompact ? "mt-4" : "mt-4"} public-hero-title text-3xl leading-tight font-bold text-[#163042]`}>
+        <h2 className={`${isCompact ? "mt-4" : "mt-4"} public-hero-title text-[1.4rem] leading-tight font-bold text-[#163042]`}>
           {content.sidebarName}
         </h2>
         {content.sidebarTitle && (
@@ -77,7 +77,7 @@ const HomeSidebar = ({ content, variant = "default" }: HomeSidebarProps) => {
               href={content.sidebarCvUrl}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-full bg-[#163042] px-4 py-1.5 text-xs font-semibold text-white transition-transform hover:-translate-y-0.5"
+              className="inline-flex items-center gap-2 rounded-full border border-[#d6e3eb] bg-[#eef5f8] px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-[#2f5269] transition-colors hover:bg-[#e5eff4]"
             >
               <FileText size={14} />
               Curriculum Vitae

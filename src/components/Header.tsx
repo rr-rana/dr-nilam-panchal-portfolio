@@ -199,7 +199,7 @@ const Header = ({ displayName }: HeaderProps) => {
                                 <button
                                     className={`flex items-center gap-1 rounded-full px-3 py-2 transition-all ${
                                         item.children.some((child) => isActive(child.href))
-                                            ? "bg-[#183244] text-white shadow-md shadow-[#183244]/25"
+                                            ? "bg-[#eef3f6] text-[#b86d3a]"
                                             : "text-[#1e3a4f] hover:bg-[#eef3f6] hover:text-[#b86d3a]"
                                     }`}
                                 >
@@ -229,7 +229,7 @@ const Header = ({ displayName }: HeaderProps) => {
                                     href={item.href!}
                                     className={`rounded-full px-3 py-2 transition-all ${
                                     isActive(item.href)
-                                        ? "bg-[#183244] text-white shadow-md shadow-[#183244]/25"
+                                        ? "bg-[#eef3f6] text-[#b86d3a]"
                                         : "text-[#1e3a4f] hover:bg-[#eef3f6] hover:text-[#b86d3a]"
                                 }`}
                             >
@@ -265,7 +265,7 @@ const Header = ({ displayName }: HeaderProps) => {
                                 <button
                                     className={`w-full flex items-center justify-between rounded-xl px-3 py-2 text-sm font-semibold transition-colors ${
                                         item.children.some((child) => isActive(child.href))
-                                            ? "bg-[#183244] text-white"
+                                            ? "bg-[#eef3f6] text-[#b86d3a]"
                                             : "text-[#1e3a4f] hover:bg-white/80"
                                     }`}
                                     onClick={() => setMobileMoreOpen(!mobileMoreOpen)}
@@ -306,7 +306,7 @@ const Header = ({ displayName }: HeaderProps) => {
                                 }}
                                 className={`block mt-2 rounded-xl px-3 py-2 text-sm font-semibold transition-colors ${
                                     isActive(item.href)
-                                        ? "bg-[#183244] text-white"
+                                        ? "bg-[#eef3f6] text-[#b86d3a]"
                                         : "text-[#1e3a4f] hover:bg-white/80 hover:text-[#b86d3a]"
                                 }`}
                             >
