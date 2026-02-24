@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { MORE_PAGES, PRIMARY_PAGES } from "@/lib/pages";
 import { usePathname } from "next/navigation";
@@ -19,6 +19,7 @@ type HeaderProps = {
 const Header = ({ displayName }: HeaderProps) => {
     const [mobileOpen, setMobileOpen] = useState(false);
     const [mobileMoreOpen, setMobileMoreOpen] = useState(false);
+    const [showShadow, setShowShadow] = useState(false);
     const name = displayName || "Prof. (Dr.) Nilam Panchal";
     const pathname = usePathname();
     const effectivePathname = pathname || "";
@@ -49,9 +50,18 @@ const Header = ({ displayName }: HeaderProps) => {
         );
     };
 
+    useEffect(() => {
+        const handleScroll = () => {
+            setShowShadow(window.scrollY > 50);
+        };
+
+        window.addEventListener("scroll", handleScroll, { passive: true });
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
+
     if (isAdminRoute) {
         return (
-            <header className="fixed top-0 left-0 w-full z-50 bg-linear-to-r from-[#0F2B3A] via-[#103547] to-[#0F2B3A] text-[#F6F1E7] shadow-lg border-b border-white/10">
+            <header className={`fixed top-0 left-0 w-full z-50 bg-linear-to-r from-[#0F2B3A] via-[#103547] to-[#0F2B3A] text-[#F6F1E7] border-b border-white/10 transition-shadow ${showShadow ? "shadow-lg" : "shadow-none"}`}>
                 <div className="max-w-6xl mx-auto flex items-center justify-between px-4 py-4">
                     <Link href="/" className="text-xl font-semibold tracking-wide text-[#F6F1E7] hover:text-white transition-colors">
                         {name}
@@ -186,7 +196,7 @@ const Header = ({ displayName }: HeaderProps) => {
     }
 
     return (
-        <header className="fixed top-0 left-0 w-full z-50 border-b border-[#d9e3ea] bg-white/92 text-[#1a2e3f] shadow-[0_14px_24px_-20px_rgba(20,45,65,0.55)] backdrop-blur-xl">
+        <header className={`fixed top-0 left-0 w-full z-50 border-b border-[#d9e3ea] bg-white/92 text-[#1a2e3f] backdrop-blur-xl transition-shadow ${showShadow ? "shadow-[0_14px_24px_-20px_rgba(20,45,65,0.55)]" : "shadow-none"}`}>
             <div className="max-w-7xl mx-auto flex items-center justify-between gap-6 px-5 py-3">
                 <Link href="/" className="public-hero-title whitespace-nowrap text-[1.55rem] leading-none font-bold tracking-tight text-[#163042] transition-colors hover:text-[#b86d3a]">
                     {name}
