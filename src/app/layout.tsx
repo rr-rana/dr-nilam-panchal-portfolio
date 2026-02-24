@@ -44,7 +44,7 @@ export default async function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${manrope.variable} ${fraunces.variable} min-h-screen antialiased flex flex-col`}>
         <Header displayName={content.sidebarName} />
-        <main className="pt-20 flex-1">{children}</main>
+        <main className="pt-[65px] flex-1">{children}</main>
         <BottomLinks />
         <Footer />
       </body>

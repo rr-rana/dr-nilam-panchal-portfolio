@@ -17,7 +17,7 @@ const PageContentView = async ({ slug, title }: PageContentViewProps) => {
   return (
     <div className="public-page">
       <div className="max-w-6xl mx-auto px-4 pb-16">
-        <div className="pt-9 grid grid-cols-1 gap-8 lg:grid-cols-[300px_1fr]">
+        <div className="pt-2 grid grid-cols-1 gap-8 lg:grid-cols-[300px_1fr]">
           <HomeSidebar content={siteContent} variant="compact" />
           <main className="space-y-6">
             <section className="public-card rounded-[1.8rem] p-6 sm:p-8">

@@ -7,7 +7,7 @@ const Home = async () => {
   const content = await getCachedSiteContent();
 
   return (
-    <div className="public-page -mt-4">
+    <div className="public-page">
       <div className="px-0 pb-18">
         <HomeBanner
           bannerSlides={content.bannerSlides}
