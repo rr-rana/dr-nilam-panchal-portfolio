@@ -8,21 +8,24 @@ type PageContentViewProps = {
   title: string;
 };
 
-const PageContentView = async ({ slug }: PageContentViewProps) => {
+const PageContentView = async ({ slug, title }: PageContentViewProps) => {
   const [siteContent, pageContent] = await Promise.all([
     getCachedSiteContent(),
     getCachedPageContent(slug as PageSlug),
   ]);
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,#f6f1e7_0%,#f3ede1_35%,#ebe4d6_65%,#e2d9c7_100%)]">
+    <div className="public-page">
       <div className="max-w-6xl mx-auto px-4 pb-16">
-        <div className="pt-8 grid grid-cols-1 gap-8 lg:grid-cols-[280px_1fr]">
+        <div className="pt-9 grid grid-cols-1 gap-8 lg:grid-cols-[300px_1fr]">
           <HomeSidebar content={siteContent} variant="compact" />
-          <main className="space-y-8">
-            <section className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-xl backdrop-blur">
+          <main className="space-y-6">
+            <section className="public-card rounded-[1.8rem] p-6 sm:p-8">
+              <h1 className="public-hero-title text-3xl font-bold text-[#153042]">
+                {title}
+              </h1>
               <div
-                className="content-body space-y-4 text-sm leading-relaxed text-[#4c5f66] [&_p]:mb-4 [&_p:last-child]:mb-0 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_strong]:font-semibold"
+                className="content-body public-prose mt-5 text-sm leading-relaxed sm:text-[15px]"
                 dangerouslySetInnerHTML={{ __html: pageContent.html }}
               />
             </section>

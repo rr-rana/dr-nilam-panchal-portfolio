@@ -32,12 +32,12 @@ const SectionHeaderLeft = ({ section, title }: SectionHeaderLeftProps) => {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-[#17323D]">{title}</h1>
-      <p className="mt-2 text-sm text-[#4c5f66]">
+      <h1 className="public-hero-title text-3xl font-bold text-[#153042]">{title}</h1>
+      <p className="mt-2 text-sm text-[#506170]">
         Explore the latest updates and detailed academic highlights.
       </p>
       {headerImage && (
-        <div className="mt-5 overflow-hidden rounded-3xl border border-white/80 bg-white shadow-sm">
+        <div className="mt-5 overflow-hidden rounded-[1.5rem] border border-white/80 bg-white shadow-sm">
           <Image
             src={headerImage}
             alt={`${title} banner`}

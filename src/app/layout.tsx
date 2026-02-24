@@ -2,10 +2,23 @@ import "./globals.css";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 import "draft-js/dist/Draft.css";
 import type { Metadata } from "next";
+import { Manrope, Fraunces } from "next/font/google";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { getCachedSiteContent } from "@/lib/siteContent";
 import BottomLinks from "@/components/BottomLinks";
+
+const manrope = Manrope({
+  subsets: ["latin"],
+  variable: "--font-manrope",
+  display: "swap",
+});
+
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  variable: "--font-fraunces",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: {
@@ -29,7 +42,7 @@ export default async function RootLayout({
   const content = await getCachedSiteContent();
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="min-h-screen antialiased flex flex-col">
+      <body className={`${manrope.variable} ${fraunces.variable} min-h-screen antialiased flex flex-col`}>
         <Header displayName={content.sidebarName} />
         <main className="pt-20 flex-1">{children}</main>
         <BottomLinks />

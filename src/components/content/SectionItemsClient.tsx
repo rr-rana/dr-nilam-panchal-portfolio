@@ -198,18 +198,14 @@ const SectionItemsClient = ({
   const basePath = `/${section}`;
   const fallbackHeaderLeft = (
     <div>
-      <h1 className="text-2xl font-semibold text-[#17323D]">{title}</h1>
-      <p className="mt-2 text-sm text-[#4c5f66]">
+      <h1 className="public-hero-title text-3xl font-bold text-[#17323D]">{title}</h1>
+      <p className="mt-2 text-sm text-[#4f6271]">
         Explore the latest updates and detailed academic highlights.
       </p>
     </div>
   );
 
   const showItems = Boolean(initialSubmenu && activeSubmenu);
-  const isLoading =
-    isLoadingSubmenus ||
-    isLoadingContent ||
-    (showItems && (isLoadingItems || loadedSubmenu !== activeSubmenu));
   const pageSize = 5;
   const paginationState = useMemo(() => {
     const allItems = showItems ? items ?? [] : [];
@@ -220,13 +216,13 @@ const SectionItemsClient = ({
     const startIndex = (currentPage - 1) * pageSize;
     const pagedItems = allItems.slice(startIndex, startIndex + pageSize);
     return { pagedItems, totalItems, totalPages, currentPage };
-  }, [items, searchParams]);
+  }, [items, searchParams, showItems]);
 
   if (!siteContent) {
     return (
-      <div className="min-h-screen bg-[radial-gradient(circle_at_top,#f6f1e7_0%,#f3ede1_35%,#ebe4d6_65%,#e2d9c7_100%)]">
+      <div className="public-page">
         <div className="mx-auto flex min-h-screen max-w-6xl items-center justify-center px-4">
-          <div className="rounded-3xl border border-white/70 bg-white/90 px-6 py-4 shadow-xl backdrop-blur">
+          <div className="public-card rounded-3xl px-6 py-4">
             <LoadingSpinner />
           </div>
         </div>
@@ -235,18 +231,18 @@ const SectionItemsClient = ({
   }
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,#f6f1e7_0%,#f3ede1_35%,#ebe4d6_65%,#e2d9c7_100%)]">
+    <div className="public-page">
       <div className="max-w-6xl mx-auto px-4 pb-16">
-        <div className="pt-8 grid grid-cols-1 gap-8 lg:grid-cols-[280px_1fr]">
+        <div className="pt-9 grid grid-cols-1 gap-8 lg:grid-cols-[300px_1fr]">
           <HomeSidebar content={siteContent} variant="compact" />
           <main className="space-y-6">
             {showHeader && (
-              <section className="rounded-3xl border border-white/70 bg-white/95 p-6 shadow-xl backdrop-blur">
+              <section className="public-card rounded-[1.8rem] p-6">
                 <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
                   <div>{headerLeft ?? fallbackHeaderLeft}</div>
                   {showSubmenuLinks && (
-                    <div className="rounded-2xl border border-white/70 bg-[#f8f3ea] p-4">
-                      <h2 className="text-[11px] font-semibold uppercase tracking-[0.25em] text-[#7A4C2C]">
+                    <div className="rounded-[1.3rem] border border-[#e6edf1] bg-[#edf3f5] p-4">
+                      <h2 className="text-[11px] font-semibold uppercase tracking-[0.25em] text-[#b86d3a]">
                         Submenus
                       </h2>
                       <div className="mt-3 space-y-2">
@@ -255,12 +251,12 @@ const SectionItemsClient = ({
                             {Array.from({ length: 4 }).map((_, index) => (
                               <div
                                 key={index}
-                                className="skeleton-shimmer h-10 rounded-2xl border border-white/70"
+                                className="skeleton-shimmer h-10 rounded-2xl border border-white/80"
                               />
                             ))}
                           </>
                         ) : submenus.length === 0 ? (
-                          <div className="rounded-2xl border border-dashed border-[#e1d6c6] bg-white/70 px-4 py-6 text-center text-xs text-[#4c5f66]">
+                          <div className="rounded-2xl border border-dashed border-[#cad6dd] bg-white/70 px-4 py-6 text-center text-xs text-[#4c5f66]">
                             No submenus yet. Please check back soon.
                           </div>
                         ) : (
@@ -271,7 +267,7 @@ const SectionItemsClient = ({
                               className={`group flex items-center justify-between rounded-2xl border px-4 py-3 text-sm font-semibold transition-all ${
                                 submenu.slug === activeSubmenu
                                   ? "border-[#17323D] bg-[#17323D] text-white shadow-md"
-                                  : "border-white/80 bg-white text-[#17323D] hover:-translate-y-0.5 hover:border-[#17323D]/30 hover:shadow-md"
+                                  : "border-white/80 bg-white text-[#17323D] hover:-translate-y-0.5 hover:border-[#17323D]/25 hover:text-[#b86d3a] hover:shadow-md"
                               }`}
                             >
                               <span>{submenu.label}</span>
@@ -298,7 +294,7 @@ const SectionItemsClient = ({
               <section>
                 <Link
                   href={backHref || basePath}
-                  className="inline-flex items-center rounded-full border border-white/70 bg-white/90 px-4 py-2 text-xs font-semibold text-[#17323D] shadow-sm hover:bg-white"
+                  className="inline-flex items-center rounded-full border border-[#d2dde4] bg-white px-4 py-2 text-xs font-semibold text-[#17323D] shadow-sm transition-colors hover:bg-[#eef3f6]"
                 >
                   {backLabel}
                 </Link>
@@ -311,7 +307,7 @@ const SectionItemsClient = ({
                   {Array.from({ length: 3 }).map((_, index) => (
                     <div
                       key={index}
-                      className="rounded-3xl border border-white/70 bg-white/95 p-4 shadow-xl backdrop-blur sm:p-5"
+                      className="public-card rounded-3xl p-4 sm:p-5"
                     >
                       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
                         <div className="skeleton-shimmer h-20 w-20 rounded-2xl sm:h-24 sm:w-24" />
@@ -335,18 +331,18 @@ const SectionItemsClient = ({
               ) : items &&
                 loadedSubmenu === activeSubmenu &&
                 paginationState.pagedItems.length === 0 ? (
-                <div className="rounded-3xl border border-white/70 bg-white/95 p-8 shadow-xl backdrop-blur">
+                <div className="public-card rounded-3xl p-8">
                   <div className="mx-auto flex max-w-xl flex-col items-center gap-4 text-center">
-                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/70 bg-[#f3ede1] text-[#7A4C2C] shadow-inner">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-[#d2dfe6] bg-[#edf3f5] text-[#17323D] shadow-inner">
                       <FolderOpen size={24} />
                     </div>
                     <h3 className="text-base font-semibold text-[#17323D]">
                       No items yet
                     </h3>
                     <div className="w-full max-w-sm space-y-2">
-                      <div className="h-3 w-3/4 rounded-full bg-[#efe7d9] mx-auto" />
-                      <div className="h-3 w-full rounded-full bg-[#f3ede1] mx-auto" />
-                      <div className="h-3 w-2/3 rounded-full bg-[#efe7d9] mx-auto" />
+                      <div className="mx-auto h-3 w-3/4 rounded-full bg-[#dbe6ec]" />
+                      <div className="mx-auto h-3 w-full rounded-full bg-[#eaf1f4]" />
+                      <div className="mx-auto h-3 w-2/3 rounded-full bg-[#dbe6ec]" />
                     </div>
                   </div>
                 </div>
@@ -365,10 +361,10 @@ const SectionItemsClient = ({
                   return (
                     <article
                       key={item.id}
-                      className="rounded-3xl border border-white/70 bg-white/95 p-4 shadow-xl backdrop-blur sm:p-5"
+                      className="public-card rounded-3xl p-4 sm:p-5"
                     >
                       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
-                        <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl border border-white/80 bg-[#f3ede1] sm:h-24 sm:w-24">
+                        <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl border border-[#d9e4eb] bg-[#edf3f5] sm:h-24 sm:w-24">
                           {thumbnail ? (
                             <Image
                               src={thumbnail.url}
@@ -377,7 +373,7 @@ const SectionItemsClient = ({
                               className="object-cover"
                             />
                           ) : (
-                            <div className="flex h-full w-full items-center justify-center text-[10px] font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
+                            <div className="flex h-full w-full items-center justify-center text-[10px] font-semibold uppercase tracking-[0.2em] text-[#617586]">
                               No Image
                             </div>
                           )}
@@ -386,13 +382,13 @@ const SectionItemsClient = ({
                           <h2 className="line-clamp-2 text-base font-semibold text-[#17323D]">
                             {item.heading}
                           </h2>
-                          <p className="mt-2 line-clamp-3 text-sm text-[#4c5f66]">
+                          <p className="mt-2 line-clamp-3 text-sm text-[#4f6271]">
                             {preview || "No description yet."}
                           </p>
                           <div className="mt-3 flex flex-wrap items-center gap-3">
                             <Link
                               href={`${basePath}/${activeSubmenu}/${item.id}`}
-                              className="inline-flex items-center gap-2 rounded-full bg-[#17323D] px-4 py-2 text-xs font-semibold text-white"
+                              className="inline-flex items-center gap-2 rounded-full bg-[#17323D] px-4 py-2 text-xs font-semibold text-white shadow-md shadow-[#17323D]/30"
                             >
                               <Eye size={14} />
                               View Details
@@ -402,7 +398,7 @@ const SectionItemsClient = ({
                                 href={item.pdfUrl}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="inline-flex items-center gap-2 rounded-full border border-white/80 bg-[#f7f4ee] px-4 py-2 text-xs font-semibold text-[#17323D]"
+                                className="inline-flex items-center gap-2 rounded-full border border-[#d1dee6] bg-[#f4f8fa] px-4 py-2 text-xs font-semibold text-[#17323D]"
                               >
                                 <FileText size={14} />
                                 Download PDF
@@ -411,7 +407,7 @@ const SectionItemsClient = ({
                           </div>
                         </div>
                         {showMeta && (
-                          <div className="text-xs text-[#4c5f66] sm:min-w-[160px] sm:text-right">
+                          <div className="text-xs text-[#4f6271] sm:min-w-[160px] sm:text-right">
                             {author && (
                               <>
                                 <div className="font-semibold text-[#17323D]">
@@ -446,10 +442,10 @@ const SectionItemsClient = ({
                     1,
                     paginationState.currentPage - 1
                   )}`}
-                  className={`flex h-8 w-8 items-center justify-center rounded-full border text-xs font-semibold ${
+                  className={`flex h-8 w-8 items-center justify-center rounded-full border text-xs font-semibold transition-colors ${
                     paginationState.currentPage === 1
-                      ? "pointer-events-none border-white/70 bg-white/70 text-[#9aa3a8]"
-                      : "border-white/80 bg-white/95 text-[#17323D] hover:bg-white"
+                      ? "pointer-events-none border-[#d7e1e8] bg-white/70 text-[#9aa3a8]"
+                      : "border-[#d1dee6] bg-white text-[#17323D] hover:bg-[#edf3f6]"
                   }`}
                   aria-label="Previous page"
                 >
@@ -462,10 +458,10 @@ const SectionItemsClient = ({
                   <Link
                     key={page}
                     href={`${basePath}/${activeSubmenu}?page=${page}`}
-                    className={`flex h-8 w-8 items-center justify-center rounded-full border text-xs font-semibold ${
+                    className={`flex h-8 w-8 items-center justify-center rounded-full border text-xs font-semibold transition-colors ${
                       page === paginationState.currentPage
                         ? "border-[#17323D] bg-[#17323D] text-white"
-                        : "border-white/80 bg-white/95 text-[#17323D] hover:bg-white"
+                        : "border-[#d1dee6] bg-white text-[#17323D] hover:bg-[#edf3f6]"
                     }`}
                   >
                     {page}
@@ -476,10 +472,10 @@ const SectionItemsClient = ({
                     paginationState.totalPages,
                     paginationState.currentPage + 1
                   )}`}
-                  className={`flex h-8 w-8 items-center justify-center rounded-full border text-xs font-semibold ${
+                  className={`flex h-8 w-8 items-center justify-center rounded-full border text-xs font-semibold transition-colors ${
                     paginationState.currentPage === paginationState.totalPages
-                      ? "pointer-events-none border-white/70 bg-white/70 text-[#9aa3a8]"
-                      : "border-white/80 bg-white/95 text-[#17323D] hover:bg-white"
+                      ? "pointer-events-none border-[#d7e1e8] bg-white/70 text-[#9aa3a8]"
+                      : "border-[#d1dee6] bg-white text-[#17323D] hover:bg-[#edf3f6]"
                   }`}
                   aria-label="Next page"
                 >

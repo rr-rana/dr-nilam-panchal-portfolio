@@ -9,7 +9,6 @@ import {
   MapPin,
   Medal,
 } from "lucide-react";
-import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import type { SiteContent } from "@/lib/siteContentTypes";
 import { SOCIAL_LINK_OPTIONS } from "@/lib/socialLinks";
@@ -17,93 +16,86 @@ import Link from "next/link";
 
 type HomeSidebarProps = {
   content: SiteContent;
-  variant?: "default" | "compact";
+  variant?: "default" | "compact" | "linksOnly";
 };
 
 const HomeSidebar = ({ content, variant = "default" }: HomeSidebarProps) => {
   const isCompact = variant === "compact";
+  const isLinksOnly = variant === "linksOnly";
   const pathname = usePathname();
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  const effectivePathname = isMounted ? pathname : "";
+  const effectivePathname = pathname || "";
   const isActive = (href: string) =>
     effectivePathname === href ||
     effectivePathname?.startsWith(`${href}/`);
   return (
     <aside className="space-y-6 lg:sticky lg:top-24">
-      <div className="rounded-2xl border border-white/80 bg-white/80 p-5 shadow-xl backdrop-blur">
-        <div
-          className={`relative flex justify-center ${isCompact ? "mt-0" : "-mt-28"
-            }`}
-        >
+      {!isLinksOnly && (
+        <div className="border-b border-[#cfdbe3] pb-6">
+        <div className="flex justify-center">
           <Image
             src={content.profileImageUrl}
             alt="Profile portrait"
-            className={`rounded-2xl border-4 border-white object-cover shadow-lg ${isCompact ? "h-36 w-36" : "h-44 w-44"
-              }`}
+            className={`${isCompact ? "h-36 w-36" : "h-44 w-44"} rounded-2xl object-cover shadow-lg shadow-[#183244]/20`}
             width={176}
             height={176}
             key={content.profileImageUrl}
           />
         </div>
-        <h2 className={`${isCompact ? "mt-4" : "mt-4"} text-xl font-semibold text-[#17323D]`}>
+        <h2 className={`${isCompact ? "mt-4" : "mt-4"} public-hero-title text-3xl leading-tight font-bold text-[#163042]`}>
           {content.sidebarName}
         </h2>
         {content.sidebarTitle && (
-          <p className="mt-1 text-sm text-[#5a6b73]">{content.sidebarTitle}</p>
+          <p className="mt-1 text-sm leading-relaxed font-medium text-[#4a5d6b]">{content.sidebarTitle}</p>
         )}
         {(content.sidebarLocation || content.sidebarEmail) && (
-          <div className="mt-4 space-y-2 text-sm text-[#2d3b41]">
+          <div className="mt-3 space-y-2 text-sm text-[#304352]">
             {content.sidebarLocation && (
               <p className="flex items-center gap-2">
-                <MapPin size={16} className="text-[#7A4C2C]" />
+                <MapPin size={16} className="text-[#b86d3a]" />
                 {content.sidebarLocation}
               </p>
             )}
             {content.sidebarEmail && (
               <a
-                className="flex items-center gap-2 hover:text-[#7A4C2C]"
+                className="flex items-center gap-2 transition-colors hover:text-[#b86d3a]"
                 href={`mailto:${content.sidebarEmail}`}
               >
-                <Mail size={16} className="text-[#7A4C2C]" />
+                <Mail size={16} className="text-[#b86d3a]" />
                 {content.sidebarEmail}
               </a>
             )}
           </div>
         )}
         {content.sidebarBlurb && (
-          <div className="mt-5 rounded-xl bg-[#f8f1e3] p-4 text-xs text-[#6b4a33]">
+          <div className="mt-4 border-l-2 border-[#f0bf96] pl-3 text-xs leading-relaxed text-[#724124]">
             {content.sidebarBlurb}
           </div>
         )}
         {content.sidebarCvUrl && (
-          <div className="mt-4 flex justify-center">
+          <div className="mt-4">
             <a
               href={content.sidebarCvUrl}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-full bg-[#17323D] px-4 py-2 text-xs font-semibold text-white"
+              className="inline-flex items-center gap-2 rounded-full bg-[#163042] px-4 py-1.5 text-xs font-semibold text-white transition-transform hover:-translate-y-0.5"
             >
               <FileText size={14} />
               Curriculum Vitae
             </a>
           </div>
         )}
-      </div>
+        </div>
+      )}
 
-      <div className="hidden lg:block rounded-2xl border border-white/80 bg-white/70 p-5 shadow-lg backdrop-blur">
-        <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
+      <div className="hidden border-b border-[#cfdbe3] pb-5 lg:block">
+        <h3 className="text-xs font-semibold uppercase tracking-[0.24em] text-[#b86d3a]">
           Quick Links
         </h3>
-        <div className="mt-4 space-y-3 text-sm text-[#1f2f36]">
+        <div className="mt-4 space-y-2.5 text-sm text-[#1f2f36]">
           <Link
-            className={`flex items-center gap-2 transition-colors ${isActive("/research-publications")
-                ? "underline underline-offset-4 decoration-white"
-                : "hover:text-[#7A4C2C]"
+            className={`flex items-center gap-2 py-1.5 transition-colors ${isActive("/research-publications")
+                ? "font-semibold text-[#153042]"
+                : "hover:text-[#b86d3a]"
               }`}
             href="/research-publications"
           >
@@ -111,9 +103,9 @@ const HomeSidebar = ({ content, variant = "default" }: HomeSidebarProps) => {
             Research & Publications
           </Link>
           <Link
-            className={`flex items-center gap-2 transition-colors ${isActive("/achievements-awards")
-                ? "underline underline-offset-4 decoration-white"
-                : "hover:text-[#7A4C2C]"
+            className={`flex items-center gap-2 py-1.5 transition-colors ${isActive("/achievements-awards")
+                ? "font-semibold text-[#153042]"
+                : "hover:text-[#b86d3a]"
               }`}
             href="/achievements-awards"
           >
@@ -121,9 +113,9 @@ const HomeSidebar = ({ content, variant = "default" }: HomeSidebarProps) => {
             Achievements & Awards
           </Link>
           <Link
-            className={`flex items-center gap-2 transition-colors ${isActive("/teaching-training")
-                ? "underline underline-offset-4 decoration-white"
-                : "hover:text-[#7A4C2C]"
+            className={`flex items-center gap-2 py-1.5 transition-colors ${isActive("/teaching-training")
+                ? "font-semibold text-[#153042]"
+                : "hover:text-[#b86d3a]"
               }`}
             href="/teaching-training"
           >
@@ -134,15 +126,15 @@ const HomeSidebar = ({ content, variant = "default" }: HomeSidebarProps) => {
       </div>
 
       {content.sidebarFooter && (
-        <div className="rounded-2xl border border-white/80 bg-[#17323D] p-5 text-white shadow-lg">
-          <p className="text-sm leading-relaxed text-white/90">
+        <div className="border-l-2 border-[#234760] pl-3 text-[#1f3e52]">
+          <p className="text-sm leading-relaxed text-[#1f3e52]">
             {content.sidebarFooter}
           </p>
         </div>
       )}
 
-      <div className="hidden lg:block rounded-2xl border border-white/80 bg-white/80 p-5 shadow-lg backdrop-blur">
-        <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
+      <div className="hidden lg:block">
+        <h3 className="text-xs font-semibold uppercase tracking-[0.24em] text-[#b86d3a]">
           Social Links
         </h3>
         <div className="mt-4 space-y-2 text-sm text-[#1f2f36]">
@@ -155,19 +147,18 @@ const HomeSidebar = ({ content, variant = "default" }: HomeSidebarProps) => {
             return (
               <Link
                 key={id}
-                className="flex items-center gap-3 hover:text-[#7A4C2C]"
+                className="flex items-center gap-3 py-1.5 transition-colors hover:text-[#b86d3a]"
                 href={finalUrl}
                 target="_blank"
                 rel="noreferrer"
               >
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#17323D]/10 text-[#17323D]">
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#d8e6ed] text-[#153042]">
                   <Icon size={14} />
                 </span>
                 {label}
               </Link>
             );
           })}
-
         </div>
       </div>
     </aside>

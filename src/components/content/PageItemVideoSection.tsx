@@ -38,14 +38,14 @@ const PageItemVideoSection = ({
   if (!normalized.length) return null;
 
   return (
-    <section className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-xl backdrop-blur">
-      <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
+    <section className="public-card rounded-[1.8rem] p-6">
+      <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-[#b86d3a]">
         Videos
       </h3>
       <div className="mt-4 space-y-4">
         {normalized.length === 1 && (
           <div className="flex justify-center">
-            <div className="aspect-video w-full max-w-3xl overflow-hidden rounded-2xl border border-white/80 bg-black/90">
+            <div className="aspect-video w-full max-w-3xl overflow-hidden rounded-2xl border border-[#d2dee5] bg-black/90">
               <ReactPlayer
                 url={normalized[0]}
                 width="100%"
@@ -60,7 +60,7 @@ const PageItemVideoSection = ({
             {normalized.map((link) => (
               <div
                 key={link}
-                className="aspect-video overflow-hidden rounded-2xl border border-white/80 bg-black/90"
+                className="aspect-video overflow-hidden rounded-2xl border border-[#d2dee5] bg-black/90"
               >
                 <ReactPlayer url={link} width="100%" height="100%" controls />
               </div>
@@ -73,7 +73,7 @@ const PageItemVideoSection = ({
               {normalized.slice(0, 2).map((link) => (
                 <div
                   key={link}
-                  className="aspect-video overflow-hidden rounded-2xl border border-white/80 bg-black/90"
+                  className="aspect-video overflow-hidden rounded-2xl border border-[#d2dee5] bg-black/90"
                 >
                   <ReactPlayer
                     url={link}
@@ -85,7 +85,7 @@ const PageItemVideoSection = ({
               ))}
             </div>
             <div className="flex justify-center">
-              <div className="aspect-video w-full max-w-2xl overflow-hidden rounded-2xl border border-white/80 bg-black/90">
+              <div className="aspect-video w-full max-w-2xl overflow-hidden rounded-2xl border border-[#d2dee5] bg-black/90">
                 <ReactPlayer
                   url={normalized[2]}
                   width="100%"
@@ -99,7 +99,7 @@ const PageItemVideoSection = ({
                 {normalized.slice(3).map((link) => (
                   <div
                     key={link}
-                    className="aspect-video overflow-hidden rounded-2xl border border-white/80 bg-black/90"
+                    className="aspect-video overflow-hidden rounded-2xl border border-[#d2dee5] bg-black/90"
                   >
                     <ReactPlayer
                       url={link}

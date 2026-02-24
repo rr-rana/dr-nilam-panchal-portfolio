@@ -7,16 +7,18 @@ const Home = async () => {
   const content = await getCachedSiteContent();
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,#f6f1e7_0%,#f3ede1_35%,#ebe4d6_65%,#e2d9c7_100%)]">
-      <div className="max-w-6xl mx-auto px-4 pb-16">
+    <div className="public-page -mt-4">
+      <div className="px-0 pb-18">
         <HomeBanner
           bannerSlides={content.bannerSlides}
           fallbackImageUrl={content.bannerImageUrl}
         />
 
-        <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[280px_1fr]">
-          <HomeSidebar content={content} />
-          <HomeMainContent content={content} />
+        <div className="max-w-7xl mx-auto px-5">
+          <div className="mt-10 grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
+            <HomeMainContent content={content} />
+            <HomeSidebar content={content} variant="linksOnly" />
+          </div>
         </div>
       </div>
     </div>

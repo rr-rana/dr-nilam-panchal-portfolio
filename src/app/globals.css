@@ -1,15 +1,18 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f7f8f4;
+  --foreground: #1e2936;
+  --public-surface: #ffffff;
+  --public-primary: #183244;
+  --public-secondary: #b86d3a;
+  --public-muted: #637080;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-manrope);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -22,7 +25,7 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-manrope), "Segoe UI", sans-serif;
 }
 
 .rdw-editor-wrapper {
@@ -49,7 +52,7 @@ body {
 .skeleton-shimmer {
   position: relative;
   overflow: hidden;
-  background: #f2eadc;
+  background: #e6edf0;
 }
 
 .skeleton-shimmer::after {
@@ -70,4 +73,90 @@ body {
   .skeleton-shimmer::after {
     animation: none;
   }
+}
+
+.public-page {
+  position: relative;
+  min-height: 100vh;
+  background:
+    radial-gradient(1100px 420px at -10% -20%, #d3e3ee 0%, transparent 72%),
+    radial-gradient(900px 440px at 110% 2%, #ead5c6 0%, transparent 72%),
+    linear-gradient(180deg, #eef3f5 0%, #e8eef1 44%, #e1e9ee 100%);
+}
+
+.public-hero-title {
+  font-family: var(--font-fraunces), Georgia, serif;
+}
+
+.public-card {
+  border: 1px solid #d5e0e8;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow:
+    0 24px 46px -30px rgba(17, 33, 48, 0.35),
+    0 1px 0 rgba(255, 255, 255, 0.92) inset;
+  backdrop-filter: blur(4px);
+}
+
+.public-prose {
+  color: #273a4c;
+  font-size: 1.04rem;
+  line-height: 1.85;
+}
+
+.public-prose * {
+  color: inherit !important;
+  font-size: inherit !important;
+  line-height: inherit !important;
+}
+
+.public-prose h1,
+.public-prose h2,
+.public-prose h3,
+.public-prose h4,
+.public-prose h5,
+.public-prose h6 {
+  color: #173247 !important;
+  font-family: var(--font-fraunces), Georgia, serif;
+  font-weight: 700;
+  line-height: 1.3 !important;
+}
+
+.public-prose h1 {
+  font-size: 2rem !important;
+}
+
+.public-prose h2 {
+  font-size: 1.7rem !important;
+}
+
+.public-prose h3 {
+  font-size: 1.4rem !important;
+}
+
+.public-prose p {
+  margin-bottom: 1rem;
+}
+
+.public-prose p:last-child {
+  margin-bottom: 0;
+}
+
+.public-prose ul {
+  list-style: disc;
+  padding-left: 1.2rem;
+}
+
+.public-prose ol {
+  list-style: decimal;
+  padding-left: 1.2rem;
+}
+
+.public-prose strong {
+  color: #1f3346;
+  font-weight: 700;
+}
+
+.public-prose a {
+  color: #1b5f90 !important;
+  text-decoration: underline;
 }
