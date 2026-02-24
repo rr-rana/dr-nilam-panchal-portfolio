@@ -54,8 +54,8 @@ const HomeBanner = ({
           priority
           key={activeSlide.id}
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-black/20 to-transparent" />
-        <div className="absolute bottom-4 left-4 rounded-xl bg-black/40 px-4 py-2 text-sm font-semibold text-white backdrop-blur-sm">
+        <div className="absolute inset-0 bg-linear-to-r from-black/50 via-black/20 to-transparent" />
+        <div className="absolute top-4 right-4 rounded-xl bg-black/40 px-4 py-2 text-sm font-semibold text-white backdrop-blur-sm">
           {activeSlide.title}
         </div>
         {slides.length > 1 && (
