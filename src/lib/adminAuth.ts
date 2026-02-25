@@ -7,6 +7,14 @@ const SESSION_MAX_AGE = 60 * 60 * 8; // 8 hours
 const getSecret = () =>
   process.env.ADMIN_SESSION_SECRET || "dev-admin-secret";
 
+const getRequiredEnv = (key: "ADMIN_USERNAME" | "ADMIN_PASSWORD") => {
+  const value = process.env[key]?.trim();
+  if (!value) {
+    throw new Error(`Missing ${key} environment variable.`);
+  }
+  return value;
+};
+
 const sign = (value: string) => {
   const hmac = crypto.createHmac("sha256", getSecret());
   hmac.update(value);
@@ -38,3 +46,7 @@ export const isAdminRequest = (request: NextRequest) => {
 
 export const getSessionCookieName = () => COOKIE_NAME;
 export const getSessionMaxAge = () => SESSION_MAX_AGE;
+export const getAdminCredentials = () => ({
+  username: getRequiredEnv("ADMIN_USERNAME"),
+  password: getRequiredEnv("ADMIN_PASSWORD"),
+});
