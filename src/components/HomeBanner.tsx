@@ -63,7 +63,7 @@ const HomeBanner = ({
             <button
               type="button"
               onClick={goPrev}
-              className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-black/35 p-2 text-white backdrop-blur-sm"
+              className="absolute left-3 top-1/2 -translate-y-1/2 cursor-pointer rounded-full bg-black/35 p-2 text-white backdrop-blur-sm"
               aria-label="Previous banner"
             >
               <ChevronLeft size={18} />
@@ -71,7 +71,7 @@ const HomeBanner = ({
             <button
               type="button"
               onClick={goNext}
-              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-black/35 p-2 text-white backdrop-blur-sm"
+              className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer rounded-full bg-black/35 p-2 text-white backdrop-blur-sm"
               aria-label="Next banner"
             >
               <ChevronRight size={18} />
@@ -82,7 +82,7 @@ const HomeBanner = ({
                   key={slide.id}
                   type="button"
                   onClick={() => setActiveIndex(index)}
-                  className={`h-2.5 w-2.5 rounded-full border border-white/70 ${
+                  className={`h-2.5 w-2.5 cursor-pointer rounded-full border border-white/70 ${
                     index === safeActiveIndex ? "bg-white" : "bg-white/30"
                   }`}
                   aria-label={`Go to banner ${index + 1}`}
