@@ -6,6 +6,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { getCachedSiteContent } from "@/lib/siteContent";
 import BottomLinks from "@/components/BottomLinks";
+import { Analytics } from '@vercel/analytics/next';
 
 export const metadata: Metadata = {
   title: {
@@ -34,6 +35,7 @@ export default async function RootLayout({
         <main className="pt-20 flex-1">{children}</main>
         <BottomLinks />
         <Footer />
+        <Analytics />
       </body>
     </html>
   );
