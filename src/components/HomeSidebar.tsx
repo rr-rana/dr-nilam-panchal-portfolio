@@ -37,7 +37,7 @@ const HomeSidebar = ({ content, variant = "default" }: HomeSidebarProps) => {
     <aside className="space-y-6 lg:sticky lg:top-24">
       <div className="rounded-2xl border border-white/80 bg-white/80 p-5 shadow-xl backdrop-blur">
         <div
-          className={`relative flex justify-center ${isCompact ? "mt-0" : "-mt-28"
+          className={`relative flex justify-center ${isCompact ? "mt-0" : "-mt-32"
             }`}
         >
           <Image
