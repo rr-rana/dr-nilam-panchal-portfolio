@@ -50,6 +50,9 @@ const AdminBannerManager = () => {
     string | null
   >(null);
   const [isDeletingBanner, setIsDeletingBanner] = useState(false);
+  const [newlyAddedBannerId, setNewlyAddedBannerId] = useState<string | null>(
+    null
+  );
   const router = useRouter();
 
   useEffect(() => {
@@ -140,6 +143,7 @@ const AdminBannerManager = () => {
       setContent(saved);
       setSiteContent(saved);
       setPendingBannerFiles({});
+      setNewlyAddedBannerId(null);
       Object.values(bannerPreviews).forEach((url) => URL.revokeObjectURL(url));
       setBannerPreviews({});
       setMessage("Banners saved.");
@@ -180,7 +184,8 @@ const AdminBannerManager = () => {
       imageUrl: "",
       title: "",
     };
-    setContent({ ...content, bannerSlides: [...content.bannerSlides, newBanner] });
+    setNewlyAddedBannerId(newBanner.id);
+    setContent({ ...content, bannerSlides: [newBanner, ...content.bannerSlides] });
   };
 
   const handleRemoveBanner = (id: string) => {
@@ -357,6 +362,7 @@ const AdminBannerManager = () => {
           onMove={handleMoveBanner}
           isUploading={isUploadingBanner}
           uploadingId={uploadingBannerId}
+          newlyAddedBannerId={newlyAddedBannerId}
         />
       </div>
       <ConfirmModal

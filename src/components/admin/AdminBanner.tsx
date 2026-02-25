@@ -13,6 +13,7 @@ type AdminBannerProps = {
   onMove: (id: string, direction: "up" | "down") => void;
   isUploading: boolean;
   uploadingId: string | null;
+  newlyAddedBannerId?: string | null;
 };
 
 const AdminBanner = ({
@@ -24,6 +25,7 @@ const AdminBanner = ({
   onMove,
   isUploading,
   uploadingId,
+  newlyAddedBannerId,
 }: AdminBannerProps) => {
   return (
     <section className="pt-6 space-y-5">
@@ -170,9 +172,11 @@ const AdminBanner = ({
                     />
                   </label>
                 </div>
-                <p className="mt-2 text-xs text-[#5f6c72]">
-                  Recommended: landscape image, 1600x600 or larger.
-                </p>
+                {banner.id === newlyAddedBannerId && (
+                  <p className="mt-2 text-xs text-[#5f6c72]">
+                    Recommended size: 1200x300.
+                  </p>
+                )}
               </div>
             </div>
           </div>
