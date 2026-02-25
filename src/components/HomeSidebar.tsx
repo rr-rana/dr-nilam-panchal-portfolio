@@ -8,12 +8,14 @@ import {
   Mail,
   MapPin,
   Medal,
+  X,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import type { SiteContent } from "@/lib/siteContentTypes";
 import { SOCIAL_LINK_OPTIONS } from "@/lib/socialLinks";
 import Link from "next/link";
+import { createPortal } from "react-dom";
 
 type HomeSidebarProps = {
   content: SiteContent;
@@ -24,10 +26,30 @@ const HomeSidebar = ({ content, variant = "default" }: HomeSidebarProps) => {
   const isCompact = variant === "compact";
   const pathname = usePathname();
   const [isMounted, setIsMounted] = useState(false);
+  const [isProfileExpanded, setIsProfileExpanded] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (!isProfileExpanded) return;
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsProfileExpanded(false);
+      }
+    };
+
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [isProfileExpanded]);
 
   const effectivePathname = isMounted ? pathname : "";
   const isActive = (href: string) =>
@@ -37,18 +59,35 @@ const HomeSidebar = ({ content, variant = "default" }: HomeSidebarProps) => {
     <aside className="space-y-6 lg:sticky lg:top-24">
       <div className="rounded-2xl border border-white/80 bg-white/80 p-5 shadow-xl backdrop-blur">
         <div
-          className={`relative flex justify-center ${isCompact ? "mt-0" : "-mt-28"
+          className={`relative flex justify-center ${isCompact ? "mt-0" : "-mt-32"
             }`}
         >
-          <Image
-            src={content.profileImageUrl}
-            alt="Profile portrait"
-            className={`rounded-2xl border-4 border-white object-cover shadow-lg ${isCompact ? "h-36 w-36" : "h-44 w-44"
-              }`}
-            width={176}
-            height={176}
-            key={content.profileImageUrl}
-          />
+          {isCompact ? (
+            <Image
+              src={content.profileImageUrl}
+              alt="Profile portrait"
+              className="h-36 w-36 rounded-2xl border-4 border-white object-cover shadow-lg"
+              width={176}
+              height={176}
+              key={content.profileImageUrl}
+            />
+          ) : (
+            <button
+              type="button"
+              onClick={() => setIsProfileExpanded(true)}
+              className="group cursor-pointer"
+              aria-label="View profile image"
+            >
+              <Image
+                src={content.profileImageUrl}
+                alt="Profile portrait"
+                className="h-44 w-44 rounded-2xl border-4 border-white object-cover shadow-lg transition duration-300 group-hover:scale-[1.02]"
+                width={176}
+                height={176}
+                key={content.profileImageUrl}
+              />
+            </button>
+          )}
         </div>
         <h2 className={`${isCompact ? "mt-4" : "mt-4"} text-xl font-semibold text-[#17323D]`}>
           {content.sidebarName}
@@ -170,6 +209,44 @@ const HomeSidebar = ({ content, variant = "default" }: HomeSidebarProps) => {
 
         </div>
       </div>
+
+      {!isCompact &&
+        isMounted &&
+        createPortal(
+          <div
+            className={`fixed inset-0 z-[2147483647] flex items-center justify-center bg-black/45 p-4 backdrop-blur-lg transition-opacity duration-300 ${
+              isProfileExpanded ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
+            }`}
+            onClick={() => setIsProfileExpanded(false)}
+            aria-hidden={!isProfileExpanded}
+          >
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.22),rgba(255,255,255,0.04)_35%,rgba(0,0,0,0.55)_75%)]" />
+            <button
+              type="button"
+              onClick={() => setIsProfileExpanded(false)}
+              className="absolute right-5 top-5 z-10 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-black/45 text-white backdrop-blur-sm transition hover:bg-black/60"
+              aria-label="Close profile image"
+            >
+              <X size={20} />
+            </button>
+            <div
+              className={`relative z-[1] flex items-center justify-center transition-all duration-300 ${
+                isProfileExpanded ? "scale-100 opacity-100" : "scale-90 opacity-0"
+              }`}
+              onClick={(event) => event.stopPropagation()}
+            >
+              <Image
+                src={content.profileImageUrl}
+                alt="Profile portrait expanded"
+                width={1200}
+                height={1200}
+                sizes="(max-width: 768px) 92vw, 700px"
+                className="h-auto max-h-[82vh] w-auto max-w-[92vw] rounded-3xl border-4 border-white/65 object-contain shadow-[0_24px_70px_rgba(0,0,0,0.55)]"
+              />
+            </div>
+          </div>,
+          document.body
+        )}
     </aside>
   );
 };

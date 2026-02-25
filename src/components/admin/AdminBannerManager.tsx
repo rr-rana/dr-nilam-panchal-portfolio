@@ -9,6 +9,7 @@ import ConfirmModal from "@/components/admin/ConfirmModal";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import type { BannerSlide, SiteContent } from "@/lib/siteContentTypes";
 import { useAdminSession } from "@/components/admin/AdminSessionProvider";
+import { uploadFileFromBrowser } from "@/lib/clientUpload";
 
 const createBannerId = () =>
   typeof crypto !== "undefined" && crypto.randomUUID
@@ -49,6 +50,9 @@ const AdminBannerManager = () => {
     string | null
   >(null);
   const [isDeletingBanner, setIsDeletingBanner] = useState(false);
+  const [newlyAddedBannerId, setNewlyAddedBannerId] = useState<string | null>(
+    null
+  );
   const router = useRouter();
 
   useEffect(() => {
@@ -90,21 +94,6 @@ const AdminBannerManager = () => {
     router.replace("/admin/login");
   };
 
-  const uploadImage = async (file: File) => {
-    const formData = new FormData();
-    formData.append("file", file);
-    const response = await fetch("/api/admin/upload", {
-      method: "POST",
-      body: formData,
-    });
-    if (!response.ok) {
-      const payload = await response.json().catch(() => ({}));
-      throw new Error(payload.error || "Upload failed.");
-    }
-    const payload = await response.json();
-    return payload.url as string;
-  };
-
   const withCacheBust = (url: string) => {
     const separator = url.includes("?") ? "&" : "?";
     return `${url}${separator}v=${Date.now()}`;
@@ -124,7 +113,7 @@ const AdminBannerManager = () => {
         const uploadedById: Record<string, string> = {};
         for (const [id, file] of pendingEntries) {
           setUploadingBannerId(id);
-          uploadedById[id] = withCacheBust(await uploadImage(file));
+          uploadedById[id] = withCacheBust(await uploadFileFromBrowser(file));
         }
         nextContent = {
           ...nextContent,
@@ -154,6 +143,7 @@ const AdminBannerManager = () => {
       setContent(saved);
       setSiteContent(saved);
       setPendingBannerFiles({});
+      setNewlyAddedBannerId(null);
       Object.values(bannerPreviews).forEach((url) => URL.revokeObjectURL(url));
       setBannerPreviews({});
       setMessage("Banners saved.");
@@ -194,7 +184,8 @@ const AdminBannerManager = () => {
       imageUrl: "",
       title: "",
     };
-    setContent({ ...content, bannerSlides: [...content.bannerSlides, newBanner] });
+    setNewlyAddedBannerId(newBanner.id);
+    setContent({ ...content, bannerSlides: [newBanner, ...content.bannerSlides] });
   };
 
   const handleRemoveBanner = (id: string) => {
@@ -371,6 +362,7 @@ const AdminBannerManager = () => {
           onMove={handleMoveBanner}
           isUploading={isUploadingBanner}
           uploadingId={uploadingBannerId}
+          newlyAddedBannerId={newlyAddedBannerId}
         />
       </div>
       <ConfirmModal

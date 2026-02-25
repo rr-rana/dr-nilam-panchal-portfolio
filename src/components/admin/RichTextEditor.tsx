@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import type { EditorState, ContentState as ContentStateType } from "draft-js";
 import type { EditorProps } from "react-draft-wysiwyg";
+import { uploadFileFromBrowser } from "@/lib/clientUpload";
 
 type RichTextEditorProps = {
   value: string;
@@ -88,17 +89,8 @@ const RichTextEditor = ({ value, onChange }: RichTextEditorProps) => {
       image: {
         previewImage: true,
         uploadCallback: async (file: File) => {
-          const formData = new FormData();
-          formData.append("file", file);
-          const response = await fetch("/api/admin/upload", {
-            method: "POST",
-            body: formData,
-          });
-          if (!response.ok) {
-            throw new Error("Image upload failed.");
-          }
-          const data = await response.json();
-          return { data: { link: data.url } };
+          const url = await uploadFileFromBrowser(file);
+          return { data: { link: url } };
         },
         alt: { present: true, mandatory: false },
       },
