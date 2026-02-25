@@ -18,6 +18,25 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
+## Upload Configuration
+
+Image/file uploads from admin now go directly from browser to Cloudinary (no Next.js upload API route).
+
+Set these environment variables:
+
+```bash
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your_cloud_name
+NEXT_PUBLIC_CLOUDINARY_UNSIGNED_PRESET=your_unsigned_upload_preset
+NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=your_unsigned_upload_preset
+NEXT_PUBLIC_CLOUDINARY_UPLOAD_FOLDER=dr-nilam-panchal
+```
+
+Notes:
+- `NEXT_PUBLIC_CLOUDINARY_UPLOAD_FOLDER` is optional.
+- Use either `NEXT_PUBLIC_CLOUDINARY_UNSIGNED_PRESET` or `NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET`.
+- The upload preset must be an unsigned preset in Cloudinary.
+- Restart the Next.js server after changing env values.
+
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
 ## Learn More

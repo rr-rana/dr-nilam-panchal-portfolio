@@ -14,6 +14,7 @@ import { useAdminSession } from "@/components/admin/AdminSessionProvider";
 import type { SectionSlug } from "@/lib/sections";
 import type { SectionSubmenu } from "@/lib/sectionSubmenus";
 import type { SectionItem, SectionItemPhoto } from "@/lib/sectionItems";
+import { uploadFileFromBrowser } from "@/lib/clientUpload";
 
 const stripHtml = (html: string) =>
   html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
@@ -276,21 +277,6 @@ const AdminSectionContentManager = ({
     setError("");
   };
 
-  const uploadFile = async (file: File) => {
-    const formData = new FormData();
-    formData.append("file", file);
-    const response = await fetch("/api/admin/upload", {
-      method: "POST",
-      body: formData,
-    });
-    if (!response.ok) {
-      const payload = await response.json().catch(() => ({}));
-      throw new Error(payload.error || "Upload failed.");
-    }
-    const payload = await response.json();
-    return payload.url as string;
-  };
-
   const handleSave = async () => {
     if (!draft) return;
     setIsSaving(true);
@@ -300,13 +286,13 @@ const AdminSectionContentManager = ({
     try {
       let nextThumbnailUrl = draft.thumbnailUrl;
       if (pendingThumbnail) {
-        nextThumbnailUrl = await uploadFile(pendingThumbnail);
+        nextThumbnailUrl = await uploadFileFromBrowser(pendingThumbnail);
       }
 
       let nextPhotos = [...draft.photos];
       if (pendingPhotos.length) {
         const uploads = await Promise.all(
-          pendingPhotos.map((entry) => uploadFile(entry.file))
+          pendingPhotos.map((entry) => uploadFileFromBrowser(entry.file))
         );
         const uploadedPhotos: SectionItemPhoto[] = uploads.map((url, index) => ({
           url,
@@ -317,7 +303,7 @@ const AdminSectionContentManager = ({
 
       let nextPdfUrl = draft.pdfUrl;
       if (pendingPdf) {
-        nextPdfUrl = await uploadFile(pendingPdf);
+        nextPdfUrl = await uploadFileFromBrowser(pendingPdf);
       }
 
       const payload = {

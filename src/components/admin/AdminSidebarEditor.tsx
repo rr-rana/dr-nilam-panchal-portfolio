@@ -9,6 +9,7 @@ import LoadingSpinner from "@/components/LoadingSpinner";
 import type { SiteContent } from "@/lib/siteContentTypes";
 import { SOCIAL_LINK_OPTIONS } from "@/lib/socialLinks";
 import { useAdminSession } from "@/components/admin/AdminSessionProvider";
+import { uploadFileFromBrowser } from "@/lib/clientUpload";
 
 const AdminSidebarEditor = () => {
   const { isAuthenticated, isLoading, siteContent, setSiteContent } =
@@ -58,21 +59,6 @@ const AdminSidebarEditor = () => {
     router.replace("/admin/login");
   };
 
-  const uploadFile = async (file: File) => {
-    const formData = new FormData();
-    formData.append("file", file);
-    const response = await fetch("/api/admin/upload", {
-      method: "POST",
-      body: formData,
-    });
-    if (!response.ok) {
-      const payload = await response.json().catch(() => ({}));
-      throw new Error(payload.error || "Upload failed.");
-    }
-    const payload = await response.json();
-    return payload.url as string;
-  };
-
   const withCacheBust = (url: string) => {
     const separator = url.includes("?") ? "&" : "?";
     return `${url}${separator}v=${Date.now()}`;
@@ -89,13 +75,13 @@ const AdminSidebarEditor = () => {
       if (pendingProfileFile) {
         setIsUploadingProfile(true);
         const profileUrl = withCacheBust(
-          await uploadFile(pendingProfileFile)
+          await uploadFileFromBrowser(pendingProfileFile)
         );
         nextContent = { ...nextContent, profileImageUrl: profileUrl };
       }
       if (pendingCvFile) {
         setIsUploadingCv(true);
-        const cvUrl = withCacheBust(await uploadFile(pendingCvFile));
+        const cvUrl = withCacheBust(await uploadFileFromBrowser(pendingCvFile));
         nextContent = { ...nextContent, sidebarCvUrl: cvUrl };
       }
 
