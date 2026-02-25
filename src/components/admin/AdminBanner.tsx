@@ -108,18 +108,18 @@ const AdminBanner = ({
             </div>
 
             <div className="space-y-3 p-4 sm:p-5">
-              <div className="relative h-40 overflow-hidden rounded-2xl border border-white/70 bg-[#ede4d6] shadow-inner md:h-44">
+              <div className="relative h-56 overflow-hidden rounded-3xl border border-white/60 bg-white/50 shadow-2xl md:h-72">
                 {banner.imageUrl ? (
                   <>
                     <Image
                       src={banner.imageUrl}
                       alt={banner.title || `Banner ${index + 1}`}
                       fill
-                      sizes="(max-width: 1024px) 100vw, 1000px"
+                      sizes="(max-width: 768px) 100vw, 960px"
                       className="object-cover"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-black/25 to-transparent" />
-                    <div className="absolute bottom-3 left-3 rounded-xl bg-black/50 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur-sm">
+                    <div className="absolute inset-0 bg-linear-to-r from-black/50 via-black/20 to-transparent" />
+                    <div className="absolute top-4 right-4 rounded-xl bg-black/40 px-4 py-2 text-sm font-semibold text-white backdrop-blur-sm">
                       {banner.title || "Untitled banner"}
                     </div>
                   </>
