@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import LightGallery from "lightgallery/react";
 import lgThumbnail from "lightgallery/plugins/thumbnail";
 import lgZoom from "lightgallery/plugins/zoom";
@@ -16,7 +17,7 @@ type PageItemGalleryProps = {
 };
 
 const PageItemGallery = ({ photos, heading }: PageItemGalleryProps) => {
-  const [wideMap, setWideMap] = useState<Record<string, boolean>>({});
+  const [loadedMap, setLoadedMap] = useState<Record<string, boolean>>({});
 
   if (!photos.length) return null;
 
@@ -36,34 +37,32 @@ const PageItemGallery = ({ photos, heading }: PageItemGalleryProps) => {
         download={false}
         selector="a[data-lg-item]"
       >
-        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {photos.map((photo) => (
             <a
               key={photo.url}
               href={photo.url}
               data-lg-item
-              className={`w-full ${
-                wideMap[photo.url]
-                  ? "sm:col-span-2 xl:col-span-2"
-                  : "col-span-1"
-              }`}
+              className="block w-full"
             >
-              <div className="group w-full overflow-hidden rounded-2xl border border-[#e6dccb] bg-white shadow-sm">
-                <img
+              <div className="group relative aspect-[4/3] w-full overflow-hidden rounded-2xl border border-[#e6dccb] bg-white shadow-sm">
+                {!loadedMap[photo.url] && (
+                  <div
+                    aria-hidden="true"
+                    className="absolute inset-0 animate-pulse bg-gradient-to-br from-[#f1eee8] via-[#ece6db] to-[#f1eee8]"
+                  />
+                )}
+                <Image
                   src={photo.url}
                   alt={photo.alt || heading}
-                  loading="lazy"
-                  onLoad={(event) => {
-                    const target = event.currentTarget;
-                    const isWide =
-                      target.naturalWidth / target.naturalHeight >= 1.35;
-                    setWideMap((prev) =>
-                      prev[photo.url] === isWide
-                        ? prev
-                        : { ...prev, [photo.url]: isWide }
-                    );
-                  }}
-                  className="h-auto w-full rounded-2xl object-contain transition duration-300 group-hover:scale-[1.01]"
+                  fill
+                  sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                  onLoad={() =>
+                    setLoadedMap((prev) =>
+                      prev[photo.url] ? prev : { ...prev, [photo.url]: true }
+                    )
+                  }
+                  className="rounded-2xl object-cover transition duration-300 group-hover:scale-[1.01]"
                 />
               </div>
             </a>
