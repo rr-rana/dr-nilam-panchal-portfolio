@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, Expand, X } from "lucide-react";
 import type { BannerSlide } from "@/lib/siteContentTypes";
 
@@ -18,22 +18,32 @@ const HomeBanner = ({
   fallbackImageUrl,
   fallbackTitle = "Academic Highlights",
 }: HomeBannerProps) => {
-  const slides =
-    Array.isArray(bannerSlides) && bannerSlides.length
-      ? bannerSlides
-      : fallbackImageUrl
-        ? [{ id: "legacy-banner-fallback", imageUrl: fallbackImageUrl, title: fallbackTitle }]
-        : [];
+  const slides = useMemo(
+    () =>
+      Array.isArray(bannerSlides) && bannerSlides.length
+        ? bannerSlides
+        : fallbackImageUrl
+          ? [
+              {
+                id: "legacy-banner-fallback",
+                imageUrl: fallbackImageUrl,
+                title: fallbackTitle,
+              },
+            ]
+          : [],
+    [bannerSlides, fallbackImageUrl, fallbackTitle]
+  );
   const [activeIndex, setActiveIndex] = useState(0);
   const [isFullscreenOpen, setIsFullscreenOpen] = useState(false);
 
   useEffect(() => {
-    if (slides.length <= 1) return;
+    if (slides.length <= 1 || isFullscreenOpen) return;
     const timer = window.setInterval(() => {
+      if (document.hidden) return;
       setActiveIndex((prev) => (prev + 1) % slides.length);
     }, AUTO_SLIDE_MS);
     return () => window.clearInterval(timer);
-  }, [slides.length]);
+  }, [slides.length, isFullscreenOpen]);
 
   useEffect(() => {
     if (!isFullscreenOpen) return;
@@ -54,10 +64,25 @@ const HomeBanner = ({
     };
   }, [isFullscreenOpen]);
 
+  useEffect(() => {
+    if (slides.length <= 1) return;
+    const safeActiveIndex = activeIndex % slides.length;
+    const nextSlide = slides[(safeActiveIndex + 1) % slides.length];
+    const prevSlide =
+      slides[(safeActiveIndex - 1 + slides.length) % slides.length];
+
+    [nextSlide, prevSlide].forEach((slide) => {
+      if (!slide?.imageUrl) return;
+      const image = new window.Image();
+      image.src = slide.imageUrl;
+    });
+  }, [activeIndex, slides]);
+
   if (!slides.length) return null;
 
   const safeActiveIndex = activeIndex % slides.length;
   const activeSlide = slides[safeActiveIndex];
+
   const goPrev = () =>
     setActiveIndex((prev) => (prev - 1 + slides.length) % slides.length);
   const goNext = () => setActiveIndex((prev) => (prev + 1) % slides.length);
@@ -69,10 +94,11 @@ const HomeBanner = ({
           src={activeSlide.imageUrl}
           alt={activeSlide.title || "Banner"}
           fill
-          sizes="(max-width: 768px) 100vw, 960px"
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 92vw, 1152px"
+          quality={80}
+          priority={safeActiveIndex === 0}
+          loading={safeActiveIndex === 0 ? "eager" : "lazy"}
           className="object-cover"
-          priority
-          key={activeSlide.id}
         />
         <div className="absolute inset-0 bg-linear-to-r from-black/50 via-black/20 to-transparent" />
         <button
@@ -128,8 +154,8 @@ const HomeBanner = ({
             alt={activeSlide.title || "Banner"}
             fill
             sizes="100vw"
+            quality={85}
             className="object-contain"
-            priority
           />
 
           <div className="absolute inset-0 bg-linear-to-b from-black/40 via-transparent to-black/40" />
