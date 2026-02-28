@@ -77,6 +77,13 @@ const mapDocument = (document: SectionItemDocument): SectionItem => ({
   updatedAt: document.updatedAt,
 });
 
+const toPublishedTimestamp = (value?: string) => {
+  if (!value) return Number.NEGATIVE_INFINITY;
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return Number.NEGATIVE_INFINITY;
+  return parsed.getTime();
+};
+
 export const listSectionItems = async (
   section: SectionSlug,
   submenuSlug?: string
@@ -96,7 +103,16 @@ export const listSectionItems = async (
     .find(filter)
     .sort({ createdAt: -1 })
     .toArray();
-  return documents.map(mapDocument);
+  const items = documents.map(mapDocument);
+  return items.sort((a, b) => {
+    const publishedDiff =
+      toPublishedTimestamp(b.publishedDate?.trim()) -
+      toPublishedTimestamp(a.publishedDate?.trim());
+    if (publishedDiff !== 0) {
+      return publishedDiff;
+    }
+    return b.createdAt.getTime() - a.createdAt.getTime();
+  });
 };
 
 export const getSectionItem = async (
