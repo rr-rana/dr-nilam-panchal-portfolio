@@ -7,6 +7,9 @@ import { getCachedSiteContent } from "@/lib/siteContent";
 import type { SectionItem } from "@/lib/sectionItems";
 import type { SectionSlug } from "@/lib/sections";
 
+const hasDetailContent = (html?: string) =>
+  Boolean(html?.replace(/<[^>]*>/g, "").replace(/&nbsp;/g, "").trim());
+
 const SectionItemDetailView = async ({
   section,
   submenuSlug,
@@ -84,15 +87,17 @@ const SectionItemDetailView = async ({
 
             <PageItemGallery photos={item.photos} heading={item.heading} />
 
-            <section className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-xl backdrop-blur">
-              <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
-                Details
-              </h3>
-              <div
-                className="content-body mt-4 space-y-4 text-sm leading-relaxed text-[#4c5f66] [&_p]:mb-4 [&_p:last-child]:mb-0 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_strong]:font-semibold"
-                dangerouslySetInnerHTML={{ __html: item.descriptionHtml }}
-              />
-            </section>
+            {hasDetailContent(item.descriptionHtml) && (
+              <section className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-xl backdrop-blur">
+                <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
+                  Details
+                </h3>
+                <div
+                  className="content-body mt-4 space-y-4 text-sm leading-relaxed text-[#4c5f66] [&_p]:mb-4 [&_p:last-child]:mb-0 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_strong]:font-semibold"
+                  dangerouslySetInnerHTML={{ __html: item.descriptionHtml }}
+                />
+              </section>
+            )}
 
             <PageItemVideoSection videoLinks={item.videoLinks ?? []} />
           </main>
