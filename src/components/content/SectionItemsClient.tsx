@@ -298,8 +298,9 @@ const SectionItemsClient = ({
               <section>
                 <Link
                   href={backHref || basePath}
-                  className="inline-flex items-center rounded-full border border-white/70 bg-white/90 px-4 py-2 text-xs font-semibold text-[#17323D] shadow-sm hover:bg-white"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-white/70 bg-white/90 px-4 py-2 text-xs font-semibold text-[#17323D] shadow-sm hover:bg-white"
                 >
+                  <ChevronLeft size={14} />
                   {backLabel}
                 </Link>
               </section>

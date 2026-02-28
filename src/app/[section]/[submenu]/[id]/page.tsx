@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import SectionItemDetailView from "@/components/content/SectionItemDetailView";
 import { getCachedSectionItem } from "@/lib/sectionItems";
-import { isSectionSlug, SECTION_DEFINITIONS } from "@/lib/sections";
+import { isSectionSlug } from "@/lib/sections";
 
 const Page = async ({
   params,
@@ -21,7 +21,6 @@ const Page = async ({
   return (
     <SectionItemDetailView
       section={section}
-      title={SECTION_DEFINITIONS[section].label}
       submenuSlug={submenu}
       item={item}
     />
