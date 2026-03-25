@@ -71,3 +71,7 @@ body {
     animation: none;
   }
 }
+
+.lg-sub-html {
+  display: none !important;
+}
