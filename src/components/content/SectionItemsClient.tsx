@@ -7,6 +7,7 @@ import { useSearchParams } from "next/navigation";
 import { ChevronLeft, ChevronRight, FileText, Eye, FolderOpen } from "lucide-react";
 import HomeSidebar from "@/components/HomeSidebar";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import TruncatedTooltipText from "@/components/content/TruncatedTooltipText";
 import type { SectionSlug } from "@/lib/sections";
 import type { SectionSubmenu } from "@/lib/sectionSubmenus";
 import type { SectionItem } from "@/lib/sectionItems";
@@ -421,7 +422,13 @@ const SectionItemsClient = ({
                                 <div className="font-semibold text-[#17323D]">
                                   {authorLabel}:
                                 </div>
-                                <div>{author}</div>
+                                <div>
+                                  <TruncatedTooltipText
+                                    text={author}
+                                    maxLength={20}
+                                    align="right"
+                                  />
+                                </div>
                               </>
                             )}
                             {publishedDate && (

@@ -3,6 +3,7 @@ import { Calendar, User, FileText, ChevronLeft } from "lucide-react";
 import HomeSidebar from "@/components/HomeSidebar";
 import PageItemVideoSection from "@/components/content/PageItemVideoSection";
 import PageItemGallery from "@/components/content/PageItemGallery";
+import TruncatedTooltipText from "@/components/content/TruncatedTooltipText";
 import { getCachedSiteContent } from "@/lib/siteContent";
 import type { SectionItem } from "@/lib/sectionItems";
 import type { SectionSlug } from "@/lib/sections";
@@ -65,7 +66,13 @@ const SectionItemDetailView = async ({
                           <div className="font-semibold text-[#17323D]">
                             {getAuthorLabel(item.authorLabel)}
                           </div>
-                          <div className="mt-1">{item.author}</div>
+                          <div className="mt-1">
+                            <TruncatedTooltipText
+                              text={item.author}
+                              maxLength={20}
+                              align="center"
+                            />
+                          </div>
                         </div>
                       </div>
                     )}
