@@ -15,6 +15,7 @@ export type SectionItem = {
   section: SectionSlug;
   submenuSlug: string;
   heading: string;
+  authorLabel?: string;
   author?: string;
   publishedDate?: string;
   thumbnailUrl?: string;
@@ -29,6 +30,7 @@ export type SectionItem = {
 export type SectionItemInput = {
   submenuSlug: string;
   heading: string;
+  authorLabel?: string;
   author?: string;
   publishedDate?: string;
   thumbnailUrl?: string;
@@ -43,6 +45,7 @@ type SectionItemDocument = {
   section: SectionSlug;
   submenuSlug: string;
   heading: string;
+  authorLabel?: string;
   author?: string;
   publishedDate?: string;
   thumbnailUrl?: string;
@@ -66,6 +69,7 @@ const mapDocument = (document: SectionItemDocument): SectionItem => ({
   section: document.section,
   submenuSlug: document.submenuSlug,
   heading: document.heading,
+  authorLabel: document.authorLabel,
   author: document.author,
   publishedDate: document.publishedDate,
   thumbnailUrl: document.thumbnailUrl,
@@ -148,6 +152,7 @@ export const createSectionItem = async (
     section,
     submenuSlug: input.submenuSlug,
     heading: input.heading,
+    authorLabel: input.authorLabel,
     author: input.author,
     publishedDate: input.publishedDate,
     thumbnailUrl: input.thumbnailUrl,
@@ -179,6 +184,7 @@ export const updateSectionItem = async (
       $set: {
         submenuSlug: input.submenuSlug,
         heading: input.heading,
+        authorLabel: input.authorLabel,
         author: input.author,
         publishedDate: input.publishedDate,
         thumbnailUrl: input.thumbnailUrl,

@@ -49,6 +49,8 @@ const formatDate = (value?: string) => {
   });
 };
 
+const getAuthorLabel = (label?: string) => label?.trim() || "Author";
+
 const SectionItemsClient = ({
   section,
   title,
@@ -358,6 +360,7 @@ const SectionItemsClient = ({
                     ? { url: item.thumbnailUrl, alt: item.heading }
                     : item.photos[0];
                   const author = item.author?.trim();
+                  const authorLabel = getAuthorLabel(item.authorLabel);
                   const publishedDateRaw = item.publishedDate?.trim();
                   const publishedDate = publishedDateRaw
                     ? formatDate(publishedDateRaw)
@@ -416,7 +419,7 @@ const SectionItemsClient = ({
                             {author && (
                               <>
                                 <div className="font-semibold text-[#17323D]">
-                                  Author:
+                                  {authorLabel}:
                                 </div>
                                 <div>{author}</div>
                               </>

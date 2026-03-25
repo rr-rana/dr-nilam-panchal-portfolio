@@ -10,6 +10,8 @@ import type { SectionSlug } from "@/lib/sections";
 const hasDetailContent = (html?: string) =>
   Boolean(html?.replace(/<[^>]*>/g, "").replace(/&nbsp;/g, "").trim());
 
+const getAuthorLabel = (label?: string) => label?.trim() || "Author";
+
 const SectionItemDetailView = async ({
   section,
   submenuSlug,
@@ -61,7 +63,7 @@ const SectionItemDetailView = async ({
                         </span>
                         <div>
                           <div className="font-semibold text-[#17323D]">
-                            Author
+                            {getAuthorLabel(item.authorLabel)}
                           </div>
                           <div className="mt-1">{item.author}</div>
                         </div>
