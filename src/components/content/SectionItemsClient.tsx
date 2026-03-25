@@ -7,6 +7,7 @@ import { useSearchParams } from "next/navigation";
 import { ChevronLeft, ChevronRight, FileText, Eye, FolderOpen } from "lucide-react";
 import HomeSidebar from "@/components/HomeSidebar";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import TruncatedTooltipText from "@/components/content/TruncatedTooltipText";
 import type { SectionSlug } from "@/lib/sections";
 import type { SectionSubmenu } from "@/lib/sectionSubmenus";
 import type { SectionItem } from "@/lib/sectionItems";
@@ -48,6 +49,8 @@ const formatDate = (value?: string) => {
     day: "numeric",
   });
 };
+
+const getAuthorLabel = (label?: string) => label?.trim() || "Author";
 
 const SectionItemsClient = ({
   section,
@@ -358,6 +361,7 @@ const SectionItemsClient = ({
                     ? { url: item.thumbnailUrl, alt: item.heading }
                     : item.photos[0];
                   const author = item.author?.trim();
+                  const authorLabel = getAuthorLabel(item.authorLabel);
                   const publishedDateRaw = item.publishedDate?.trim();
                   const publishedDate = publishedDateRaw
                     ? formatDate(publishedDateRaw)
@@ -416,9 +420,15 @@ const SectionItemsClient = ({
                             {author && (
                               <>
                                 <div className="font-semibold text-[#17323D]">
-                                  Author:
+                                  {authorLabel}:
                                 </div>
-                                <div>{author}</div>
+                                <div>
+                                  <TruncatedTooltipText
+                                    text={author}
+                                    maxLength={20}
+                                    align="right"
+                                  />
+                                </div>
                               </>
                             )}
                             {publishedDate && (

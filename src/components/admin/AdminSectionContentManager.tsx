@@ -49,6 +49,7 @@ type AdminSectionContentManagerProps = {
 const emptyDraft: AdminItemDraft = {
   submenuSlug: "",
   heading: "",
+  authorLabel: "",
   author: "",
   publishedDate: "",
   thumbnailUrl: "",
@@ -262,6 +263,7 @@ const AdminSectionContentManager = ({
     setDraft({
       submenuSlug: item.submenuSlug,
       heading: item.heading,
+      authorLabel: item.authorLabel || "",
       author: item.author || "",
       publishedDate: item.publishedDate || "",
       thumbnailUrl: item.thumbnailUrl || "",
@@ -309,6 +311,7 @@ const AdminSectionContentManager = ({
       const payload = {
         submenuSlug: draft.submenuSlug,
         heading: draft.heading,
+        authorLabel: draft.authorLabel?.trim() || undefined,
         author: draft.author?.trim() || undefined,
         publishedDate: draft.publishedDate?.trim() || undefined,
         thumbnailUrl: nextThumbnailUrl?.trim() || undefined,
@@ -949,18 +952,35 @@ const AdminSectionContentManager = ({
                     />
                   </div>
 
-                  <div className="rounded-2xl border border-white/70 bg-white/80 p-4">
-                    <label className="text-xs font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
-                      Author Name
-                    </label>
-                    <input
-                      type="text"
-                      value={draft.author || ""}
-                      onChange={(event) =>
-                        setDraft({ ...draft, author: event.target.value })
-                      }
-                      className="mt-2 w-full rounded-2xl border border-[#e1d6c6] bg-white px-4 py-3 text-sm text-[#2d3b41] outline-none focus:border-[#17323D] focus:ring-2 focus:ring-[#17323D]/10"
-                    />
+                  <div className="grid gap-6 md:grid-cols-2">
+                    <div className="rounded-2xl border border-white/70 bg-white/80 p-4">
+                      <label className="text-xs font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
+                        Author Label
+                      </label>
+                      <input
+                        type="text"
+                        value={draft.authorLabel || ""}
+                        onChange={(event) =>
+                          setDraft({ ...draft, authorLabel: event.target.value })
+                        }
+                        placeholder="Author"
+                        className="mt-2 w-full rounded-2xl border border-[#e1d6c6] bg-white px-4 py-3 text-sm text-[#2d3b41] outline-none focus:border-[#17323D] focus:ring-2 focus:ring-[#17323D]/10"
+                      />
+                    </div>
+
+                    <div className="rounded-2xl border border-white/70 bg-white/80 p-4">
+                      <label className="text-xs font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
+                        Author Name
+                      </label>
+                      <input
+                        type="text"
+                        value={draft.author || ""}
+                        onChange={(event) =>
+                          setDraft({ ...draft, author: event.target.value })
+                        }
+                        className="mt-2 w-full rounded-2xl border border-[#e1d6c6] bg-white px-4 py-3 text-sm text-[#2d3b41] outline-none focus:border-[#17323D] focus:ring-2 focus:ring-[#17323D]/10"
+                      />
+                    </div>
                   </div>
 
                   <div className="rounded-2xl border border-white/70 bg-white/80 p-4">

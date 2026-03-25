@@ -35,6 +35,8 @@ const PageItemGallery = ({ photos, heading }: PageItemGalleryProps) => {
         plugins={[lgThumbnail, lgZoom]}
         speed={300}
         download={false}
+        addClass="page-item-lightbox"
+        getCaptionFromTitleOrAlt={false}
         selector="a[data-lg-item]"
       >
         <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">

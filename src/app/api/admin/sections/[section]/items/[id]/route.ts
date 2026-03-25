@@ -21,6 +21,7 @@ export const PUT = async (
   const body = (await request.json().catch(() => null)) as {
     submenuSlug?: string;
     heading?: string;
+    authorLabel?: string;
     author?: string;
     publishedDate?: string;
     thumbnailUrl?: string;
@@ -49,6 +50,7 @@ export const PUT = async (
     const item = await updateSectionItem(section, id, {
       submenuSlug: body.submenuSlug,
       heading: body.heading,
+      authorLabel: body.authorLabel,
       author: body.author,
       publishedDate: body.publishedDate,
       thumbnailUrl: body.thumbnailUrl,
